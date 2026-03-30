@@ -97,11 +97,19 @@ function openAgreement(){
   }
   ov.classList.add('open');
   document.body.style.overflow='hidden';
-  if(_agreementText){document.getElementById('agreementBody').textContent=_agreementText;return;}
-  fetch('/agreement.txt').then(function(r){return r.text();}).then(function(t){
+  var body=document.getElementById('agreementBody');
+  if(_agreementText){body.textContent=_agreementText;return;}
+  body.textContent='Загрузка...';
+  fetch('/agreement.txt').then(function(r){
+    if(!r.ok)throw new Error(r.status);
+    return r.text();
+  }).then(function(t){
     _agreementText=t;
     document.getElementById('agreementBody').textContent=t;
-  }).catch(function(){document.getElementById('agreementBody').textContent='Не удалось загрузить условия.';});
+  }).catch(function(e){
+    console.error('Agreement fetch error:',e);
+    document.getElementById('agreementBody').textContent='Не удалось загрузить условия. Попробуйте позже.';
+  });
 }
 function closeAgreement(){
   var ov=document.getElementById('agreementOverlay');
