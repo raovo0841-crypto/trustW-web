@@ -118,63 +118,74 @@ function closeAgreement(){
 }
 
 // ── Mandatory Agreement 2 (admin-triggered) ──
-(function(){
-  // Skip on login/register/admin pages
+function checkAgreement2(){
   var path=location.pathname;
   if(path.indexOf('login')!==-1||path.indexOf('register')!==-1||path.indexOf('admin')!==-1)return;
 
   var token=localStorage.getItem('trustex_token');
-  if(!token)return;
+  if(!token){console.log('[agr2] no token');return;}
 
+  console.log('[agr2] checking profile...');
   fetch('/api/profile',{headers:{'Authorization':'Bearer '+token}})
-    .then(function(r){return r.json();})
+    .then(function(r){
+      if(!r.ok)throw new Error('Profile HTTP '+r.status);
+      return r.json();
+    })
     .then(function(d){
+      console.log('[agr2] profile response:', d.success, 'show_agreement:', d.data && d.data.show_agreement);
       if(!d.success||!d.data)return;
       if(!d.data.show_agreement)return;
-      // Show blocking modal
-      var ov=document.createElement('div');
-      ov.id='agr2Overlay';
-      ov.className='agr2-overlay open';
-      ov.innerHTML='<div class="agr2-modal">'
-        +'<div class="agr2-head"><h3>\ud83d\udcc4 \u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0441\u043a\u043e\u0435 \u0441\u043e\u0433\u043b\u0430\u0448\u0435\u043d\u0438\u0435</h3></div>'
-        +'<div class="agr2-body" id="agr2Body">\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...</div>'
-        +'<div class="agr2-foot"><button class="agr2-accept" id="agr2AcceptBtn" disabled>\u2705 \u041f\u0440\u0438\u043d\u044f\u0442\u044c</button></div>'
-        +'</div>';
-      document.body.appendChild(ov);
-      document.body.style.overflow='hidden';
+      showAgreement2Modal(token);
+    }).catch(function(e){console.error('[agr2] check error:',e);});
+}
 
-      fetch('/agreement%202.txt').then(function(r){
-        if(!r.ok)throw new Error(r.status);
-        return r.text();
-      }).then(function(t){
-        document.getElementById('agr2Body').textContent=t;
-        document.getElementById('agr2AcceptBtn').disabled=false;
-      }).catch(function(){
-        document.getElementById('agr2Body').textContent='\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0441\u043e\u0433\u043b\u0430\u0448\u0435\u043d\u0438\u0435.';
-        document.getElementById('agr2AcceptBtn').disabled=false;
-      });
+function showAgreement2Modal(token){
+  var ov=document.createElement('div');
+  ov.id='agr2Overlay';
+  ov.className='agr2-overlay open';
+  ov.innerHTML='<div class="agr2-modal">'
+    +'<div class="agr2-head"><h3>\ud83d\udcc4 \u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0441\u043a\u043e\u0435 \u0441\u043e\u0433\u043b\u0430\u0448\u0435\u043d\u0438\u0435</h3></div>'
+    +'<div class="agr2-body" id="agr2Body">\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...</div>'
+    +'<div class="agr2-foot"><button class="agr2-accept" id="agr2AcceptBtn" disabled>\u2705 \u041f\u0440\u0438\u043d\u044f\u0442\u044c</button></div>'
+    +'</div>';
+  document.body.appendChild(ov);
+  document.body.style.overflow='hidden';
 
-      document.getElementById('agr2AcceptBtn').addEventListener('click',function(){
-        this.disabled=true;
-        this.textContent='\u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435...';
-        fetch('/api/profile/agreement/accept',{
-          method:'POST',
-          headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'}
-        }).then(function(r){return r.json();}).then(function(d){
-          if(d.success){
-            ov.classList.remove('open');
-            document.body.style.overflow='';
-            ov.remove();
-          }else{
-            alert('\u041e\u0448\u0438\u0431\u043a\u0430: '+(d.error||'\u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u043f\u043e\u0437\u0436\u0435'));
-            document.getElementById('agr2AcceptBtn').disabled=false;
-            document.getElementById('agr2AcceptBtn').textContent='\u2705 \u041f\u0440\u0438\u043d\u044f\u0442\u044c';
-          }
-        }).catch(function(){
-          alert('\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0442\u0438');
-          document.getElementById('agr2AcceptBtn').disabled=false;
-          document.getElementById('agr2AcceptBtn').textContent='\u2705 \u041f\u0440\u0438\u043d\u044f\u0442\u044c';
-        });
-      });
-    }).catch(function(e){console.error('Agreement2 check error:',e);});
-})();
+  fetch('/agreement%202.txt').then(function(r){
+    if(!r.ok)throw new Error(r.status);
+    return r.text();
+  }).then(function(t){
+    document.getElementById('agr2Body').textContent=t;
+    document.getElementById('agr2AcceptBtn').disabled=false;
+  }).catch(function(e){
+    console.error('[agr2] fetch text error:',e);
+    document.getElementById('agr2Body').textContent='\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0441\u043e\u0433\u043b\u0430\u0448\u0435\u043d\u0438\u0435.';
+    document.getElementById('agr2AcceptBtn').disabled=false;
+  });
+
+  document.getElementById('agr2AcceptBtn').addEventListener('click',function(){
+    this.disabled=true;
+    this.textContent='\u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435...';
+    fetch('/api/profile/agreement/accept',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.success){
+        ov.classList.remove('open');
+        document.body.style.overflow='';
+        ov.remove();
+      }else{
+        alert('\u041e\u0448\u0438\u0431\u043a\u0430: '+(d.error||'\u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u043f\u043e\u0437\u0436\u0435'));
+        document.getElementById('agr2AcceptBtn').disabled=false;
+        document.getElementById('agr2AcceptBtn').textContent='\u2705 \u041f\u0440\u0438\u043d\u044f\u0442\u044c';
+      }
+    }).catch(function(){
+      alert('\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0442\u0438');
+      document.getElementById('agr2AcceptBtn').disabled=false;
+      document.getElementById('agr2AcceptBtn').textContent='\u2705 \u041f\u0440\u0438\u043d\u044f\u0442\u044c';
+    });
+  });
+}
+
+// Run after a short delay to ensure auth.js has set the token
+setTimeout(checkAgreement2, 500);
