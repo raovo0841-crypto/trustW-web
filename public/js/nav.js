@@ -55,7 +55,7 @@ function buildFooter(){
     +'<li><a href="support.html">Центр поддержки</a></li><li><a href="#">Часто задаваемые вопросы</a></li><li><a href="#">Руководство по торговле</a></li><li><a href="#">API документация</a></li>'
     +'</ul></div>'
     +'<div class="footer-col"><h4 class="footer-heading">Компания</h4><ul class="footer-links">'
-    +'<li><a href="#">О нас</a></li><li><a href="reviews.html">Отзывы</a></li><li><a href="#">Условия использования</a></li><li><a href="#">Политика конфиденциальности</a></li>'
+    +'<li><a href="#">О нас</a></li><li><a href="reviews.html">Отзывы</a></li><li><a href="#" onclick="openAgreement();return false">Условия использования</a></li><li><a href="#">Политика конфиденциальности</a></li>'
     +'</ul></div>'
     +'</div><div class="footer-divider"></div><div class="footer-bottom"><div class="footer-legal">'
     +'<p class="footer-disclaimer">Торговля криптовалютами сопряжена с высокими рисками. Стоимость активов может как расти, так и падать. Вы можете потерять часть или все инвестированные средства. Прошлые результаты не гарантируют будущую доходность.</p>'
@@ -82,3 +82,29 @@ function init(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
 else init();
 })();
+
+// ── Agreement modal ──
+var _agreementText=null;
+function openAgreement(){
+  var ov=document.getElementById('agreementOverlay');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='agreementOverlay';
+    ov.className='agreement-overlay';
+    ov.innerHTML='<div class="agreement-modal"><div class="agreement-modal-head"><h3>Условия использования</h3><button class="agreement-close" onclick="closeAgreement()">&times;</button></div><div class="agreement-body" id="agreementBody">Загрузка...</div></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click',function(e){if(e.target===ov)closeAgreement();});
+  }
+  ov.classList.add('open');
+  document.body.style.overflow='hidden';
+  if(_agreementText){document.getElementById('agreementBody').textContent=_agreementText;return;}
+  fetch('/agreement.txt').then(function(r){return r.text();}).then(function(t){
+    _agreementText=t;
+    document.getElementById('agreementBody').textContent=t;
+  }).catch(function(){document.getElementById('agreementBody').textContent='Не удалось загрузить условия.';});
+}
+function closeAgreement(){
+  var ov=document.getElementById('agreementOverlay');
+  if(ov)ov.classList.remove('open');
+  document.body.style.overflow='';
+}

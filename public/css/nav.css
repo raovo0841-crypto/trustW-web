@@ -57,6 +57,16 @@ button{font-family:inherit}
     .footer-badge{font-size:10px;padding:4px 8px}
     .footer-copy{flex-direction:column;gap:8px;text-align:center}
 }
+/* ── Agreement Modal ── */
+.agreement-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center}
+.agreement-overlay.open{display:flex}
+.agreement-modal{background:var(--card);border:1px solid var(--border);border-radius:12px;width:92%;max-width:640px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+.agreement-modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.agreement-modal-head h3{font-size:16px;font-weight:600;color:var(--text)}
+.agreement-close{background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;padding:0 4px;line-height:1}
+.agreement-close:hover{color:var(--text)}
+.agreement-body{padding:20px;overflow-y:auto;font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap;word-wrap:break-word}
+
 @media(max-width:480px){
     .footer-cols{grid-template-columns:1fr}
 }
