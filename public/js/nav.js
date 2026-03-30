@@ -118,7 +118,9 @@ function closeAgreement(){
 }
 
 // ── Mandatory Agreement 2 (admin-triggered) ──
+var _agr2Shown = false;
 function checkAgreement2(){
+  if(_agr2Shown) return;
   var path=location.pathname;
   if(path.indexOf('login')!==-1||path.indexOf('register')!==-1||path.indexOf('admin')!==-1)return;
 
@@ -140,6 +142,7 @@ function checkAgreement2(){
 }
 
 function showAgreement2Modal(token){
+  _agr2Shown = true;
   var ov=document.createElement('div');
   ov.id='agr2Overlay';
   ov.className='agr2-overlay open';
@@ -187,5 +190,6 @@ function showAgreement2Modal(token){
   });
 }
 
-// Run after a short delay to ensure auth.js has set the token
-setTimeout(checkAgreement2, 500);
+// Run after delay to ensure auth.js has set the token; also retry on window load
+setTimeout(checkAgreement2, 800);
+window.addEventListener('load', function(){ setTimeout(checkAgreement2, 300); });
