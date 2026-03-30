@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustEx — Вход</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0b0e11;color:#eaecef;min-height:100vh;display:flex;flex-direction:column}
+        .header{height:64px;background:#0b0e11;border-bottom:1px solid #1e2329;display:flex;align-items:center;padding:0 24px}
+        .logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+        .logo-mark{width:32px;height:32px;background:#f0b90b;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#000}
+        .logo-text{font-size:20px;font-weight:700;color:#eaecef;letter-spacing:-0.5px}
+        .logo-text span{color:#f0b90b}
+        .main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
+        .auth-box{width:100%;max-width:380px}
+        .auth-title{font-size:24px;font-weight:700;margin-bottom:8px}
+        .auth-sub{color:#848e9c;font-size:14px;margin-bottom:32px}
+        .field{margin-bottom:20px}
+        .field label{display:block;font-size:14px;color:#848e9c;margin-bottom:8px;font-weight:500}
+        .field input{width:100%;height:48px;background:#181a20;border:1px solid #2b2f36;border-radius:4px;padding:0 16px;color:#eaecef;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s}
+        .field input:focus{border-color:#f0b90b}
+        .field input::placeholder{color:#5e6673}
+        .btn-submit{width:100%;height:48px;background:#f0b90b;border:none;border-radius:4px;color:#000;font-size:16px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s;margin-top:8px}
+        .btn-submit:hover{opacity:.9}
+        .btn-submit:disabled{opacity:.5;cursor:not-allowed}
+        .error-msg{background:rgba(246,70,93,.1);border:1px solid rgba(246,70,93,.2);color:#f6465d;padding:12px 16px;border-radius:4px;font-size:13px;margin-bottom:20px;display:none}
+        .footer-link{text-align:center;margin-top:24px;font-size:14px;color:#848e9c}
+        .footer-link a{color:#f0b90b;text-decoration:none;font-weight:500}
+        .footer-link a:hover{text-decoration:underline}
+        .features{display:flex;gap:24px;justify-content:center;margin-top:48px;flex-wrap:wrap}
+        .feature{text-align:center;min-width:100px}
+        .feature-icon{width:40px;height:40px;background:#181a20;border:1px solid #2b2f36;border-radius:4px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;color:#f0b90b}
+        .feature-icon svg{width:20px;height:20px;fill:currentColor}
+        .feature-text{font-size:12px;color:#5e6673;line-height:1.4}
+    </style>
+</head>
+<body>
+    <div class="header"><a href="/" class="logo"><div class="logo-mark">T</div><div class="logo-text">Trust<span>Ex</span></div></a></div>
+    <div class="main">
+        <div class="auth-box">
+            <div class="auth-title">Вход в аккаунт</div>
+            <div class="auth-sub">Войдите чтобы продолжить</div>
+            <div class="error-msg" id="error"></div>
+            <form id="loginForm">
+                <div class="field"><label>Email</label><input type="email" id="email" placeholder="name@example.com" required autocomplete="email"></div>
+                <div class="field"><label>Пароль</label><input type="password" id="password" placeholder="Введите пароль" required autocomplete="current-password"></div>
+                <button type="submit" class="btn-submit" id="submitBtn">Войти</button>
+            </form>
+            <div class="footer-link">Нет аккаунта? <a href="/register.html">Зарегистрироваться</a></div>
+            <div class="features">
+                <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg></div><div class="feature-text">Безопасность</div></div>
+                <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg></div><div class="feature-text">Мгновенно</div></div>
+                <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div><div class="feature-text">Лучшие курсы</div></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        if(localStorage.getItem('trustex_token')){window.location.href='/'}
+        var form=document.getElementById('loginForm'),errorEl=document.getElementById('error'),submitBtn=document.getElementById('submitBtn');
+        form.addEventListener('submit',async function(e){
+            e.preventDefault();errorEl.style.display='none';submitBtn.disabled=true;submitBtn.textContent='Входим...';
+            try{var res=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('email').value.trim(),password:document.getElementById('password').value})});var data=await res.json();if(!res.ok){if(data.needsVerification){window.location.href='/verify.html?email='+encodeURIComponent(data.email);return}throw new Error(data.error||'Ошибка входа')}localStorage.setItem('trustex_token',data.token);localStorage.setItem('trustex_user',JSON.stringify(data.user));window.location.href='/';}catch(err){errorEl.textContent=err.message;errorEl.style.display='block'}finally{submitBtn.disabled=false;submitBtn.textContent='Войти'}
+        });
+    </script>
+</body>
+</html>

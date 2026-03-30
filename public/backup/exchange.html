@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обмен - TrustEx</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+    <script src="js/auth.js" defer></script>
+    <script src="js/balance.js" defer></script>
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2235;
+            --bg-input: #0f1520;
+            --accent: #00d4aa;
+            --accent-glow: rgba(0, 212, 170, 0.15);
+            --accent-hover: #00eebb;
+            --text-primary  : #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-solid: #1e293b;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --gold: #fbbf24;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ===== TOP NAVBAR (desktop) ===== */
+        .top-nav {
+            display: none;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-solid);
+            height: 64px;
+            padding: 0 32px;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .top-nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            gap: 40px;
+        }
+
+        .top-nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .top-nav-logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--accent), #00a896);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 18px; color: #0a0e17;
+        }
+
+        .top-nav-logo-text {
+            font-size: 20px; font-weight: 700; color: var(--text-primary);
+        }
+
+        .top-nav-logo-text span { color: var(--accent); }
+
+        .top-nav-links {
+            display: flex;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .top-nav-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.15s;
+        }
+
+        .top-nav-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+        .top-nav-link.active { color: var(--accent); background: var(--accent-glow); }
+
+        .top-nav-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .top-nav-email {
+            font-size: 13px; color: var(--text-secondary);
+            max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        .top-nav-logout {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .top-nav-logout:hover { color: var(--danger); border-color: var(--danger); }
+
+        /* ===== MOBILE BOTTOM NAV ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 9999;
+            background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
+            border-top: 1px solid rgba(48, 54, 61, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 10px 0 max(14px, env(safe-area-inset-bottom));
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            min-height: 65px;
+        }
+
+        .nav-item {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-decoration: none;
+            color: #6e7681;
+            padding: 6px 0;
+            width: 20%;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+            transition: color 0.15s;
+        }
+
+        .nav-item:hover { color: #8b949e; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -4px; left: 50%; transform: translateX(-50%);
+            width: 20px; height: 2px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .nav-icon { width: 24px; height: 24px; margin-bottom: 3px; display: flex; align-items: center; justify-content: center; }
+        .nav-icon svg { width: 22px; height: 22px; fill: currentColor; }
+        .nav-label { font-size: 10px; font-weight: 500; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            padding: 16px 16px 90px;
+        }
+
+        /* ===== 3-COLUMN LAYOUT ===== */
+        .exchange-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        /* ===== RATE BANNER ===== */
+        .rate-banner {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border: 1px solid rgba(0, 212, 170, 0.2);
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .rate-banner-left { display: flex; align-items: center; gap: 10px; }
+
+        .rate-live-dot {
+            width: 8px; height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .rate-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .rate-value { font-size: 15px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+        /* ===== EXCHANGE CARD ===== */
+        .exchange-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .exchange-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 20px 20px 0 0;
+            background: linear-gradient(90deg, var(--accent), #3b82f6, var(--accent));
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .exchange-header { text-align: center; margin-bottom: 24px; }
+        .exchange-title { font-size: 13px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+
+        .exchange-pair {
+            font-size: 24px; font-weight: 800;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--accent) 50%, #26a17b 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        /* Currency Blocks */
+        .currency-block {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            transition: all 0.3s;
+        }
+
+        .currency-block:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .currency-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .currency-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .balance-badge {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 12px; border-radius: 20px;
+            font-size: 12px; color: var(--text-secondary);
+            cursor: pointer; transition: all 0.2s;
+        }
+
+        .balance-badge:hover { background: var(--accent); color: #000; }
+        .balance-badge .max-label { color: var(--accent); font-weight: 600; }
+        .balance-badge:hover .max-label { color: #000; }
+
+        .currency-main { display: flex; align-items: center; gap: 14px; }
+
+        .currency-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 800; flex-shrink: 0;
+        }
+
+        .icon-rub { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; box-shadow: 0 6px 20px rgba(251, 191, 36, 0.2); }
+        .icon-eur { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; box-shadow: 0 6px 20px rgba(59, 130, 246, 0.2); }
+        .icon-byn { background: linear-gradient(135deg, #e53935, #b71c1c); color: #fff; box-shadow: 0 6px 20px rgba(229, 57, 53, 0.2); }
+        .icon-usdt { background: linear-gradient(135deg, #26a17b, #1a8c6a); color: #fff; box-shadow: 0 6px 20px rgba(38, 161, 123, 0.2); }
+        .icon-btc { background: linear-gradient(135deg, #f7931a, #e8850f); color: #fff; box-shadow: 0 6px 20px rgba(247, 147, 26, 0.2); }
+        .icon-eth { background: linear-gradient(135deg, #627eea, #4a6cd4); color: #fff; box-shadow: 0 6px 20px rgba(98, 126, 234, 0.2); }
+        .icon-ton { background: linear-gradient(135deg, #0088cc, #0070aa); color: #fff; box-shadow: 0 6px 20px rgba(0, 136, 204, 0.2); }
+
+        .currency-input-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .currency-name { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; cursor: pointer; }
+
+        .amount-input {
+            background: transparent; border: none;
+            color: var(--text-primary); font-size: 26px; font-weight: 700;
+            width: 100%; outline: none; font-family: 'Inter', sans-serif;
+        }
+
+        .amount-input::placeholder { color: var(--text-muted); }
+
+        /* Currency Selector Dropdown */
+        .currency-selector { display: flex; align-items: center; gap: 14px; cursor: pointer; position: relative; }
+        .dropdown-arrow { font-size: 10px; color: var(--text-muted); margin-left: 2px; transition: transform 0.2s ease; }
+        .currency-selector.open .dropdown-arrow { transform: rotate(180deg); }
+
+        .currency-dropdown {
+            position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+            background: var(--bg-secondary); border: 1px solid var(--border-solid); border-radius: 14px;
+            padding: 6px; z-index: 100; display: none;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); animation: dropdownIn 0.15s ease;
+        }
+
+        .currency-dropdown.visible { display: block; }
+        @keyframes dropdownIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: background 0.15s; }
+        .dropdown-item:hover { background: rgba(255, 255, 255, 0.06); }
+        .dropdown-item.active { background: rgba(0, 212, 170, 0.1); }
+        .dropdown-item.disabled { opacity: 0.3; pointer-events: none; }
+        .dropdown-item-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; flex-shrink: 0; }
+        .dropdown-item-info { flex: 1; min-width: 0; }
+        .dropdown-item-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .dropdown-item-balance { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+        .dropdown-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99; display: none; }
+        .dropdown-overlay.visible { display: block; }
+
+        /* Quick Amount Buttons */
+        .quick-amounts { display: flex; gap: 6px; margin-top: 10px; }
+
+        .quick-amt-btn {
+            flex: 1; padding: 7px 0;
+            border: 1px solid var(--border); border-radius: 8px;
+            background: rgba(255,255,255,0.03); color: var(--text-secondary);
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+
+        .quick-amt-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+        /* Swap Button */
+        .swap-container { display: flex; justify-content: center; height: 0; position: relative; z-index: 10; }
+
+        .swap-btn {
+            width: 46px; height: 46px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #00b894);
+            color: #000; border: 4px solid var(--bg-card);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(0, 212, 170, 0.3);
+        }
+
+        .swap-btn:hover { transform: scale(1.1); box-shadow: 0 12px 32px rgba(0, 212, 170, 0.4); }
+        .swap-btn:active { transform: scale(0.95); }
+
+        .currency-gap { height: 6px; }
+
+        /* Exchange Details */
+        .exchange-details { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 0 4px; }
+        .detail-label { font-size: 13px; color: var(--text-muted); }
+        .detail-value { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+        .detail-value.accent { color: var(--accent); font-size: 15px; font-weight: 700; }
+        .detail-divider { height: 1px; background: var(--border); }
+
+        /* Exchange Button */
+        .exchange-btn {
+            width: 100%; padding: 16px 24px; margin-top: 20px;
+            border: none; border-radius: 14px;
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, var(--accent), #00b894);
+            color: #000;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            position: relative; overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .exchange-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .exchange-btn:hover::before { left: 100%; }
+        .exchange-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0, 212, 170, 0.3); }
+        .exchange-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Features row */
+        .features-row { display: flex; justify-content: center; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
+
+        .feature-chip {
+            display: flex; align-items: center; gap: 5px;
+            padding: 5px 10px; border-radius: 20px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            font-size: 11px; color: var(--text-muted);
+        }
+
+        .feature-chip svg { width: 13px; height: 13px; fill: var(--accent); flex-shrink: 0; }
+
+        /* ===== SIDEBAR PANELS ===== */
+        .sidebar-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .sidebar-panel h3 {
+            font-size: 14px; font-weight: 600; color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .sidebar-panel h3 svg { width: 18px; height: 18px; fill: var(--accent); flex-shrink: 0; }
+
+        /* Balances Panel */
+        .balance-row-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .balance-row-item:last-child { border-bottom: none; }
+        .balance-row-left { display: flex; align-items: center; gap: 10px; }
+
+        .balance-row-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 800; flex-shrink: 0;
+        }
+
+        .balance-row-cur { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+        .balance-row-val { font-size: 13px; font-weight: 500; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+        /* Market Rates Panel */
+        .market-rate-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .market-rate-row:last-child { border-bottom: none; }
+        .market-rate-pair { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+        .market-rate-price { font-size: 13px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+
+        /* Quick Pair Buttons */
+        .quick-pair-btn {
+            background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text-secondary); padding: 10px 14px;
+            border-radius: 10px; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all 0.15s;
+            text-align: left; font-family: 'Inter', sans-serif;
+            width: 100%;
+        }
+
+        .quick-pair-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+        /* History */
+        .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .history-title { font-size: 14px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+        .history-title svg { width: 18px; height: 18px; fill: var(--accent); }
+        .history-badge { font-size: 11px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 10px; }
+
+        .history-item {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 12px; padding: 12px 14px;
+            margin-bottom: 8px;
+        }
+
+        .history-item:last-child { margin-bottom: 0; }
+
+        .history-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: var(--accent-glow);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+
+        .history-icon svg { width: 18px; height: 18px; fill: var(--accent); }
+        .history-info { flex: 1; min-width: 0; }
+        .history-desc { font-size: 13px; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-date { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .history-amount { font-size: 13px; font-weight: 600; color: var(--accent); white-space: nowrap; }
+
+        .history-empty {
+            text-align: center; padding: 20px 16px;
+            color: var(--text-muted); font-size: 13px;
+            background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px;
+        }
+
+        /* Alert */
+        #topAlert {
+            position: fixed; top: 16px; left: 50%;
+            transform: translateX(-50%) translateY(-60px);
+            min-width: 320px; max-width: 420px;
+            padding: 14px 18px; color: white;
+            font-weight: 500; font-size: 14px;
+            border-radius: 10px; opacity: 0; pointer-events: none;
+            transition: all 0.25s ease-out; z-index: 99999;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        #topAlert .notif-icon {
+            width: 22px; height: 22px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+
+        #topAlert .notif-icon svg { width: 12px; height: 12px; fill: #fff; }
+        #topAlert .notif-text { flex: 1; line-height: 1.4; }
+        #topAlert.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        #topAlert.success { background: #1e3a2f; border: 1px solid #2d5a45; color: #4ade80; }
+        #topAlert.success .notif-icon { background: #22c55e; }
+        #topAlert.error { background: #3a1e1e; border: 1px solid #5a2d2d; color: #f87171; }
+        #topAlert.error .notif-icon { background: #ef4444; }
+
+        /* Mobile header */
+        .mobile-page-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--accent); }
+
+        .header-right { margin-left: auto; }
+
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 40px; height: 40px;
+            border-radius: 10px; cursor: pointer;
+            transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ===== DESKTOP (768px+) ===== */
+        @media (min-width: 768px) {
+            .bottom-nav { display: none !important; }
+            .top-nav { display: flex; }
+            .mobile-page-header { display: none; }
+
+            .main-content {
+                padding: 32px;
+            }
+
+            .exchange-layout {
+                flex-direction: row;
+                max-width: 1200px;
+                align-items: flex-start;
+            }
+
+            .sidebar-left {
+                width: 260px;
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                position: sticky;
+                top: 96px;
+            }
+
+            .exchange-center {
+                flex: 1;
+                max-width: 560px;
+                min-width: 0;
+            }
+
+            .sidebar-right {
+                width: 300px;
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                position: sticky;
+                top: 96px;
+            }
+
+            .exchange-card { padding: 28px; }
+            .exchange-pair { font-size: 26px; }
+            .amount-input { font-size: 28px; }
+            .currency-icon { width: 52px; height: 52px; border-radius: 14px; font-size: 24px; }
+
+            .mobile-history { display: none !important; }
+        }
+
+        /* LARGE DESKTOP (1200px+) */
+        @media (min-width: 1200px) {
+            .sidebar-left { width: 280px; }
+            .sidebar-right { width: 340px; }
+            .exchange-card { padding: 32px; }
+        }
+
+        /* MOBILE ONLY */
+        @media (max-width: 767px) {
+            .sidebar-left, .sidebar-right { display: none; }
+            .exchange-center { width: 100%; }
+        }
+
+        /* TABLET (768-1023) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .sidebar-left { display: none; }
+            .sidebar-right { width: 260px; }
+            .exchange-layout { max-width: 900px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="topAlert"></div>
+<div class="dropdown-overlay" id="dropdownOverlay" onclick="closeAllDropdowns()"></div>
+
+<!-- Desktop Top Nav -->
+<nav class="top-nav">
+    <div class="top-nav-inner">
+        <a href="/" class="top-nav-logo">
+            <div class="top-nav-logo-icon">T</div>
+            <div class="top-nav-logo-text">Trust<span>Ex</span></div>
+        </a>
+        <div class="top-nav-links">
+            <a href="/" class="top-nav-link">Главная</a>
+            <a href="trading.html" class="top-nav-link">Рынки</a>
+            <a href="exchange.html" class="top-nav-link active">Обмен</a>
+            <a href="wallet.html" class="top-nav-link">Кошелек</a>
+            <a href="deposit.html" class="top-nav-link">Пополнить</a>
+            <a href="withdraw.html" class="top-nav-link">Вывести</a>
+            <a href="profile.html" class="top-nav-link">Профиль</a>
+        </div>
+        <div class="top-nav-user">
+            <span class="top-nav-email" id="navUserEmail"></span>
+            <button class="top-nav-logout" onclick="Auth.logout()">Выйти</button>
+        </div>
+    </div>
+</nav>
+
+<div class="main-content">
+    <!-- Mobile header -->
+    <div class="mobile-page-header">
+        <button class="back-btn" onclick="history.back()">← Назад</button>
+        <div class="header-right">
+            <button class="refresh-btn" id="refreshBtn" title="Обновить">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="exchange-layout">
+        <!-- LEFT SIDEBAR: Balances (desktop only) -->
+        <div class="sidebar-left">
+            <div class="sidebar-panel" id="balancesPanel">
+                <h3>
+                    <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                    Мои балансы
+                </h3>
+                <div id="balancesList"></div>
+            </div>
+
+            <div class="sidebar-panel">
+                <h3>
+                    <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+                    Быстрый обмен
+                </h3>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button class="quick-pair-btn" onclick="quickPair('RUB','USDT')">RUB → USDT</button>
+                    <button class="quick-pair-btn" onclick="quickPair('USDT','RUB')">USDT → RUB</button>
+                    <button class="quick-pair-btn" onclick="quickPair('EUR','USDT')">EUR → USDT</button>
+                    <button class="quick-pair-btn" onclick="quickPair('BYN','USDT')">BYN → USDT</button>
+                    <button class="quick-pair-btn" onclick="quickPair('USDT','BTC')">USDT → BTC</button>
+                    <button class="quick-pair-btn" onclick="quickPair('USDT','ETH')">USDT → ETH</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER: Exchange Form -->
+        <div class="exchange-center">
+            <div class="rate-banner">
+                <div class="rate-banner-left">
+                    <div class="rate-live-dot"></div>
+                    <span class="rate-label">Курс онлайн</span>
+                </div>
+                <span class="rate-value" id="liveRate">1 RUB = 0.012642 USDT</span>
+            </div>
+
+            <div style="height:16px;"></div>
+
+            <div class="exchange-card">
+                <div class="exchange-header">
+                    <div class="exchange-title">Мгновенный обмен</div>
+                    <div class="exchange-pair" id="exchangePair">RUB → USDT</div>
+                </div>
+
+                <div class="currency-section">
+                    <!-- From -->
+                    <div class="currency-block" id="fromBlock">
+                        <div class="currency-block-header">
+                            <span class="currency-label">Отдаёте</span>
+                            <div class="balance-badge" id="fromBalance" onclick="selectAll()">
+                                <span>Баланс: <span id="fromBalanceValue">0.00</span></span>
+                                <span class="max-label">MAX</span>
+                            </div>
+                        </div>
+                        <div class="currency-selector" id="fromSelector" onclick="toggleDropdown('from')">
+                            <div class="currency-icon icon-rub" id="fromIcon">₽</div>
+                            <div class="currency-input-wrap">
+                                <div class="currency-name" id="fromName">Российский рубль <span class="dropdown-arrow">▼</span></div>
+                                <input type="number" class="amount-input" id="amountInput" placeholder="0.00" inputmode="decimal" onclick="event.stopPropagation()">
+                            </div>
+                            <div class="currency-dropdown" id="fromDropdown"></div>
+                        </div>
+                        <div class="quick-amounts">
+                            <button class="quick-amt-btn" onclick="setPercent(25)">25%</button>
+                            <button class="quick-amt-btn" onclick="setPercent(50)">50%</button>
+                            <button class="quick-amt-btn" onclick="setPercent(75)">75%</button>
+                            <button class="quick-amt-btn" onclick="setPercent(100)">MAX</button>
+                        </div>
+                    </div>
+
+                    <!-- Swap -->
+                    <div class="swap-container">
+                        <button class="swap-btn" id="swapBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#000"><path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="currency-gap"></div>
+
+                    <!-- To -->
+                    <div class="currency-block" id="toBlock">
+                        <div class="currency-block-header">
+                            <span class="currency-label">Получаете</span>
+                            <div class="balance-badge" style="cursor:default; background:transparent;">
+                                <span>Баланс: <span id="toBalanceValue">0.00</span></span>
+                            </div>
+                        </div>
+                        <div class="currency-selector" id="toSelector" onclick="toggleDropdown('to')">
+                            <div class="currency-icon icon-usdt" id="toIcon">₮</div>
+                            <div class="currency-input-wrap">
+                                <div class="currency-name" id="toName">Tether USDT <span class="dropdown-arrow">▼</span></div>
+                                <div class="amount-input" id="resultAmount" style="color: var(--accent);">0.00</div>
+                            </div>
+                            <div class="currency-dropdown" id="toDropdown"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Details -->
+                <div class="exchange-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Комиссия</span>
+                        <span class="detail-value" style="color: var(--success);">0%</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Время обмена</span>
+                        <span class="detail-value">~1 сек</span>
+                    </div>
+                    <div class="detail-divider"></div>
+                    <div class="detail-row">
+                        <span class="detail-label">Вы получите</span>
+                        <span class="detail-value accent" id="resultPreview">0.00 USDT</span>
+                    </div>
+                </div>
+
+                <!-- Exchange Button -->
+                <button class="exchange-btn" id="exchangeBtn">
+                    <span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#000" style="vertical-align:middle;margin-right:6px;">
+                            <path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/>
+                        </svg>Обменять
+                    </span>
+                </button>
+
+                <div class="features-row">
+                    <div class="feature-chip"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg><span>Безопасно</span></div>
+                    <div class="feature-chip"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg><span>Мгновенно</span></div>
+                    <div class="feature-chip"><svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg><span>Лучший курс</span></div>
+                </div>
+            </div>
+
+            <!-- Mobile History -->
+            <div class="mobile-history" id="mobileHistorySection" style="margin-top:24px;">
+                <div class="sidebar-panel">
+                    <div class="history-header">
+                        <span class="history-title">
+                            <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                            История обменов
+                        </span>
+                        <span class="history-badge" id="historyCount2"></span>
+                    </div>
+                    <div id="historyList2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR: History + Market Rates (desktop only) -->
+        <div class="sidebar-right">
+            <div class="sidebar-panel" id="historyPanelDesktop">
+                <div class="history-header">
+                    <span class="history-title">
+                        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                        История обменов
+                    </span>
+                    <span class="history-badge" id="historyCount"></span>
+                </div>
+                <div id="historyList"></div>
+            </div>
+
+            <div class="sidebar-panel" id="marketRatesPanel">
+                <h3>
+                    <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+                    Курсы валют
+                </h3>
+                <div id="marketRatesList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Bottom Nav -->
+<nav class="bottom-nav">
+    <a href="/" class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></span>
+        <span class="nav-label">Главная</span>
+    </a>
+    <a href="trading.html" class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></span>
+        <span class="nav-label">Рынки</span>
+    </a>
+    <a href="exchange.html" class="nav-item active">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg></span>
+        <span class="nav-label">Обмен</span>
+    </a>
+    <a href="wallet.html" class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></span>
+        <span class="nav-label">Кошелек</span>
+    </a>
+    <a href="profile.html" class="nav-item">
+        <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>
+        <span class="nav-label">Профиль</span>
+    </a>
+</nav>
+
+<script>
+Auth.requireAuth();
+
+const user = Auth.getUser();
+if (user?.email) {
+    const navEmail = document.getElementById('navUserEmail');
+    if (navEmail) navEmail.textContent = user.email;
+}
+
+const amountInput = document.getElementById('amountInput');
+const resultAmount = document.getElementById('resultAmount');
+const resultPreview = document.getElementById('resultPreview');
+const exchangePair = document.getElementById('exchangePair');
+const liveRate = document.getElementById('liveRate');
+const swapBtn = document.getElementById('swapBtn');
+const exchangeBtn = document.getElementById('exchangeBtn');
+const refreshBtn = document.getElementById('refreshBtn');
+const topAlert = document.getElementById('topAlert');
+
+const fromIcon = document.getElementById('fromIcon');
+const fromName = document.getElementById('fromName');
+const fromBalanceValue = document.getElementById('fromBalanceValue');
+const toIcon = document.getElementById('toIcon');
+const toName = document.getElementById('toName');
+const toBalanceValue = document.getElementById('toBalanceValue');
+
+const CUR_META = {
+    USDT: { symbol: '₮', name: 'Tether USDT',       icon: 'icon-usdt', char: '₮', decimals: 2 },
+    BTC:  { symbol: '₿', name: 'Bitcoin',            icon: 'icon-btc',  char: '₿', decimals: 8 },
+    ETH:  { symbol: 'Ξ', name: 'Ethereum',           icon: 'icon-eth',  char: 'Ξ', decimals: 8 },
+    TON:  { symbol: '💎', name: 'Toncoin',           icon: 'icon-ton',  char: '💎', decimals: 4 },
+    RUB:  { symbol: '₽', name: 'Российский рубль',   icon: 'icon-rub',  char: '₽', decimals: 2 },
+    EUR:  { symbol: '€', name: 'Euro',                icon: 'icon-eur',  char: '€', decimals: 2 },
+    BYN:  { symbol: 'Br', name: 'Белорусский рубль', icon: 'icon-byn',  char: 'Br', decimals: 2 }
+};
+
+let balances = { USDT: 0, BTC: 0, ETH: 0, TON: 0, RUB: 0, EUR: 0, BYN: 0 };
+let rates = { USDT: 1, BTC: 60000, ETH: 3000, TON: 5, RUB: 0.012, EUR: 1.089, BYN: 0.3058 };
+let selectedFrom = 'RUB';
+let selectedTo = 'USDT';
+
+function quickPair(from, to) {
+    selectedFrom = from;
+    selectedTo = to;
+    amountInput.value = '';
+    updateDisplay();
+}
+
+function setFromCurrency(cur) { if (cur === selectedTo) return; selectedFrom = cur; amountInput.value = ''; updateDisplay(); }
+function setToCurrency(cur) { if (cur === selectedFrom) return; selectedTo = cur; amountInput.value = ''; updateDisplay(); }
+
+function buildDropdownItems(type) {
+    const dropdown = document.getElementById(type + 'Dropdown');
+    const activeCur = type === 'from' ? selectedFrom : selectedTo;
+    const disabledCur = type === 'from' ? selectedTo : selectedFrom;
+    let html = '';
+    for (const cur of Object.keys(CUR_META)) {
+        const m = CUR_META[cur];
+        const bal = (balances[cur] || 0).toFixed(m.decimals);
+        let cls = 'dropdown-item';
+        if (cur === activeCur) cls += ' active';
+        if (cur === disabledCur) cls += ' disabled';
+        html += '<div class="' + cls + '" onclick="event.stopPropagation(); selectDropdownCurrency(\'' + type + '\', \'' + cur + '\')">' +
+            '<div class="dropdown-item-icon ' + m.icon + '">' + m.char + '</div>' +
+            '<div class="dropdown-item-info">' +
+                '<div class="dropdown-item-name">' + cur + '</div>' +
+                '<div class="dropdown-item-balance">' + bal + ' ' + cur + '</div>' +
+            '</div></div>';
+    }
+    dropdown.innerHTML = html;
+}
+
+function toggleDropdown(type) {
+    const selector = document.getElementById(type + 'Selector');
+    const dropdown = document.getElementById(type + 'Dropdown');
+    const overlay = document.getElementById('dropdownOverlay');
+    const otherType = type === 'from' ? 'to' : 'from';
+    document.getElementById(otherType + 'Dropdown').classList.remove('visible');
+    document.getElementById(otherType + 'Selector').classList.remove('open');
+
+    const isOpen = dropdown.classList.contains('visible');
+    if (isOpen) {
+        dropdown.classList.remove('visible');
+        selector.classList.remove('open');
+        overlay.classList.remove('visible');
+    } else {
+        buildDropdownItems(type);
+        dropdown.classList.add('visible');
+        selector.classList.add('open');
+        overlay.classList.add('visible');
+    }
+}
+
+function selectDropdownCurrency(type, cur) {
+    if (type === 'from') setFromCurrency(cur); else setToCurrency(cur);
+    closeAllDropdowns();
+}
+
+function closeAllDropdowns() {
+    ['from','to'].forEach(function(t) {
+        document.getElementById(t + 'Dropdown').classList.remove('visible');
+        document.getElementById(t + 'Selector').classList.remove('open');
+    });
+    document.getElementById('dropdownOverlay').classList.remove('visible');
+}
+
+function setPercent(pct) {
+    const bal = balances[selectedFrom] || 0;
+    const val = bal * pct / 100;
+    amountInput.value = val > 0 ? parseFloat(val.toFixed(CUR_META[selectedFrom].decimals)) : '';
+    updateDisplay();
+}
+
+function selectAll() {
+    amountInput.value = balances[selectedFrom] || 0;
+    updateDisplay();
+}
+
+function showAlert(msg, success) {
+    var icons = {
+        success: '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>',
+        error: '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>'
+    };
+    topAlert.innerHTML = '<div class="notif-icon">' + (success ? icons.success : icons.error) + '</div><div class="notif-text">' + msg + '</div>';
+    topAlert.className = success ? 'success' : 'error';
+    topAlert.classList.add('show');
+    clearTimeout(topAlert._timeout);
+    topAlert._timeout = setTimeout(function() { topAlert.classList.remove('show'); }, 3000);
+}
+
+function updateDisplay() {
+    const val = parseFloat(amountInput.value) || 0;
+    const fm = CUR_META[selectedFrom];
+    const tm = CUR_META[selectedTo];
+
+    const fromUsdt = rates[selectedFrom] || 1;
+    const toUsdt = rates[selectedTo] || 1;
+    const pairRate = fromUsdt / toUsdt;
+    const result = val * pairRate;
+
+    exchangePair.innerText = selectedFrom + ' → ' + selectedTo;
+
+    const ratePrecision = pairRate >= 1000 ? 2 : pairRate >= 1 ? 4 : pairRate >= 0.001 ? 6 : 8;
+    liveRate.innerText = '1 ' + selectedFrom + ' = ' + pairRate.toFixed(ratePrecision) + ' ' + selectedTo;
+
+    resultAmount.innerText = result.toFixed(tm.decimals);
+    resultPreview.innerText = result.toFixed(tm.decimals) + ' ' + selectedTo;
+
+    fromIcon.className = 'currency-icon ' + fm.icon;
+    fromIcon.innerText = fm.char;
+    fromName.innerHTML = fm.name + ' <span class="dropdown-arrow">▼</span>';
+    fromBalanceValue.innerText = (balances[selectedFrom] || 0).toFixed(fm.decimals) + ' ' + selectedFrom;
+
+    toIcon.className = 'currency-icon ' + tm.icon;
+    toIcon.innerText = tm.char;
+    toName.innerHTML = tm.name + ' <span class="dropdown-arrow">▼</span>';
+    toBalanceValue.innerText = (balances[selectedTo] || 0).toFixed(tm.decimals) + ' ' + selectedTo;
+
+    renderBalancesSidebar();
+    renderMarketRates();
+}
+
+function renderBalancesSidebar() {
+    const container = document.getElementById('balancesList');
+    if (!container) return;
+    let html = '';
+    for (const cur of Object.keys(CUR_META)) {
+        const m = CUR_META[cur];
+        const bal = (balances[cur] || 0).toFixed(m.decimals);
+        html += '<div class="balance-row-item">' +
+            '<div class="balance-row-left">' +
+                '<div class="balance-row-icon ' + m.icon + '">' + m.char + '</div>' +
+                '<span class="balance-row-cur">' + cur + '</span>' +
+            '</div>' +
+            '<span class="balance-row-val">' + bal + '</span>' +
+        '</div>';
+    }
+    container.innerHTML = html;
+}
+
+function renderMarketRates() {
+    const container = document.getElementById('marketRatesList');
+    if (!container) return;
+    const pairs = [
+        ['RUB', 'USDT'], ['EUR', 'USDT'], ['BYN', 'USDT'],
+        ['BTC', 'USDT'], ['ETH', 'USDT'], ['TON', 'USDT'],
+        ['USDT', 'RUB'], ['USDT', 'EUR']
+    ];
+    let html = '';
+    for (const p of pairs) {
+        const fromUsdt = rates[p[0]] || 1;
+        const toUsdt = rates[p[1]] || 1;
+        const rate = fromUsdt / toUsdt;
+        const precision = rate >= 1000 ? 2 : rate >= 1 ? 4 : rate >= 0.001 ? 6 : 8;
+        html += '<div class="market-rate-row">' +
+            '<span class="market-rate-pair">' + p[0] + '/' + p[1] + '</span>' +
+            '<span class="market-rate-price">' + rate.toFixed(precision) + '</span>' +
+        '</div>';
+    }
+    container.innerHTML = html;
+}
+
+swapBtn.addEventListener('click', function() {
+    const tmp = selectedFrom;
+    selectedFrom = selectedTo;
+    selectedTo = tmp;
+    closeAllDropdowns();
+    amountInput.value = '';
+    updateDisplay();
+});
+
+amountInput.addEventListener('input', updateDisplay);
+
+async function loadData() {
+    try {
+        if (refreshBtn) refreshBtn.style.transform = 'rotate(360deg)';
+        const response = await Auth.apiFetch('/api/profile');
+        const payload = await response.json();
+        const data = payload?.data || {};
+        if (!payload.error) {
+            balances.RUB  = parseFloat(data.rub)  || 0;
+            balances.EUR  = parseFloat(data.eur)  || 0;
+            balances.BYN  = parseFloat(data.byn)  || 0;
+            balances.USDT = parseFloat(data.usdt) || 0;
+            balances.BTC  = parseFloat(data.btc)  || 0;
+            balances.ETH  = parseFloat(data.eth)  || 0;
+            balances.TON  = parseFloat(data.ton)  || 0;
+        }
+    } catch (e) { /* silent */ }
+    finally {
+        if (refreshBtn) setTimeout(function() { refreshBtn.style.transform = ''; }, 300);
+        updateDisplay();
+    }
+}
+
+exchangeBtn.onclick = async function() {
+    const amount = parseFloat(amountInput.value) || 0;
+    if (amount <= 0) return showAlert('Введите сумму для обмена');
+    if (selectedFrom === selectedTo) return showAlert('Выберите разные валюты');
+    if (amount > (balances[selectedFrom] || 0)) return showAlert('Недостаточно средств');
+
+    try {
+        exchangeBtn.disabled = true;
+        exchangeBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="#000" style="animation:spin 1s linear infinite"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg> Обработка...';
+
+        const response = await Auth.apiFetch('/api/exchange', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount, from: selectedFrom, to: selectedTo })
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+            showAlert('Обмен выполнен успешно!', true);
+            amountInput.value = '';
+            if (result.data?.newBalances) {
+                const nb = result.data.newBalances;
+                balances.RUB  = nb.rub  ?? balances.RUB;
+                balances.EUR  = nb.eur  ?? balances.EUR;
+                balances.BYN  = nb.byn  ?? balances.BYN;
+                balances.USDT = nb.usdt ?? balances.USDT;
+                balances.BTC  = nb.btc  ?? balances.BTC;
+                balances.ETH  = nb.eth  ?? balances.ETH;
+                balances.TON  = nb.ton  ?? balances.TON;
+            }
+            if (typeof BalanceManager !== 'undefined') await BalanceManager.refresh();
+            updateDisplay();
+            loadExchangeHistory();
+        } else {
+            showAlert(result.error || 'Ошибка обмена');
+        }
+    } catch (err) { showAlert('Ошибка соединения с сервером'); }
+    finally {
+        exchangeBtn.disabled = false;
+        exchangeBtn.innerHTML = '<span><svg width="20" height="20" viewBox="0 0 24 24" fill="#000" style="vertical-align:middle;margin-right:6px;"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>Обменять</span>';
+    }
+};
+
+async function loadExchangeHistory() {
+    try {
+        const response = await Auth.apiFetch('/api/exchange/history');
+        const payload = await response.json();
+        const list = payload?.data || [];
+
+        var historyList = document.getElementById('historyList');
+        var historyList2 = document.getElementById('historyList2');
+        var historyCount = document.getElementById('historyCount');
+        var historyCount2 = document.getElementById('historyCount2');
+
+        if (list.length === 0) {
+            var emptyHtml = '<div class="history-empty">История обменов пуста</div>';
+            if (historyList) historyList.innerHTML = emptyHtml;
+            if (historyList2) historyList2.innerHTML = emptyHtml;
+            return;
+        }
+
+        if (historyCount) historyCount.textContent = list.length;
+        if (historyCount2) historyCount2.textContent = list.length;
+
+        var html = list.slice(0, 20).map(function(order) {
+            var fromCur = (order.from_currency || '?').toUpperCase();
+            var toCur = (order.to_currency || '?').toUpperCase();
+            var amount = parseFloat(order.amount) || 0;
+            var result = parseFloat(order.result_amount || order.received) || 0;
+            var date = new Date(order.created_at);
+            var dateStr = date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            var dec = (CUR_META[toCur] && CUR_META[toCur].decimals) || 2;
+            return '<div class="history-item">' +
+                '<div class="history-icon"><svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg></div>' +
+                '<div class="history-info">' +
+                    '<div class="history-desc">' + amount.toFixed(2) + ' ' + fromCur + ' → ' + result.toFixed(dec) + ' ' + toCur + '</div>' +
+                    '<div class="history-date">' + dateStr + '</div>' +
+                '</div>' +
+                '<div class="history-amount">+' + result.toFixed(dec) + ' ' + toCur + '</div>' +
+            '</div>';
+        }).join('');
+
+        if (historyList) historyList.innerHTML = html;
+        if (historyList2) historyList2.innerHTML = html;
+    } catch (err) { /* silent */ }
+}
+
+async function loadRates() {
+    try {
+        const response = await Auth.apiFetch('/api/exchange/rate');
+        const payload = await response.json();
+        if (payload.data) {
+            var d = payload.data;
+            rates.RUB = d.rub_to_usdt || 0.012;
+            rates.EUR = d.eur_to_usdt || 1.089;
+            rates.BYN = d.byn_to_usdt || 0.3058;
+            if (d.rates) {
+                rates.BTC = d.rates.BTC || 60000;
+                rates.ETH = d.rates.ETH || 3000;
+                rates.TON = d.rates.TON || 5;
+            }
+        }
+    } catch (e) { /* silent */ }
+    updateDisplay();
+}
+
+if (refreshBtn) {
+    refreshBtn.onclick = function() {
+        loadData();
+        loadRates();
+        loadExchangeHistory();
+    };
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+    await Promise.all([loadData(), loadRates()]);
+    loadExchangeHistory();
+    setInterval(loadRates, 30000);
+});
+</script>
+</body>
+</html>

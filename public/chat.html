@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TrustEx Chat</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0e1a; color: #fff;
+      height: 100vh; display: flex; flex-direction: column;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a1f35 0%, #0d1117 100%);
+      padding: 15px 20px; display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;
+    }
+    .back-btn {
+      background: rgba(255,255,255,0.1); border: none; color: #fff;
+      width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .user-info { flex: 1; }
+    .user-name { font-weight: 600; font-size: 16px; }
+    .user-status { font-size: 12px; color: #8892b0; }
+
+    .messages-container {
+      flex: 1; overflow-y: auto; padding: 15px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+
+    .message-wrapper {
+      display: flex; flex-direction: column; max-width: 80%; position: relative;
+    }
+    .message-wrapper.admin { align-self: flex-end; }
+    .message-wrapper.user { align-self: flex-start; }
+
+    .message {
+      max-width: 100%; padding: 10px 14px; border-radius: 16px;
+      font-size: 15px; line-height: 1.4; word-wrap: break-word;
+    }
+    .message.admin {
+      background: linear-gradient(135deg, #4db8ff 0%, #2ea3e8 100%);
+      color: #fff; border-bottom-right-radius: 4px;
+    }
+    .message.user {
+      background: #1a2332; color: #fff; border-bottom-left-radius: 4px;
+    }
+    .message-time {
+      font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px;
+    }
+    .message.admin .message-time { text-align: right; }
+
+    .message-actions {
+      display: none; position: absolute; top: -8px; right: -8px; gap: 4px;
+    }
+    .message-wrapper.admin:hover .message-actions { display: flex; }
+    .edit-btn {
+      background: rgba(77,184,255,0.9); border: none;
+      width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .edited-label {
+      font-size: 10px; color: rgba(255,255,255,0.4); font-style: italic;
+    }
+
+    .date-divider {
+      text-align: center; color: #8892b0; font-size: 12px;
+      margin: 15px 0; position: relative;
+    }
+    .date-divider::before, .date-divider::after {
+      content: ''; position: absolute; top: 50%; width: 30%; height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    .date-divider::before { left: 0; }
+    .date-divider::after { right: 0; }
+
+    .empty-state {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      color: #8892b0; text-align: center; padding: 20px;
+    }
+
+    .input-container {
+      background: #1a1f35; padding: 12px 15px;
+      display: flex; gap: 10px;
+      border-top: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;
+    }
+    .message-input {
+      flex: 1; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+      padding: 10px 16px; color: #fff; font-size: 15px; outline: none;
+    }
+    .message-input::placeholder { color: #8892b0; }
+    .message-input:focus { border-color: #4db8ff; }
+    .send-btn {
+      background: linear-gradient(135deg, #4db8ff 0%, #2ea3e8 100%);
+      border: none; color: #fff; width: 44px; height: 44px;
+      border-radius: 50%; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+    }
+    .send-btn:disabled { opacity: 0.5; }
+
+    /* Edit modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8); display: none;
+      align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #1a2332; border-radius: 16px; width: 100%;
+      max-width: 400px; max-height: 80vh; display: flex;
+      flex-direction: column; overflow: hidden;
+    }
+    .modal-header {
+      padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-title { font-size: 18px; font-weight: 600; }
+    .modal-close {
+      background: none; border: none; color: #8892b0; font-size: 24px; cursor: pointer;
+    }
+    .modal-body { padding: 15px; overflow-y: auto; flex: 1; }
+    .edit-textarea {
+      width: 100%; min-height: 100px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 12px;
+      padding: 12px; color: #fff; font-size: 15px; resize: vertical; outline: none;
+    }
+    .edit-textarea:focus { border-color: #4db8ff; }
+    .edit-buttons { display: flex; gap: 10px; margin-top: 12px; }
+    .cancel-edit-btn {
+      flex: 1; background: rgba(255,255,255,0.1); border: none; color: #fff;
+      padding: 12px; border-radius: 8px; font-size: 14px; cursor: pointer;
+    }
+    .save-edit-btn {
+      flex: 1; background: linear-gradient(135deg, #4db8ff 0%, #2ea3e8 100%);
+      border: none; color: #fff; padding: 12px; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    .save-edit-btn:disabled { opacity: 0.5; }
+
+    .loading { text-align: center; padding: 20px; color: #8892b0; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="user-info">
+      <div class="user-name" id="userName">Загрузка...</div>
+      <div class="user-status" id="userStatus">ID: —</div>
+    </div>
+  </div>
+
+  <div class="messages-container" id="messagesContainer">
+    <div class="loading">Загрузка сообщений...</div>
+  </div>
+
+  <div class="input-container">
+    <input type="text" class="message-input" id="messageInput" placeholder="Написать сообщение..." autocomplete="off">
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+
+  <!-- Edit Message Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">✏️ Редактировать</div>
+        <button class="modal-close" onclick="closeEditModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <textarea class="edit-textarea" id="editMessageText" placeholder="Текст сообщения..."></textarea>
+        <div class="edit-buttons">
+          <button class="cancel-edit-btn" onclick="closeEditModal()">Отмена</button>
+          <button class="save-edit-btn" id="saveEditBtn" onclick="saveEditedMessage()">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const API_BASE = window.location.origin + '/api/admin';
+  const tg = window.Telegram?.WebApp;
+
+  let adminId = null;
+  let targetUserId = null;
+  let refreshInterval = null;
+  let chatMessages = [];
+  let editingMessageId = null;
+
+  // Get adminId from Telegram or localStorage
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    adminId = tg.initDataUnsafe?.user?.id;
+    if (adminId) localStorage.setItem('trustex_admin_id', String(adminId));
+  }
+  if (!adminId) adminId = localStorage.getItem('trustex_admin_id');
+
+  // Get target user from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  targetUserId = urlParams.get('user');
+
+  if (!targetUserId) {
+    document.getElementById('messagesContainer').innerHTML =
+      '<div class="empty-state">Пользователь не выбран</div>';
+  } else {
+    loadChat();
+    refreshInterval = setInterval(loadChat, 3000);
+  }
+
+  // Send on Enter
+  document.getElementById('messageInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // Keyboard dismiss on touch scroll up
+  const messageInput = document.getElementById('messageInput');
+  const messagesContainer = document.getElementById('messagesContainer');
+
+  messageInput.addEventListener('focus', () => {
+    setTimeout(() => { messagesContainer.scrollTop = messagesContainer.scrollHeight; }, 100);
+  });
+
+  let touchStartY = 0, isTap = true, hasDismissed = false;
+  messagesContainer.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY; isTap = true; hasDismissed = false;
+  }, { passive: true });
+  messagesContainer.addEventListener('touchmove', (e) => {
+    const moveDistance = e.touches[0].clientY - touchStartY;
+    if (Math.abs(moveDistance) > 10) {
+      isTap = false;
+      if (moveDistance > 50 && !hasDismissed && document.activeElement === messageInput) {
+        hasDismissed = true; messageInput.blur();
+      }
+    }
+  }, { passive: true });
+  messagesContainer.addEventListener('touchend', (e) => {
+    if (isTap && (e.target === messagesContainer || e.target.closest('.message'))) {
+      messageInput.blur();
+    }
+  }, { passive: true });
+
+  // ── Load Chat ──
+  async function loadChat() {
+    try {
+      const res = await fetch(`${API_BASE}/chat/${targetUserId}?adminId=${adminId}`);
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('userName').textContent = data.data.user.name;
+        document.getElementById('userStatus').textContent = `${data.data.user.email}`;
+        chatMessages = data.data.messages;
+        renderMessages(chatMessages);
+      } else {
+        document.getElementById('messagesContainer').innerHTML =
+          `<div class="empty-state">${escapeHtml(data.error)}</div>`;
+      }
+    } catch (e) { /* silent */ }
+  }
+
+  // ── Render Messages ──
+  function renderMessages(messages) {
+    const container = document.getElementById('messagesContainer');
+    if (!messages.length) {
+      container.innerHTML = '<div class="empty-state">Начните диалог с пользователем</div>';
+      return;
+    }
+
+    let html = '';
+    let lastDate = null;
+
+    messages.forEach(msg => {
+      const date = new Date(msg.created_at);
+      const dateStr = date.toLocaleDateString('ru-RU');
+      if (dateStr !== lastDate) {
+        html += `<div class="date-divider">${dateStr}</div>`;
+        lastDate = dateStr;
+      }
+
+      const time = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+      const editedLabel = msg.edited_at ? '<div class="edited-label">изменено</div>' : '';
+
+      if (msg.sender === 'admin') {
+        const escapedMsg = escapeHtml(msg.message).replace(/`/g, '&#96;');
+        html += `
+          <div class="message-wrapper admin">
+            <div class="message-actions">
+              <button class="edit-btn" onclick="openEditModal('${msg.id}', '${escapedMsg}')" title="Редактировать">✏️</button>
+            </div>
+            <div class="message admin">
+              ${escapeHtml(msg.message)}
+              <div class="message-time">${time}</div>
+            </div>
+            ${editedLabel}
+          </div>`;
+      } else {
+        html += `
+          <div class="message-wrapper user">
+            <div class="message user">
+              ${escapeHtml(msg.message)}
+              <div class="message-time">${time}</div>
+            </div>
+          </div>`;
+      }
+    });
+
+    const wasAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+    container.innerHTML = html;
+    if (wasAtBottom) container.scrollTop = container.scrollHeight;
+  }
+
+  // ── Send Message ──
+  async function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    if (!message) return;
+
+    input.value = '';
+    input.focus();
+
+    // Optimistic update
+    const tempId = 'temp_' + Date.now();
+    chatMessages.push({
+      id: tempId, message, sender: 'admin', created_at: new Date().toISOString()
+    });
+    renderMessages(chatMessages);
+
+    try {
+      const res = await fetch(`${API_BASE}/chat/${targetUserId}?adminId=${adminId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        chatMessages = chatMessages.filter(m => m.id !== tempId);
+        renderMessages(chatMessages);
+        showNotification('Ошибка отправки', 'error');
+      }
+    } catch (e) {
+      chatMessages = chatMessages.filter(m => m.id !== tempId);
+      renderMessages(chatMessages);
+      showNotification('Ошибка сети', 'error');
+    }
+  }
+
+  // ── Edit Message ──
+  function openEditModal(messageId, currentText) {
+    editingMessageId = messageId;
+    // Decode HTML entities back to plain text
+    const tmp = document.createElement('div');
+    tmp.innerHTML = currentText;
+    document.getElementById('editMessageText').value = tmp.textContent;
+    document.getElementById('editModal').classList.add('active');
+    document.getElementById('editMessageText').focus();
+  }
+
+  function closeEditModal() {
+    editingMessageId = null;
+    document.getElementById('editModal').classList.remove('active');
+  }
+
+  async function saveEditedMessage() {
+    const newText = document.getElementById('editMessageText').value.trim();
+    if (!newText || !editingMessageId) return;
+
+    const btn = document.getElementById('saveEditBtn');
+    btn.disabled = true;
+    btn.textContent = 'Сохранение...';
+
+    try {
+      const res = await fetch(`${API_BASE}/chat/message/${editingMessageId}?adminId=${adminId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: newText })
+      });
+      const data = await res.json();
+      if (data.success) {
+        const idx = chatMessages.findIndex(m => m.id === editingMessageId);
+        if (idx !== -1) {
+          chatMessages[idx].message = newText;
+          chatMessages[idx].edited_at = new Date().toISOString();
+        }
+        renderMessages(chatMessages);
+        closeEditModal();
+        showNotification('Сообщение изменено', 'success');
+      } else {
+        showNotification(data.error || 'Ошибка', 'error');
+      }
+    } catch (e) {
+      showNotification('Ошибка сети', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Сохранить';
+    }
+  }
+
+  // Close edit modal on overlay click
+  document.getElementById('editModal').addEventListener('click', (e) => {
+    if (e.target.id === 'editModal') closeEditModal();
+  });
+
+  // Ctrl+Enter to save edit
+  document.getElementById('editMessageText').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) saveEditedMessage();
+  });
+
+  // ── Navigation ──
+  function goBack() {
+    if (refreshInterval) clearInterval(refreshInterval);
+    window.location.href = targetUserId ? `admin.html?user=${targetUserId}` : 'admin.html';
+  }
+
+  // ── Helpers ──
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+  }
+
+  function showNotification(text, type) {
+    const bgColor = type === 'error' ? '#ff4444' : type === 'warning' ? '#ff9800' : '#4CAF50';
+    const n = document.createElement('div');
+    n.style.cssText = `position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:12px;color:#fff;font-size:14px;z-index:9999;background:${bgColor};transition:opacity 0.3s;`;
+    n.textContent = text;
+    document.body.appendChild(n);
+    setTimeout(() => { n.style.opacity = '0'; setTimeout(() => n.remove(), 300); }, 3000);
+  }
+
+  window.addEventListener('beforeunload', () => {
+    if (refreshInterval) clearInterval(refreshInterval);
+  });
+</script>
+</body>
+</html>

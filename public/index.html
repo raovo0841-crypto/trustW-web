@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustEx — Обзор</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="js/auth.js" defer></script>
+    <script src="js/balance.js" defer></script>
+    <link rel="stylesheet" href="css/nav.css?v=2">
+    <script src="js/nav.js?v=2" defer></script>
+    <style>
+        body{overflow-x:hiddenпочему то не могу октрыть вс код с проектом неа серваке, то есть вс кодь открывапется а сам проект нет}
+
+        /* TICKER */
+        .ticker{background:var(--bg);border-bottom:1px solid var(--border);overflow:hidden;padding:6px 0}
+        .ticker-track{display:flex;gap:28px;animation:scroll 30s linear infinite;width:max-content}
+        @keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+        .tk-item{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:13px}
+        .tk-sym{font-weight:600}.tk-price{color:var(--text2)}
+        .tk-ch{font-size:11px;font-weight:500;padding:1px 5px;border-radius:2px}
+        .tk-ch.up{color:var(--green);background:rgba(14,203,129,.1)}.tk-ch.down{color:var(--red);background:rgba(246,70,93,.1)}
+
+        /* CONTENT */
+        .content{max-width:1200px;margin:0 auto;padding:20px 20px 80px}
+
+        /* BALANCE HERO */
+        .hero{margin-bottom:20px}
+        .hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+        .hero-label{color:var(--text2);font-size:13px;display:flex;align-items:center;gap:6px}
+        .hero-actions{display:flex;gap:8px;flex-wrap:wrap}
+        .hero-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:4px;font-size:13px;font-weight:500;border:none;cursor:pointer;font-family:inherit;transition:all .15s}
+        .hero-btn-p{background:var(--yellow);color:#000}.hero-btn-p:hover{opacity:.85}
+        .hero-btn-s{background:var(--bg2);color:var(--text);border:1px solid var(--border)}.hero-btn-s:hover{border-color:var(--text3)}
+        .hero-bal{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+        .hero-amt{font-size:32px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+        .hero-eye{width:28px;height:28px;border-radius:4px;background:transparent;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);transition:color .1s}
+        .hero-eye:hover{color:var(--text)}.hero-eye svg{width:18px;height:18px;fill:currentColor}
+        .bal-hide{letter-spacing:3px}
+        .skeleton{background:linear-gradient(90deg,var(--bg2) 25%,var(--bg3) 50%,var(--bg2) 75%);background-size:200% 100%;animation:sk 1.5s infinite;border-radius:4px;color:transparent!important}
+        @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+        /* STATS ROW */
+        .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+        .stat-box{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px 16px}
+        .stat-label{font-size:12px;color:var(--text3);margin-bottom:4px}
+        .stat-val{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+
+        /* SECTION */
+        .section{margin-bottom:20px}
+        .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+        .section-title{font-size:16px;font-weight:600}
+        .section-link{font-size:13px;color:var(--text2);transition:color .1s}.section-link:hover{color:var(--yellow)}
+
+        /* TABLE */
+        .tbl{width:100%;border-collapse:collapse}
+        .tbl th{text-align:left;font-size:12px;font-weight:500;color:var(--text3);padding:8px 0;border-bottom:1px solid var(--border)}
+        .tbl th:last-child,.tbl td:last-child{text-align:right}
+        .tbl td{padding:12px 0;border-bottom:1px solid rgba(43,47,54,.5);font-size:13px;vertical-align:middle}
+        .tbl tr:hover td{background:var(--hover)}.tbl tr:last-child td{border-bottom:none}
+        .coin-cell{display:flex;align-items:center;gap:10px}
+        .coin-icon{width:28px;height:28px;min-width:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px}
+        .ci-rub{background:#f0b90b;color:#000}.ci-eur{background:#3b82f6;color:#fff}.ci-byn{background:#dc2626;color:#fff}
+        .ci-btc{background:#f7931a;color:#fff}.ci-eth{background:#627eea;color:#fff}.ci-ton{background:#0088cc;color:#fff}.ci-usdt{background:#26a17b;color:#fff}
+        .coin-info{line-height:1.3}.coin-name{font-weight:600;font-size:13px}.coin-sub{font-size:11px;color:var(--text3)}
+        .td-bal{font-weight:500;font-variant-numeric:tabular-nums}.td-eq{font-size:11px;color:var(--text3)}
+
+        /* GRID */
+        .grid{display:grid;grid-template-columns:1fr;gap:16px}
+
+        /* PANEL */
+        .panel{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px}
+        .panel-h{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+        .panel-h-link{font-size:12px;color:var(--text3);font-weight:400;transition:color .1s}.panel-h-link:hover{color:var(--yellow)}
+
+        /* ANALYTICS */
+        .a-tabs{display:flex;gap:2px;margin-bottom:12px;background:var(--bg);border-radius:4px;padding:2px}
+        .a-tab{flex:1;text-align:center;padding:6px 0;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;border-radius:3px;transition:all .1s;border:none;background:none;font-family:inherit}
+        .a-tab:hover{color:var(--text)}.a-tab.act{background:var(--hover);color:var(--text)}
+        .a-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(43,47,54,.3);font-size:13px}
+        .a-row:last-child{border-bottom:none}
+        .a-row-l{color:var(--text2)}.a-row-v{font-weight:600;font-variant-numeric:tabular-nums}
+        .tg{color:var(--green)}.tr{color:var(--red)}
+
+        /* PERIODS */
+        .per-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+        .per-item{background:var(--bg);border-radius:4px;padding:10px 12px}
+        .per-name{font-size:11px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+        .per-val{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;margin-bottom:2px}
+        .per-trades{font-size:11px;color:var(--text3)}
+
+        /* REVIEWS */
+        .rv-card{background:var(--bg);border-radius:4px;padding:12px;display:none}
+        .rv-card.active{display:block;animation:fadeIn .3s}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+        .rv-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+        .rv-name{font-weight:600;font-size:13px}.rv-date{font-size:11px;color:var(--text3)}
+        .rv-stars{color:var(--yellow);font-size:13px;margin-bottom:4px}
+        .rv-text{font-size:12px;color:var(--text2);line-height:1.5}
+        .rv-nav{display:flex;gap:4px;margin-bottom:8px}
+        .rv-btn{width:28px;height:28px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;transition:all .1s}
+        .rv-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+        .rv-counter{font-size:11px;color:var(--text3)}
+
+        /* PNL CHART */
+        .chart-box{height:200px;position:relative}
+        .chart-ph{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px}
+
+        /* SUPPORT FAB */
+        .fab{position:fixed;bottom:72px;right:16px;width:44px;height:44px;border-radius:50%;background:var(--yellow);border:none;cursor:pointer;z-index:100;display:flex;align-items:center;justify-content:center;color:#000;transition:opacity .15s;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+        .fab:hover{opacity:.85}.fab svg{width:20px;height:20px;fill:currentColor}
+
+        @media(min-width:768px){
+            .content{padding:24px 24px 40px}
+            .grid{grid-template-columns:1fr 1fr}
+            .hero-amt{font-size:36px}
+            .fab{bottom:24px;right:24px}
+        }
+        @media(min-width:1024px){.grid{grid-template-columns:2fr 1fr}}
+        @media(max-width:768px){
+            .content{padding:16px 16px 80px}
+            .stats-row{grid-template-columns:1fr 1fr 1fr;gap:8px}
+            .stat-box{padding:10px 12px}.stat-val{font-size:13px}
+            .hero-amt{font-size:26px}
+            .hero-actions{flex-wrap:wrap}.hero-btn{padding:7px 14px;font-size:12px}
+            .per-grid{grid-template-columns:1fr}
+            .section-title{font-size:14px}
+        }
+
+
+    </style>
+</head>
+<body>
+
+<header class="header"></header>
+
+<!-- TICKER -->
+<div class="ticker"><div class="ticker-track" id="tickerTrack">
+    <div class="tk-item"><span class="tk-sym">BTC/USDT</span><span class="tk-price" id="tickerBtcPrice">—</span><span class="tk-ch up" id="tickerBtcChange">0.00%</span></div>
+    <div class="tk-item"><span class="tk-sym">ETH/USDT</span><span class="tk-price" id="tickerEthPrice">—</span><span class="tk-ch up" id="tickerEthChange">0.00%</span></div>
+    <div class="tk-item"><span class="tk-sym">TON/USDT</span><span class="tk-price" id="tickerTonPrice">—</span><span class="tk-ch up" id="tickerTonChange">0.00%</span></div>
+    <div class="tk-item"><span class="tk-sym">SOL/USDT</span><span class="tk-price" id="tickerSolPrice">—</span><span class="tk-ch up" id="tickerSolChange">0.00%</span></div>
+    <div class="tk-item"><span class="tk-sym">XRP/USDT</span><span class="tk-price" id="tickerXrpPrice">—</span><span class="tk-ch up" id="tickerXrpChange">0.00%</span></div>
+    <div class="tk-item"><span class="tk-sym">BTC/USDT</span><span class="tk-price" id="tickerBtcPrice2">—</span><span class="tk-ch up" id="tickerBtcChange2">0.00%</span></div>
+    <div class="tk-item"><span class="tk-sym">ETH/USDT</span><span class="tk-price" id="tickerEthPrice2">—</span><span class="tk-ch up" id="tickerEthChange2">0.00%</span></div>
+    <div class="tk-item"><span class="tk-sym">TON/USDT</span><span class="tk-price" id="tickerTonPrice2">—</span><span class="tk-ch up" id="tickerTonChange2">0.00%</span></div>
+    <div class="tk-item"><span class="tk-sym">SOL/USDT</span><span class="tk-price" id="tickerSolPrice2">—</span><span class="tk-ch up" id="tickerSolChange2">0.00%</span></div>
+    <div class="tk-item"><span class="tk-sym">XRP/USDT</span><span class="tk-price" id="tickerXrpPrice2">—</span><span class="tk-ch up" id="tickerXrpChange2">0.00%</span></div>
+</div></div>
+
+<button class="fab" onclick="location.href='support.html'"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg></button>
+
+<!-- CONTENT -->
+<div class="content">
+
+    <!-- BALANCE HERO -->
+    <div class="hero">
+        <div class="hero-top">
+            <div class="hero-label">Общий баланс (USD)</div>
+
+        </div>
+        <div class="hero-bal">
+            <div class="hero-amt skeleton" id="totalBalance">$0000.00</div>
+            <button class="hero-eye" id="balanceToggle" onclick="toggleBalanceVisibility()"><svg id="eyeIcon" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button>
+        </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-label">Email</div>
+            <div class="stat-val" style="font-size:13px;word-break:break-all" id="userEmailDisplay">—</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Сделки (всего / W / L)</div>
+            <div class="stat-val" id="stats">0 / <span class="tg">0</span> / <span class="tr">0</span></div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Объём торговли</div>
+            <div class="stat-val" id="tradingVolume">0.00 USDT</div>
+        </div>
+    </div>
+
+    <!-- ASSETS TABLE -->
+    <div class="section">
+        <div class="section-head">
+            <span class="section-title">Активы</span>
+            <a href="wallet.html" class="section-link">Все активы →</a>
+        </div>
+        <table class="tbl">
+            <thead><tr><th>Актив</th><th>Цена</th><th>Баланс</th><th>В USD</th></tr></thead>
+            <tbody>
+                <tr><td><div class="coin-cell"><div class="coin-icon ci-usdt">₮</div><div class="coin-info"><div class="coin-name">USDT</div><div class="coin-sub">Tether</div></div></div></td><td>$1.00</td><td class="td-bal skeleton" id="usdtBalance">0.00</td><td class="td-eq" id="usdtEquiv">$0.00</td></tr>
+                <tr><td><div class="coin-cell"><div class="coin-icon ci-btc">₿</div><div class="coin-info"><div class="coin-name">BTC</div><div class="coin-sub">Bitcoin</div></div></div></td><td id="btcPrice">—</td><td class="td-bal skeleton" id="btcBalance">0.000000</td><td class="td-eq" id="btcEquiv">$0.00</td></tr>
+                <tr><td><div class="coin-cell"><div class="coin-icon ci-eth">Ξ</div><div class="coin-info"><div class="coin-name">ETH</div><div class="coin-sub">Ethereum</div></div></div></td><td id="ethPrice">—</td><td class="td-bal skeleton" id="ethBalance">0.000000</td><td class="td-eq" id="ethEquiv">$0.00</td></tr>
+                <tr><td><div class="coin-cell"><div class="coin-icon ci-ton">T</div><div class="coin-info"><div class="coin-name">TON</div><div class="coin-sub">Toncoin</div></div></div></td><td id="tonPrice">—</td><td class="td-bal skeleton" id="tonBalance">0.0000</td><td class="td-eq" id="tonEquiv">$0.00</td></tr>
+                <tr><td><div class="coin-cell"><div class="coin-icon ci-rub">₽</div><div class="coin-info"><div class="coin-name">RUB</div><div class="coin-sub">Рубль</div></div></div></td><td>—</td><td class="td-bal skeleton" id="rubBalance">0.00</td><td class="td-eq" id="rubEquiv">$0.00</td></tr>
+                <tr><td><div class="coin-cell"><div class="coin-icon ci-eur">€</div><div class="coin-info"><div class="coin-name">EUR</div><div class="coin-sub">Euro</div></div></div></td><td>—</td><td class="td-bal skeleton" id="eurBalance">0.00</td><td class="td-eq" id="eurEquiv">$0.00</td></tr>
+                <tr><td><div class="coin-cell"><div class="coin-icon ci-byn">Br</div><div class="coin-info"><div class="coin-name">BYN</div><div class="coin-sub">Бел. рубль</div></div></div></td><td>—</td><td class="td-bal skeleton" id="bynBalance">0.00</td><td class="td-eq" id="bynEquiv">$0.00</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- BOTTOM GRID -->
+    <div class="grid">
+        <!-- LEFT: Analytics + PNL -->
+        <div>
+            <div class="panel" style="margin-bottom:16px">
+                <div class="panel-h">Аналитика</div>
+                <div class="a-tabs">
+                    <button class="a-tab act" onclick="selectPeriod(this,'all')">Все</button>
+                    <button class="a-tab" onclick="selectPeriod(this,'year')">Год</button>
+                    <button class="a-tab" onclick="selectPeriod(this,'month')">Мес</button>
+                    <button class="a-tab" onclick="selectPeriod(this,'week')">Нед</button>
+                    <button class="a-tab" onclick="selectPeriod(this,'day')">День</button>
+                </div>
+                <div class="a-row"><span class="a-row-l">Win Rate</span><span class="a-row-v" id="winRate">0.0%</span></div>
+                <div class="a-row"><span class="a-row-l">Ср. прибыль</span><span class="a-row-v tg" id="avgProfit">+0.00</span></div>
+                <div class="a-row"><span class="a-row-l">Ср. убыток</span><span class="a-row-v tr" id="avgLoss">0.00</span></div>
+                <div class="a-row"><span class="a-row-l">Макс. прибыль</span><span class="a-row-v tg" id="maxWin">+0.00</span></div>
+                <div class="a-row"><span class="a-row-l">Макс. убыток</span><span class="a-row-v tr" id="maxLoss">0.00</span></div>
+                <div class="a-row"><span class="a-row-l">Profit Factor</span><span class="a-row-v" id="profitFactor">0.00</span></div>
+            </div>
+            <div class="panel">
+                <div class="panel-h">P&L</div>
+                <div class="chart-box">
+                    <canvas id="pnlChart"></canvas>
+                    <div class="chart-ph" id="pnlChartPlaceholder">Нет данных по сделкам</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Periods + Reviews -->
+        <div>
+            <div class="panel" style="margin-bottom:16px">
+                <div class="panel-h">По периодам</div>
+                <div class="per-grid">
+                    <div class="per-item"><div class="per-name">Сегодня</div><div class="per-val tg" id="pProfitToday">+0.00</div><div class="per-trades" id="pTradesToday">0 сделок</div></div>
+                    <div class="per-item"><div class="per-name">Неделя</div><div class="per-val tg" id="pProfitWeek">+0.00</div><div class="per-trades" id="pTradesWeek">0 сделок</div></div>
+                    <div class="per-item"><div class="per-name">Месяц</div><div class="per-val tg" id="pProfitMonth">+0.00</div><div class="per-trades" id="pTradesMonth">0 сделок</div></div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-h">Отзывы <a href="reviews.html" class="panel-h-link">Все отзывы →</a></div>
+                <div class="rv-nav"><button class="rv-btn" id="prevReview">←</button><button class="rv-btn" id="nextReview">→</button></div>
+                <div id="reviewsContainer"></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span class="rv-counter" id="reviewCounter">1 из 48</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden mobile duplicates for JS compatibility -->
+    <span id="userEmailDisplay2" style="display:none"></span>
+    <span id="stats2" style="display:none"></span>
+    <span id="tradingVolume2" style="display:none"></span>
+    <span id="mobileProfile" style="display:none"></span>
+</div>
+
+<nav class="mobnav"></nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (!Auth.requireAuth()) return;
+    var user = Auth.getUser();
+    if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
+    initBalanceVisibility(); renderReviews(); loadUserData(); updatePriceTicker(); loadAnalyticsData('all'); loadPeriodStats(); loadPnlChart(); setInterval(updatePriceTicker, 30000);
+});
+
+var updateEl = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
+var realBalance = '$0.00';
+var isBalanceHidden = localStorage.getItem('balanceHidden') === 'true';
+function initBalanceVisibility() { updateEyeIcon(); }
+function toggleBalanceVisibility() { isBalanceHidden = !isBalanceHidden; localStorage.setItem('balanceHidden', isBalanceHidden); updateBalanceDisplay(); updateEyeIcon(); }
+function updateBalanceDisplay() { var el = document.getElementById('totalBalance'); if (!el) return; if (isBalanceHidden) { el.textContent = '••••••'; el.classList.add('bal-hide'); } else { el.textContent = realBalance; el.classList.remove('bal-hide'); } }
+function updateEyeIcon() { var e = document.getElementById('eyeIcon'); if (!e) return; e.innerHTML = isBalanceHidden ? '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>' : '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>'; }
+function setRealBalance(val) { realBalance = val; var el = document.getElementById('totalBalance'); if (el) el.classList.remove('skeleton'); updateBalanceDisplay(); }
+
+async function updatePriceTicker() {
+    try {
+        var symbols = ["BTCUSDT","ETHUSDT","TONUSDT","SOLUSDT","XRPUSDT"];
+        var res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=' + JSON.stringify(symbols));
+        var tickers = await res.json(); var data = {};
+        tickers.forEach(function(t) { data[t.symbol] = { price: parseFloat(t.lastPrice), change: parseFloat(t.priceChangePercent) }; });
+        var setTicker = function(sym, p1, c1, p2, c2) {
+            var d = data[sym + 'USDT']; if (!d) return;
+            var price = d.price >= 100 ? '$' + d.price.toLocaleString('en-US', {maximumFractionDigits:2}) : '$' + d.price.toFixed(4);
+            var change = d.change >= 0 ? '+' + d.change.toFixed(2) + '%' : d.change.toFixed(2) + '%';
+            var cls = 'tk-ch ' + (d.change >= 0 ? 'up' : 'down');
+            [p1,p2].forEach(function(id) { updateEl(id, price); });
+            [c1,c2].forEach(function(id) { var el = document.getElementById(id); if (el) { el.textContent = change; el.className = cls; } });
+        };
+        setTicker('BTC','tickerBtcPrice','tickerBtcChange','tickerBtcPrice2','tickerBtcChange2');
+        setTicker('ETH','tickerEthPrice','tickerEthChange','tickerEthPrice2','tickerEthChange2');
+        setTicker('TON','tickerTonPrice','tickerTonChange','tickerTonPrice2','tickerTonChange2');
+        setTicker('SOL','tickerSolPrice','tickerSolChange','tickerSolPrice2','tickerSolChange2');
+        setTicker('XRP','tickerXrpPrice','tickerXrpChange','tickerXrpPrice2','tickerXrpChange2');
+    } catch(e) {}
+}
+
+var cachedMarketPrices = JSON.parse(localStorage.getItem('trustex_market_prices') || 'null');
+async function updateMarketPrices() {
+    try {
+        var priceMap = null;
+        if (typeof BalanceManager !== 'undefined') { BalanceManager._rates = null; await BalanceManager.loadRates(); var rates = BalanceManager.getRates(); if (rates && rates.BTC) priceMap = { BTCUSDT: rates.BTC, ETHUSDT: rates.ETH, TONUSDT: rates.TON }; }
+        if (!priceMap) { var r = await Auth.apiFetch('/api/exchange/rate'); if (r.ok) { var d = await r.json(); if (d && d.data && d.data.rates) { var rt = d.data.rates; priceMap = { BTCUSDT: rt.BTC, ETHUSDT: rt.ETH, TONUSDT: rt.TON }; } } }
+        if (!priceMap) return null;
+        updateEl('btcPrice', '$' + priceMap.BTCUSDT.toLocaleString()); updateEl('ethPrice', '$' + priceMap.ETHUSDT.toLocaleString()); updateEl('tonPrice', '$' + priceMap.TONUSDT.toFixed(2));
+        return { btc: priceMap.BTCUSDT, eth: priceMap.ETHUSDT, ton: priceMap.TONUSDT };
+    } catch(e) { return null; }
+}
+
+async function loadUserData() {
+    try {
+        if (typeof BalanceManager !== 'undefined') await BalanceManager.loadRates();
+        var results = await Promise.all([Auth.apiFetch('/api/profile'), Auth.apiFetch('/api/trades/stats'), updateMarketPrices()]);
+        var profileRes = results[0], statsRes = results[1], market = results[2];
+        if (market) { cachedMarketPrices = market; localStorage.setItem('trustex_market_prices', JSON.stringify(market)); }
+        var userData = null;
+        if (profileRes.ok) {
+            var pd = await profileRes.json(); userData = pd.data;
+            if (userData) { updateEl('userEmailDisplay', userData.email || '—'); updateEl('userEmailDisplay2', userData.email || '—'); updateEl('tradingVolume', (parseFloat(userData.total_volume) || 0).toFixed(2) + ' USDT'); updateEl('tradingVolume2', (parseFloat(userData.total_volume) || 0).toFixed(2) + ' USDT'); }
+        }
+        try { if (statsRes.ok) { var sp = await statsRes.json(); var s = sp.data || {}; var html = (s.total_trades||0) + ' / <span class="tg">' + (s.wins||0) + '</span> / <span class="tr">' + (s.losses||0) + '</span>'; var el1 = document.getElementById('stats'); if (el1) el1.innerHTML = html; var el2 = document.getElementById('stats2'); if (el2) el2.innerHTML = html; } } catch(e) {}
+        if (userData) {
+            var bal = function(f) { return parseFloat(userData['balance_' + f] || userData[f]) || 0; };
+            var m = market || cachedMarketPrices || { btc: 84000, eth: 3200, ton: 3.5 };
+            var rubUsd = typeof BalanceManager !== 'undefined' ? BalanceManager.rubToUsd(bal('rub')) : bal('rub') * 0.012;
+            var eurUsd = typeof BalanceManager !== 'undefined' ? BalanceManager.eurToUsd(bal('eur')) : bal('eur') * 1.089;
+            var bynUsd = typeof BalanceManager !== 'undefined' ? BalanceManager.bynToUsd(bal('byn')) : bal('byn') * 0.3058;
+            var btcUsd = bal('btc') * m.btc, ethUsd = bal('eth') * m.eth, tonUsd = bal('ton') * m.ton;
+            var total = bal('usdt') + rubUsd + eurUsd + bynUsd + btcUsd + ethUsd + tonUsd;
+            var fmt = function(n, d) { d = d || 2; return n.toLocaleString('ru-RU', {minimumFractionDigits:d, maximumFractionDigits:d}).replace(/,/g,'.'); };
+            setRealBalance('$' + fmt(total));
+            var setB = function(id, t) { var el = document.getElementById(id); if (el) { el.textContent = t; el.classList.remove('skeleton'); } };
+            setB('rubBalance', fmt(bal('rub'))); setB('eurBalance', fmt(bal('eur'))); setB('bynBalance', fmt(bal('byn')));
+            setB('btcBalance', bal('btc').toFixed(6)); setB('tonBalance', bal('ton').toFixed(4)); setB('ethBalance', bal('eth').toFixed(6)); setB('usdtBalance', fmt(bal('usdt')));
+            updateEl('rubEquiv', '$' + fmt(rubUsd)); updateEl('eurEquiv', '$' + fmt(eurUsd)); updateEl('bynEquiv', '$' + fmt(bynUsd));
+            updateEl('btcEquiv', '$' + fmt(btcUsd)); updateEl('tonEquiv', '$' + fmt(tonUsd)); updateEl('ethEquiv', '$' + fmt(ethUsd)); updateEl('usdtEquiv', '$' + fmt(bal('usdt')));
+        }
+    } catch(e) { console.error('[loadUserData]', e); }
+}
+
+function selectPeriod(btn, period) { document.querySelectorAll('.a-tab').forEach(function(b) { b.classList.remove('act'); }); btn.classList.add('act'); loadAnalyticsData(period); }
+async function loadAnalyticsData(period) {
+    try { var res = await Auth.apiFetch('/api/trades/analytics?period=' + (period||'all')); if (!res.ok) return; var p = await res.json(); var a = p.data || {}; var tt = parseInt(a.total_trades)||0, w = parseInt(a.wins)||0; var tp = parseFloat(a.total_profit)||0, tl = parseFloat(a.total_loss)||0;
+        updateEl('winRate', (tt > 0 ? ((w/tt)*100).toFixed(1) : '0.0') + '%'); updateEl('avgProfit', '+' + (w > 0 ? (tp/w).toFixed(2) : '0.00')); updateEl('avgLoss', '-' + ((parseInt(a.losses)||0) > 0 ? (tl/parseInt(a.losses)).toFixed(2) : '0.00')); updateEl('maxWin', '+' + tp.toFixed(2)); updateEl('maxLoss', '-' + tl.toFixed(2)); updateEl('profitFactor', tl > 0 ? (tp/tl).toFixed(2) : '0.00');
+    } catch(e) {}
+}
+
+async function loadPeriodStats() {
+    var periods = ['day','week','month']; var map = { day: 'Today', week: 'Week', month: 'Month' };
+    for (var i = 0; i < periods.length; i++) {
+        try { var res = await Auth.apiFetch('/api/trades/analytics?period=' + periods[i]); if (res.ok) { var p = await res.json(); var a = p.data || {}; var profit = (parseFloat(a.total_profit)||0) - (parseFloat(a.total_loss)||0); var str = profit >= 0 ? '+' + profit.toFixed(2) : profit.toFixed(2); var cls = profit >= 0 ? 'per-val tg' : 'per-val tr'; var elP = document.getElementById('pProfit' + map[periods[i]]); var elT = document.getElementById('pTrades' + map[periods[i]]); if (elP) { elP.textContent = str; elP.className = cls; } if (elT) { elT.innerHTML = (a.total_trades||0) + ' <small>(' + (a.wins||0) + 'W / ' + (a.losses||0) + 'L)</small>'; } } } catch(e) {}
+    }
+}
+
+var pnlChart = null;
+async function loadPnlChart() {
+    try {
+        var res = await Auth.apiFetch('/api/trades/pnl-history'); if (!res.ok) return; var p = await res.json(); var history = p.data || [];
+        var placeholder = document.getElementById('pnlChartPlaceholder'); var canvas = document.getElementById('pnlChart');
+        if (history.length < 1) { placeholder.style.display = 'flex'; canvas.style.display = 'none'; return; }
+        placeholder.style.display = 'none'; canvas.style.display = 'block';
+        var cum = 0; var pts = history.map(function(h) { cum += parseFloat(h.pnl)||0; return { date: h.date, c: cum }; });
+        var final = pts[pts.length-1].c || 0; var color = final >= 0 ? '#0ecb81' : '#f6465d';
+        var gTop = final >= 0 ? 'rgba(14,203,129,0.4)' : 'rgba(246,70,93,0.4)'; var gBot = final >= 0 ? 'rgba(14,203,129,0)' : 'rgba(246,70,93,0)';
+        var labels = pts.map(function(h) { var d = new Date(h.date); return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0'); });
+        var data = pts.map(function(h) { return h.c; });
+        if (pnlChart) pnlChart.destroy(); var ctx = canvas.getContext('2d'); var grad = ctx.createLinearGradient(0,0,0,200); grad.addColorStop(0, gTop); grad.addColorStop(1, gBot);
+        pnlChart = new Chart(ctx, { type:'line', data:{labels:labels,datasets:[{label:'P&L',data:data,borderColor:color,backgroundColor:grad,borderWidth:1.5,fill:true,tension:0.4,pointRadius:0,pointHoverRadius:4,pointHoverBackgroundColor:color}]}, options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2329',titleColor:'#eaecef',bodyColor:color,borderColor:'#2b2f36',borderWidth:1,padding:8,displayColors:false,callbacks:{label:function(c){return (c.parsed.y>=0?'+':'')+c.parsed.y.toFixed(2)+' USDT'}}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5e6673',font:{size:10},maxRotation:0,maxTicksLimit:5}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5e6673',font:{size:10},callback:function(v){return(v>=0?'+':'')+v.toFixed(0)}}}}} });
+    } catch(e) {}
+}
+
+var reviewIndex = 0;
+var reviewNames = ['Алексей М.','Мария К.','Михаил Р.','Елена Ж.','Дмитрий Л.','Анна В.','Кирилл Б.','Ольга П.','Роман Т.','Наталья С.','Борис Х.','Марина Ц.','Тимур Д.','Алина Ф.','Константин Г.','Светлана Н.','Артём В.','Дарья Е.','Даниил К.','Полина О.','Андрей Ш.','Виктория З.','Иван Ф.','Екатерина Х.','Максим Р.','Александра Л.','Никита С.','Вероника Б.','Сергей Д.','Юлия Ж.','Григорий П.','София Т.','Павел А.','Валерия К.','Денис М.','Ксения В.','Владислав С.','Зоя Ф.','Олег Е.','Лилия Р.','Степан Г.','Арина Н.','Владимир Х.','Эмма Д.','Руслан Л.','Карина П.','Тарас Б.','Милана С.'];
+var reviewTexts = ['Отличная платформа! Быстрые транзакции и интуитивный интерфейс. Рекомендую.','Использую TrustEx уже 3 месяца. Отличный опыт, поддержка отвечает быстро.','Лучшая торговая платформа. Низкие комиссии и надёжное исполнение.','Легко использовать даже новичкам. Мобильный интерфейс чистый и современный.','Выводы обрабатываются быстро. Очень доволен сервисом.','Профессиональная платформа с отличной безопасностью. Торгую здесь спокойно.','Новый дизайн огонь! Намного лучше, чем было. Так держать!','Конкурентные курсы и быстрый обмен. Буду продолжать использовать TrustEx.','Поддержка помогла решить проблему за пару часов. Впечатляет!','Простая регистрация и быстрая верификация. Начал торговать за минуты.','Инструменты графиков отличные. Идеально для технического анализа.','Быстрые депозиты и выводы. Проблем пока не было.','Хорошая ликвидность и узкие спреды. Профессиональный трейдинг.','Мобильное приложение работает отлично. Торгую на ходу без проблем.','Прозрачные комиссии без скрытых платежей. Честная платформа.','Бинарные опционы — супер функция. Легко прогнозировать и зарабатывать.','Сначала сомневался, но после полугода использования могу сказать — всё реально работает.','Наконец-то платформа, где вывод реально приходит, а не ждёшь неделю.','Друг посоветовал TrustEx, и я реально рад. Уже сделал первые сделки.','В целом неплохо. Был маленький вопрос с верификацией, но поддержка разобралась.','Пользуюсь больше года. Стабильно работает, курсы адекватные.','Перешёл с другой биржи и разница колоссальная. Тут всё удобнее.','Нравится, что всё чисто и понятно. Никакого мусора на экране.','Вчера впервые пополнил, всё прошло идеально!','Графики реально помогают. Можно нормально оценить ситуацию перед сделкой.','Два года торгую здесь — моя основная площадка. С выплатами ни разу не было проблем.','Поддержка ответила в 2 часа ночи. Ребята реально работают.','Попробовал кучу платформ перед TrustEx. Эта просто удобнее всех.','Задал вопрос по комиссиям — ответили буквально за 5 минут.','Интерфейс красивый, торги быстрые. Что ещё нужно?','Начал с маленькой суммы — всё сработало, пополнил уже нормально.','Не ожидал многого, но платформа реально хорошая. Сделки быстрые.','Порекомендовал коллегам. Трое из них уже зарегались.','Верификация заняла меньше дня. Быстрее любой другой площадки.','Курсы тут стабильно лучше, чем в других местах.','Кайф, что можно всё проверить с телефона. Мобильная версия на совесть.','Выводил дважды — оба раза быстро и без проблем.','Хорошая площадка для тех, кто не хочет сложных интерфейсов.','Почти два года пользуюсь. Ноль проблем. Для крипты это уже о чём-то говорит.','Больше всего ценю прозрачность. Видно чётко, за что платишь.','Только начал на прошлой неделе, но пока всё супер.','Надёжная платформа. Без лишних понтов. Просто работает.','Знакомый потерял деньги на другой бирже, перешёл сюда — небо и земля.','Всё грузится моментально, сделки проходят быстро.','В основном использую для обмена. Курсы всегда нормальные.','Лучшая команда поддержки в торговых приложениях.','Чисто, быстро, надёжно. Больше ничего не надо.','Недавно обновили — стало ещё лучше. Работает супер плавно.'];
+var daysAgoList=[1,2,3,4,6,8,11,15,19,25,33,42,55,70,90,110,140,175,210,250,290,330,370,410,455,500,540,580,630,670,710,750,790,830,870,920,960,400,450,520,600,650,730,800,850,900,950,1000];
+function daysToRel(d){if(d<=1)return '1 день назад';if(d<7)return d+' дн. назад';if(d<30){var w=Math.floor(d/7);return w+(w===1?' неделю':w<5?' недели':' недель')+' назад'}if(d<365){var m=Math.floor(d/30);return m+(m===1?' месяц':m<5?' месяца':' месяцев')+' назад'}var y=Math.floor(d/365);return y+(y===1?' год':y<5?' года':' лет')+' назад'}
+var reviews=[];for(var ri=0;ri<48;ri++){reviews.push({name:reviewNames[ri],rating:ri<35?5:(ri<44?4:3),text:reviewTexts[ri],date:daysToRel(daysAgoList[ri])})}
+
+function renderReviews() {
+    var c = document.getElementById('reviewsContainer'); if (!c) return; var html = '';
+    for (var i = 0; i < reviews.length; i++) { var r = reviews[i]; var stars = ''; for (var j = 0; j < r.rating; j++) stars += '★';
+        html += '<div class="rv-card' + (i === reviewIndex ? ' active' : '') + '" id="review' + i + '"><div class="rv-head"><span class="rv-name">' + r.name + '</span><span class="rv-date">' + r.date + '</span></div><div class="rv-stars">' + stars + '</div><div class="rv-text">' + r.text + '</div></div>'; }
+    c.innerHTML = html; updateEl('reviewCounter', (reviewIndex+1) + ' из ' + reviews.length);
+}
+function showReview(idx) { reviewIndex = idx; for (var i = 0; i < reviews.length; i++) { var el = document.getElementById('review' + i); if (el) el.classList.toggle('active', i === idx); } updateEl('reviewCounter', (idx+1) + ' из ' + reviews.length); }
+document.getElementById('prevReview').onclick = function() { showReview(reviewIndex <= 0 ? reviews.length-1 : reviewIndex-1); };
+document.getElementById('nextReview').onclick = function() { showReview(reviewIndex >= reviews.length-1 ? 0 : reviewIndex+1); };
+</script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Отзывы — TrustEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="js/auth.js" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=2">
+<script src="js/nav.js?v=2" defer></script>
+<style>
+
+.content{max-width:1200px;margin:0 auto;padding:20px 20px 80px}
+.rv-grid{display:grid;grid-template-columns:260px 1fr 300px;gap:16px;align-items:start}
+
+.panel{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px}
+.panel-title{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:16px}
+
+.avg-rating{text-align:center;margin-bottom:12px}
+.avg-num{font-size:36px;font-weight:700;color:var(--yellow)}
+.avg-stars{font-size:18px;color:var(--star);margin:4px 0}
+.avg-count{font-size:12px;color:var(--text3)}
+
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bar-row:last-child{margin-bottom:0}
+.bar-label{font-size:12px;width:12px;text-align:center;color:var(--text2)}
+.bar-track{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .3s}
+.bar-fill-5{background:var(--green)}.bar-fill-4{background:var(--yellow)}.bar-fill-3{background:#f0b90b}.bar-fill-2{background:#f97316}.bar-fill-1{background:var(--red)}
+.bar-cnt{font-size:11px;color:var(--text3);width:24px;text-align:right}
+
+.filter-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.filter-tab{padding:6px 14px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit}
+.filter-tab:hover{border-color:var(--text3);color:var(--text)}.filter-tab.active{background:rgba(240,185,11,.1);border-color:var(--yellow);color:var(--yellow)}
+
+.review-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:14px;margin-bottom:8px;transition:border-color .15s}
+.review-card:hover{border-color:var(--text3)}.review-card:last-child{margin-bottom:0}
+.rc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rc-user{display:flex;align-items:center;gap:8px}
+.rc-avatar{width:32px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0}
+.rc-name{font-size:13px;font-weight:600}.rc-stars{color:var(--star);font-size:13px}
+.rc-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--green);background:rgba(14,203,129,.1);padding:2px 8px;border-radius:4px;margin-left:6px;font-weight:500}
+.rc-badge::before{content:'✓';font-size:9px}
+.rc-text{font-size:13px;color:var(--text2);line-height:1.5}
+.rc-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.rc-date{font-size:10px;color:var(--text3)}
+.rc-helpful-btn{background:none;border:1px solid var(--border);border-radius:4px;padding:3px 8px;color:var(--text3);font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s;font-family:inherit}
+.rc-helpful-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+
+.load-more{width:100%;padding:10px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;margin-top:8px}
+.load-more:hover{border-color:var(--yellow);color:var(--text)}
+
+.star-select{display:flex;gap:4px;margin-bottom:12px}
+.star-btn{background:none;border:none;font-size:24px;cursor:pointer;color:var(--text3);transition:color .15s;padding:0}.star-btn:hover,.star-btn.active{color:var(--star)}
+.form-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px 14px;color:var(--text);font-size:14px;font-family:inherit;resize:vertical;min-height:80px}
+.form-textarea:focus{outline:none;border-color:var(--yellow)}.form-textarea::placeholder{color:var(--text3)}
+.form-hint{font-size:11px;color:var(--text3);margin-top:6px}
+.submit-btn{width:100%;padding:12px;border-radius:4px;border:none;background:var(--yellow);color:#000;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:12px}
+.submit-btn:hover{opacity:.9}.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.empty-text{text-align:center;color:var(--text3);font-size:13px;padding:20px 0}
+.side-panels{display:flex;flex-direction:column;gap:12px}
+
+@media(max-width:1060px){.rv-grid{grid-template-columns:1fr 280px}.side-left{display:none}}
+@media(max-width:768px){
+    .rv-grid{grid-template-columns:1fr}.side-right{display:none}
+    .content{padding:16px 12px 100px}
+}
+</style>
+</head>
+<body>
+
+<header class="header"></header>
+
+<nav class="mobnav"></nav>
+
+<div class="content">
+<div class="rv-grid">
+
+<!-- LEFT SIDEBAR -->
+<div class="side-left side-panels">
+    <div class="panel">
+        <div class="panel-title">Рейтинг</div>
+        <div class="avg-rating">
+            <div class="avg-num" id="avgRating">0.0</div>
+            <div class="avg-stars" id="avgStars">☆☆☆☆☆</div>
+            <div class="avg-count" id="totalCount">0 отзывов</div>
+        </div>
+    </div>
+    <div class="panel">
+        <div class="panel-title">Распределение</div>
+        <div class="bar-row"><span class="bar-label">5</span><div class="bar-track"><div class="bar-fill bar-fill-5" id="bar5" style="width:0%"></div></div><span class="bar-cnt" id="cnt5">0</span></div>
+        <div class="bar-row"><span class="bar-label">4</span><div class="bar-track"><div class="bar-fill bar-fill-4" id="bar4" style="width:0%"></div></div><span class="bar-cnt" id="cnt4">0</span></div>
+        <div class="bar-row"><span class="bar-label">3</span><div class="bar-track"><div class="bar-fill bar-fill-3" id="bar3" style="width:0%"></div></div><span class="bar-cnt" id="cnt3">0</span></div>
+        <div class="bar-row"><span class="bar-label">2</span><div class="bar-track"><div class="bar-fill bar-fill-2" id="bar2" style="width:0%"></div></div><span class="bar-cnt" id="cnt2">0</span></div>
+        <div class="bar-row"><span class="bar-label">1</span><div class="bar-track"><div class="bar-fill bar-fill-1" id="bar1" style="width:0%"></div></div><span class="bar-cnt" id="cnt1">0</span></div>
+    </div>
+</div>
+
+<!-- CENTER -->
+<div>
+    <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-filter="all">Все</button>
+        <button class="filter-tab" data-filter="5">★ 5</button>
+        <button class="filter-tab" data-filter="4">★ 4</button>
+        <button class="filter-tab" data-filter="3">★ 3</button>
+    </div>
+    <div id="reviewsList"><div class="empty-text">Загрузка отзывов...</div></div>
+    <button class="load-more" id="loadMoreBtn" onclick="loadMore()" style="display:none">Показать ещё</button>
+</div>
+
+<!-- RIGHT SIDEBAR -->
+<div class="side-right">
+    <div class="panel" id="reviewForm">
+        <div class="panel-title">Оставить отзыв</div>
+        <div class="star-select" id="starSelect">
+            <button class="star-btn" data-star="1">★</button>
+            <button class="star-btn" data-star="2">★</button>
+            <button class="star-btn" data-star="3">★</button>
+            <button class="star-btn" data-star="4">★</button>
+            <button class="star-btn" data-star="5">★</button>
+        </div>
+        <textarea class="form-textarea" id="reviewText" placeholder="Поделитесь своим опытом использования платформы..." maxlength="1000"></textarea>
+        <div class="form-hint">Минимум 10 символов. Доступно только верифицированным пользователям.</div>
+        <button class="submit-btn" id="submitBtn" onclick="submitReview()">Отправить отзыв</button>
+    </div>
+</div>
+
+</div>
+</div>
+
+<script>
+var selectedRating = 0, currentPage = 1, hasMore = false, allReviews = [], currentFilter = 'all';
+
+function generateReviews() {
+    var names = [
+        'Алексей М.', 'Мария К.', 'Михаил Р.', 'Елена Ж.', 'Дмитрий Л.', 'Анна В.',
+        'Кирилл Б.', 'Ольга П.', 'Роман Т.', 'Наталья С.', 'Борис Х.', 'Марина Ц.',
+        'Тимур Д.', 'Алина Ф.', 'Константин Г.', 'Светлана Н.', 'Артём В.', 'Дарья Е.',
+        'Даниил К.', 'Полина О.', 'Андрей Ш.', 'Виктория З.', 'Иван Ф.', 'Екатерина Х.',
+        'Максим Р.', 'Александра Л.', 'Никита С.', 'Вероника Б.', 'Сергей Д.', 'Юлия Ж.',
+        'Григорий П.', 'София Т.', 'Павел А.', 'Валерия К.', 'Денис М.', 'Ксения В.',
+        'Владислав С.', 'Зоя Ф.', 'Олег Е.', 'Лилия Р.', 'Степан Г.', 'Арина Н.',
+        'Владимир Х.', 'Эмма Д.', 'Руслан Л.', 'Карина П.', 'Тарас Б.', 'Милана С.'
+    ];
+    var texts = [
+        'Отличная платформа! Быстрые транзакции и интуитивный интерфейс. Рекомендую.',
+        'Использую TrustEx уже 3 месяца. Отличный опыт, поддержка отвечает быстро.',
+        'Лучшая торговая платформа. Низкие комиссии и надёжное исполнение.',
+        'Легко использовать даже новичкам. Мобильный интерфейс чистый и современный.',
+        'Выводы обрабатываются быстро. Очень доволен сервисом.',
+        'Профессиональная платформа с отличной безопасностью. Торгую здесь спокойно.',
+        'Новый дизайн огонь! Намного лучше, чем было. Так держать!',
+        'Конкурентные курсы и быстрый обмен. Буду продолжать использовать TrustEx.',
+        'Поддержка помогла решить проблему за пару часов. Впечатляет!',
+        'Простая регистрация и быстрая верификация. Начал торговать за минуты.',
+        'Инструменты графиков отличные. Идеально для технического анализа.',
+        'Быстрые депозиты и выводы. Проблем пока не было.',
+        'Хорошая ликвидность и узкие спреды. Профессиональный трейдинг.',
+        'Мобильное приложение работает отлично. Торгую на ходу без проблем.',
+        'Прозрачные комиссии без скрытых платежей. Честная платформа.',
+        'Бинарные опционы — супер функция. Легко прогнозировать и зарабатывать.',
+        'Сначала сомневался, но после полугода использования могу сказать — всё реально работает. Интерфейс удобный, ничего лишнего.',
+        'Наконец-то платформа, где вывод реально приходит, а не ждёшь неделю. У меня было минут 20.',
+        'Друг посоветовал TrustEx, и я реально рад. Уже сделал первые сделки, всё прошло гладко.',
+        'В целом неплохо. Был маленький вопрос с верификацией, но поддержка разобралась в тот же день.',
+        'Пользуюсь больше года. Стабильно работает, курсы адекватные, ни разу не подвели.',
+        'Перешёл с другой биржи и разница колоссальная. Тут всё в разы удобнее.',
+        'Нравится, что всё чисто и понятно. Никакого мусора на экране, просто торговля.',
+        'Вчера впервые пополнил, всё прошло идеально. Пока впечатления отличные!',
+        'Графики реально помогают. Можно нормально оценить ситуацию перед сделкой.',
+        'Два года торгую здесь и это до сих пор моя основная площадка. С выплатами ни разу не было проблем.',
+        'Поддержка ответила мне в 2 часа ночи, я был в шоке честно. Ребята реально работают.',
+        'Попробовал кучу платформ перед тем как остановиться на TrustEx. Эта просто удобнее всех.',
+        'Задал вопрос по комиссиям — ответили буквально за 5 минут. Приятно удивлён.',
+        'Интерфейс красивый, торги быстрые. Что ещё нужно?',
+        'Начал с маленькой суммы, чтобы протестировать. Всё сработало — пополнил уже нормально.',
+        'Честно, не ожидал многого, но платформа реально хорошая. Дизайн приятный, сделки быстрые.',
+        'Уже порекомендовал коллегам на работе. Трое из них уже зарегались.)',
+        'Верификация заняла меньше дня. Это быстрее, чем на любой другой площадке, которую я пробовал.',
+        'Курсы тут стабильно лучше, чем то, что я получал в других местах.',
+        'Кайф, что можно всё проверить с телефона. Мобильная версия сделана на совесть.',
+        'Выводил уже дважды, оба раза быстро и без проблем. Нареканий нет.',
+        'Хорошая площадка для тех, кто не хочет разбираться в сложных интерфейсах. Всё интуитивно.',
+        'Почти два года пользуюсь. Ноль проблем. Для крипты это уже о чём-то говорит.',
+        'Больше всего ценю прозрачность. Видно чётко, за что платишь и сколько получишь.',
+        'Только начал на прошлой неделе, но пока всё супер. Очень удобно для новичка.',
+        'Надёжная платформа. Без лишних понтов, без ненужных усложнений. Просто работает.',
+        'Знакомый потерял деньги на другой бирже, перешёл сюда. Говорит — небо и земля по безопасности.',
+        'Всё грузится моментально, сделки проходят быстро. Никаких задержек.',
+        'В основном использую для обмена. Курсы всегда нормальные, без сюрпризов.',
+        'Лучшая команда поддержки, с которой я сталкивался в торговых приложениях. Реально помогают.',
+        'Чисто, быстро, надёжно. Больше мне от торговой платформы ничего не надо.',
+        'Недавно обновили приложение, стало ещё лучше. Работает супер плавно.'
+    ];
+    var badges = ['Верифицирован', 'Трейдер', 'Активный', 'Pro', 'Верифицирован', 'Активный'];
+    var colors = ['#4f46e5', '#7c3aed', '#2563eb', '#0891b2', '#059669', '#d97706'];
+    var daysAgoList = [
+        1, 2, 3, 4, 6, 8, 11, 15, 19, 25, 33, 42, 55, 70, 90,
+        110, 140, 175, 210, 250, 290, 330, 370, 410, 455, 500,
+        540, 580, 630, 670, 710, 750, 790, 830, 870, 920, 960,
+        400, 450, 520, 600, 650, 730, 800, 850, 900, 950, 1000
+    ];
+    var result = [];
+    for (var i = 0; i < 48; i++) {
+        var rating = i < 35 ? 5 : (i < 44 ? 4 : 3);
+        var d = new Date(); d.setDate(d.getDate() - daysAgoList[i]);
+        var parts = names[i].split(' ');
+        var initials = parts.map(function(n) { return n[0]; }).join('');
+        result.push({
+            id: 1001 + i,
+            name: names[i],
+            initials: initials,
+            badge: badges[i % badges.length],
+            text: texts[i],
+            rating: rating,
+            date: d.toLocaleDateString('ru-RU'),
+            helpful: ((1001 + i) * 7 + 3) % 30 + 1,
+            color: colors[i % colors.length]
+        });
+    }
+    return result;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!Auth.requireAuth()) return;
+    var user = Auth.getUser();
+    if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
+
+    document.querySelectorAll('.star-btn').forEach(function(b) {
+        b.addEventListener('click', function() {
+            selectedRating = parseInt(b.dataset.star);
+            document.querySelectorAll('.star-btn').forEach(function(x, i) {
+                x.classList.toggle('active', i < selectedRating);
+            });
+        });
+    });
+
+    document.querySelectorAll('.filter-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            currentFilter = tab.dataset.filter;
+            currentPage = 1;
+            renderReviews();
+        });
+    });
+
+    loadReviews();
+});
+
+async function loadReviews() {
+    var hardcoded = generateReviews();
+    var apiReviews = [];
+    try {
+        var res = await Auth.apiFetch('/api/reviews?page=1&limit=50');
+        if (res.ok) {
+            var d = await res.json();
+            var raw = d.data || [];
+            apiReviews = raw.map(function(r) {
+                var name = r.author_name || (r.user_email ? r.user_email.split('@')[0] : 'Пользователь');
+                return {
+                    id: r.id,
+                    name: name,
+                    initials: name.charAt(0).toUpperCase(),
+                    badge: 'Верифицирован',
+                    text: r.text,
+                    rating: r.rating,
+                    date: new Date(r.created_at).toLocaleDateString('ru-RU'),
+                    helpful: 0,
+                    color: '#f0b90b',
+                    isUser: true
+                };
+            });
+        }
+    } catch(e) {}
+    allReviews = apiReviews.concat(hardcoded);
+    updateStats();
+    renderReviews();
+}
+
+function getFilteredReviews() {
+    if (currentFilter === 'all') return allReviews;
+    var star = parseInt(currentFilter);
+    return allReviews.filter(function(r) { return r.rating === star; });
+}
+
+function renderReviews() {
+    var c = document.getElementById('reviewsList');
+    var filtered = getFilteredReviews();
+    var show = filtered.slice(0, currentPage * 10);
+    hasMore = show.length < filtered.length;
+    document.getElementById('loadMoreBtn').style.display = hasMore ? 'block' : 'none';
+
+    if (!filtered.length) { c.innerHTML = '<div class="empty-text">Отзывов с такой оценкой пока нет</div>'; return; }
+    c.innerHTML = show.map(function(r) {
+        var stars = '';
+        for (var i = 0; i < 5; i++) stars += i < r.rating ? '★' : '☆';
+        var bgColor = r.color || '#4f46e5';
+        var helpfulHtml = r.helpful > 0 ? '<button class="rc-helpful-btn" onclick="this.style.color=\'var(--yellow)\';this.style.borderColor=\'var(--yellow)\'">👍 ' + r.helpful + '</button>' : '';
+        return '<div class="review-card">' +
+            '<div class="rc-header">' +
+                '<div class="rc-user">' +
+                    '<div class="rc-avatar" style="background:' + bgColor + '">' + escapeHtml(r.initials) + '</div>' +
+                    '<div><div class="rc-name">' + escapeHtml(r.name) + '<span class="rc-badge">' + escapeHtml(r.badge) + '</span></div></div>' +
+                '</div>' +
+                '<div class="rc-stars">' + stars + '</div>' +
+            '</div>' +
+            '<div class="rc-text">' + escapeHtml(r.text) + '</div>' +
+            '<div class="rc-footer">' +
+                '<div class="rc-date">' + r.date + '</div>' +
+                helpfulHtml +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function updateStats() {
+    if (!allReviews.length) return;
+    var total = allReviews.length;
+    var sum = 0;
+    var counts = {1:0, 2:0, 3:0, 4:0, 5:0};
+    allReviews.forEach(function(r) { sum += r.rating; counts[r.rating] = (counts[r.rating] || 0) + 1; });
+    var avg = (sum / total).toFixed(1);
+    document.getElementById('avgRating').textContent = avg;
+    var stars = '';
+    for (var i = 0; i < 5; i++) stars += i < Math.round(avg) ? '★' : '☆';
+    document.getElementById('avgStars').textContent = stars;
+    var word = total % 10 === 1 && total % 100 !== 11 ? '' : (total % 10 >= 2 && total % 10 <= 4 && (total % 100 < 10 || total % 100 >= 20) ? 'а' : 'ов');
+    document.getElementById('totalCount').textContent = total + ' отзыв' + word;
+    for (var s = 1; s <= 5; s++) {
+        document.getElementById('bar' + s).style.width = (counts[s] / total * 100) + '%';
+        document.getElementById('cnt' + s).textContent = counts[s];
+    }
+}
+
+function loadMore() { currentPage++; renderReviews(); }
+
+function escapeHtml(t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+async function submitReview() {
+    if (selectedRating < 1) return alert('Выберите оценку');
+    var text = document.getElementById('reviewText').value.trim();
+    if (text.length < 10) return alert('Минимум 10 символов');
+
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Отправка...';
+    try {
+        var res = await Auth.apiFetch('/api/reviews', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({rating: selectedRating, text: text})
+        });
+        var d = await res.json();
+        if (!res.ok) { alert(d.error || 'Ошибка'); return; }
+        alert('Отзыв опубликован!');
+        document.getElementById('reviewText').value = '';
+        selectedRating = 0;
+        document.querySelectorAll('.star-btn').forEach(function(x) { x.classList.remove('active'); });
+        loadReviews();
+    } catch(e) { alert('Ошибка сети'); }
+    finally { btn.disabled = false; btn.textContent = 'Отправить отзыв'; }
+}
+</script>
+</body>
+</html>

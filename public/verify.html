@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustEx — Подтверждение email</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0b0e11;color:#eaecef;min-height:100vh;display:flex;flex-direction:column}
+        .header{height:64px;background:#0b0e11;border-bottom:1px solid #1e2329;display:flex;align-items:center;padding:0 24px}
+        .logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+        .logo-mark{width:32px;height:32px;background:#f0b90b;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#000}
+        .logo-text{font-size:20px;font-weight:700;color:#eaecef;letter-spacing:-0.5px}
+        .logo-text span{color:#f0b90b}
+        .main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
+        .auth-box{width:100%;max-width:400px;text-align:center}
+        .auth-title{font-size:24px;font-weight:700;margin-bottom:8px}
+        .auth-sub{color:#848e9c;font-size:14px;margin-bottom:32px;line-height:1.6}
+        .auth-sub strong{color:#f0b90b}
+        .error-msg{background:rgba(246,70,93,.1);border:1px solid rgba(246,70,93,.2);color:#f6465d;padding:12px 16px;border-radius:4px;font-size:13px;margin-bottom:20px;display:none}
+        .success-msg{background:rgba(14,203,129,.1);border:1px solid rgba(14,203,129,.2);color:#0ecb81;padding:12px 16px;border-radius:4px;font-size:13px;margin-bottom:20px;display:none}
+        .code-inputs{display:flex;gap:8px;justify-content:center;margin-bottom:24px}
+        .code-input{width:48px;height:56px;background:#181a20;border:1px solid #2b2f36;border-radius:8px;text-align:center;color:#eaecef;font-size:24px;font-weight:700;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;caret-color:#f0b90b}
+        .code-input:focus{border-color:#f0b90b}
+        .code-input.filled{border-color:#f0b90b;background:#181a20}
+        .btn-submit{width:100%;height:48px;background:#f0b90b;border:none;border-radius:4px;color:#000;font-size:16px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
+        .btn-submit:hover{opacity:.9}
+        .btn-submit:disabled{opacity:.5;cursor:not-allowed}
+        .resend-block{margin-top:20px;font-size:13px;color:#848e9c}
+        .resend-link{color:#f0b90b;cursor:pointer;text-decoration:none;font-weight:500}
+        .resend-link:hover{text-decoration:underline}
+        .resend-link.disabled{color:#5e6673;cursor:not-allowed;pointer-events:none}
+        .timer{color:#5e6673;font-variant-numeric:tabular-nums}
+        .mail-icon{margin-bottom:20px}
+        .mail-icon svg{width:64px;height:64px;fill:#f0b90b}
+        .back-link{display:inline-block;margin-top:24px;font-size:13px;color:#848e9c;text-decoration:none}
+        .back-link:hover{color:#eaecef}
+    </style>
+</head>
+<body>
+    <div class="header"><a href="/" class="logo"><div class="logo-mark">T</div><div class="logo-text">Trust<span>Ex</span></div></a></div>
+    <div class="main">
+        <div class="auth-box">
+            <div class="mail-icon">
+                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            </div>
+            <div class="auth-title">Подтверждение email</div>
+            <div class="auth-sub">Мы отправили 6-значный код на<br><strong id="emailDisplay">—</strong></div>
+            <div class="error-msg" id="error"></div>
+            <div class="success-msg" id="success"></div>
+            <div class="code-inputs" id="codeInputs">
+                <input class="code-input" type="text" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+                <input class="code-input" type="text" maxlength="1" inputmode="numeric">
+                <input class="code-input" type="text" maxlength="1" inputmode="numeric">
+                <input class="code-input" type="text" maxlength="1" inputmode="numeric">
+                <input class="code-input" type="text" maxlength="1" inputmode="numeric">
+                <input class="code-input" type="text" maxlength="1" inputmode="numeric">
+            </div>
+            <button class="btn-submit" id="verifyBtn" onclick="submitCode()">Подтвердить</button>
+            <div class="resend-block">
+                Не получили код? <a class="resend-link disabled" id="resendLink" onclick="resendCode()">Отправить повторно</a>
+                <span class="timer" id="timer">(60 сек)</span>
+            </div>
+            <a href="/login.html" class="back-link">← Назад ко входу</a>
+        </div>
+    </div>
+    <script>
+        var email = new URLSearchParams(window.location.search).get('email') || '';
+        if (!email) { window.location.href = '/register.html'; }
+        document.getElementById('emailDisplay').textContent = email;
+
+        // Auto-focus and auto-advance code inputs
+        var inputs = document.querySelectorAll('.code-input');
+        inputs.forEach(function(input, idx) {
+            input.addEventListener('input', function(e) {
+                var val = e.target.value.replace(/\D/g, '');
+                e.target.value = val;
+                if (val && idx < inputs.length - 1) inputs[idx + 1].focus();
+                e.target.classList.toggle('filled', !!val);
+                if (idx === inputs.length - 1 && val) submitCode();
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                    inputs[idx - 1].focus();
+                    inputs[idx - 1].value = '';
+                    inputs[idx - 1].classList.remove('filled');
+                }
+            });
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                var paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+                for (var i = 0; i < paste.length; i++) {
+                    if (inputs[i]) { inputs[i].value = paste[i]; inputs[i].classList.add('filled'); }
+                }
+                if (paste.length === 6) submitCode();
+                else if (inputs[paste.length]) inputs[paste.length].focus();
+            });
+        });
+        inputs[0].focus();
+
+        // Resend cooldown timer
+        var cooldown = 60;
+        var timerEl = document.getElementById('timer');
+        var resendEl = document.getElementById('resendLink');
+        var timerInterval = setInterval(function() {
+            cooldown--;
+            if (cooldown <= 0) {
+                clearInterval(timerInterval);
+                timerEl.style.display = 'none';
+                resendEl.classList.remove('disabled');
+            } else {
+                timerEl.textContent = '(' + cooldown + ' сек)';
+            }
+        }, 1000);
+
+        var errorEl = document.getElementById('error');
+        var successEl = document.getElementById('success');
+        var verifyBtn = document.getElementById('verifyBtn');
+
+        async function submitCode() {
+            var code = '';
+            inputs.forEach(function(i) { code += i.value; });
+            if (code.length !== 6) { showError('Введите 6-значный код'); return; }
+
+            errorEl.style.display = 'none';
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = 'Проверяем...';
+
+            try {
+                var res = await fetch('/api/auth/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, code: code })
+                });
+                var data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Ошибка');
+
+                // Save token and redirect
+                localStorage.setItem('trustex_token', data.token);
+                localStorage.setItem('trustex_user', JSON.stringify(data.user));
+                successEl.textContent = 'Email подтверждён! Перенаправляем...';
+                successEl.style.display = 'block';
+                setTimeout(function() { window.location.href = '/'; }, 1000);
+            } catch (err) {
+                showError(err.message);
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = 'Подтвердить';
+            }
+        }
+
+        async function resendCode() {
+            if (resendEl.classList.contains('disabled')) return;
+            resendEl.classList.add('disabled');
+            errorEl.style.display = 'none';
+
+            try {
+                var res = await fetch('/api/auth/resend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                var data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Ошибка');
+
+                successEl.textContent = 'Новый код отправлен!';
+                successEl.style.display = 'block';
+                setTimeout(function() { successEl.style.display = 'none'; }, 3000);
+
+                // Reset inputs
+                inputs.forEach(function(i) { i.value = ''; i.classList.remove('filled'); });
+                inputs[0].focus();
+
+                // Restart cooldown
+                cooldown = 60;
+                timerEl.style.display = '';
+                timerEl.textContent = '(60 сек)';
+                timerInterval = setInterval(function() {
+                    cooldown--;
+                    if (cooldown <= 0) {
+                        clearInterval(timerInterval);
+                        timerEl.style.display = 'none';
+                        resendEl.classList.remove('disabled');
+                    } else {
+                        timerEl.textContent = '(' + cooldown + ' сек)';
+                    }
+                }, 1000);
+            } catch (err) {
+                showError(err.message);
+                resendEl.classList.remove('disabled');
+            }
+        }
+
+        function showError(msg) {
+            errorEl.textContent = msg;
+            errorEl.style.display = 'block';
+            successEl.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

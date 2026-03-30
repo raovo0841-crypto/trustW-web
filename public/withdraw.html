@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Вывод — TrustEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="js/auth.js" defer></script>
+<script src="js/balance.js" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=2">
+<script src="js/nav.js?v=2" defer></script>
+<style>
+
+.content{max-width:1200px;margin:0 auto;padding:20px 20px 80px}
+.wd-grid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+
+.panel{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px}
+.panel-title{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:16px}
+
+.notice{background:rgba(246,70,93,.08);border:1px solid rgba(246,70,93,.25);border-radius:4px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--red);display:flex;gap:10px;align-items:flex-start;line-height:1.5}
+.notice svg{width:18px;height:18px;fill:var(--red);flex-shrink:0;margin-top:2px}
+
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;color:var(--text3);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+.form-select{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px 14px;color:var(--text);font-size:14px;font-family:inherit;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23848e9c' fill='none' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.form-select:focus{outline:none;border-color:var(--yellow)}.form-select option{background:var(--card);color:var(--text)}
+.form-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px 14px;color:var(--text);font-size:14px;font-family:inherit}
+.form-input:focus{outline:none;border-color:var(--yellow)}.form-input::placeholder{color:var(--text3)}
+
+.balance-row{display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:16px}
+.bal-label{font-size:12px;color:var(--text3)}.bal-value{font-size:16px;font-weight:700;color:var(--text)}
+.max-btn{background:rgba(240,185,11,.1);border:1px solid var(--yellow);color:var(--yellow);padding:4px 12px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.max-btn:hover{background:var(--yellow);color:#000}
+
+.submit-btn{width:100%;padding:14px;background:var(--red);border:none;border-radius:4px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.submit-btn:hover{opacity:.9}.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.side-panels{display:flex;flex-direction:column;gap:12px}
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-label{color:var(--text3)}.info-value{font-weight:600;color:var(--text)}
+
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.hist-item:last-child{border-bottom:none}
+.hist-left{min-width:0}.hist-type{font-size:13px;font-weight:500;color:var(--text)}.hist-date{font-size:11px;color:var(--text3);margin-top:2px}
+.hist-right{text-align:right;flex-shrink:0}.hist-amount{font-size:13px;font-weight:600;color:var(--red)}.hist-status{font-size:10px;margin-top:2px}
+.status-pending{color:var(--yellow)}.status-approved{color:var(--green)}.status-rejected{color:var(--red)}
+.empty-text{text-align:center;color:var(--text3);font-size:13px;padding:20px 0}
+
+@media(max-width:960px){.wd-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.content{padding:16px 12px 100px}}
+</style>
+</head>
+<body>
+
+<header class="header"></header>
+
+<nav class="mobnav"></nav>
+
+<div class="content">
+<div class="wd-grid">
+
+<div>
+    <div class="notice">
+        <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        <span>Убедитесь, что адрес кошелька указан верно. Средства, отправленные на неверный адрес, не подлежат возврату.</span>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Вывод средств</div>
+
+        <div class="form-group">
+            <label class="form-label">Валюта</label>
+            <select class="form-select" id="currency" onchange="updateMax()">
+                <option value="USDT">USDT (Tether TRC-20)</option>
+                <option value="BTC">BTC (Bitcoin)</option>
+                <option value="ETH">ETH (Ethereum)</option>
+                <option value="RUB">RUB (Рубли)</option>
+                <option value="EUR">EUR (Евро)</option>
+            </select>
+        </div>
+
+        <div class="balance-row">
+            <div><div class="bal-label">Доступно</div><div class="bal-value" id="availBalance">0.00</div></div>
+            <button class="max-btn" onclick="setMax()">MAX</button>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Сумма</label>
+            <input type="number" class="form-input" id="amount" placeholder="Введите сумму" min="1" step="any">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Адрес кошелька</label>
+            <input type="text" class="form-input" id="wallet" placeholder="Введите адрес">
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="submitWithdraw()">Вывести</button>
+    </div>
+</div>
+
+<div class="side-panels">
+    <div class="panel">
+        <div class="panel-title">Баланс</div>
+        <div class="info-row"><span class="info-label">USDT</span><span class="info-value" id="sideUsdt">0.00</span></div>
+        <div class="info-row"><span class="info-label">RUB</span><span class="info-value" id="sideRub">0.00</span></div>
+        <div class="info-row"><span class="info-label">EUR</span><span class="info-value" id="sideEur">0.00</span></div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Условия</div>
+        <div class="info-row"><span class="info-label">Мин. вывод</span><span class="info-value" id="sideMinWithdraw">—</span></div>
+        <div class="info-row"><span class="info-label">Верификация</span><span class="info-value" id="sideVerified">—</span></div>
+        <div style="font-size:12px;color:var(--text3);margin-top:10px;line-height:1.5">Вывод обрабатывается администратором в течение 24 часов.</div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Последние выводы</div>
+        <div id="historyList"><div class="empty-text">Загрузка...</div></div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<script>
+var balances = {USDT:0,RUB:0,EUR:0,BTC:0,ETH:0};
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!Auth.requireAuth()) return;
+    var user = Auth.getUser();
+    if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
+    loadInfo();
+    loadHistory();
+});
+
+async function loadInfo() {
+    try {
+        var res = await Auth.apiFetch('/api/profile');
+        if (!res.ok) return;
+        var d = await res.json(); var u = d.data;
+        balances.USDT = parseFloat(u.usdt)||0;
+        balances.RUB = parseFloat(u.rub)||0;
+        balances.EUR = parseFloat(u.eur)||0;
+        balances.BTC = parseFloat(u.btc)||0;
+        balances.ETH = parseFloat(u.eth)||0;
+        document.getElementById('sideUsdt').textContent = balances.USDT.toFixed(2);
+        document.getElementById('sideRub').textContent = balances.RUB.toFixed(2);
+        document.getElementById('sideEur').textContent = balances.EUR.toFixed(2);
+        document.getElementById('sideMinWithdraw').textContent = (u.min_withdraw||10) + ' USDT';
+        document.getElementById('sideVerified').textContent = u.is_verified ? '✅ Да' : '❌ Нет';
+        updateMax();
+    } catch(e) {}
+}
+
+function updateMax() {
+    var cur = document.getElementById('currency').value;
+    var bal = balances[cur] || 0;
+    document.getElementById('availBalance').textContent = bal.toFixed(cur==='BTC'?8:(cur==='ETH'?6:2));
+}
+
+function setMax() {
+    var cur = document.getElementById('currency').value;
+    document.getElementById('amount').value = balances[cur] || 0;
+}
+
+async function submitWithdraw() {
+    var amount = parseFloat(document.getElementById('amount').value);
+    var currency = document.getElementById('currency').value;
+    var wallet = document.getElementById('wallet').value.trim();
+    if (!amount || amount <= 0) return alert('Введите сумму');
+    if (!wallet) return alert('Введите адрес кошелька');
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Обработка...';
+    try {
+        var res = await Auth.apiFetch('/api/transactions/withdraw', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({amount:amount, wallet:wallet, currency:currency})
+        });
+        var d = await res.json();
+        if (!res.ok) { alert(d.error || 'Ошибка'); return; }
+        alert('Заявка на вывод создана! Ожидайте обработки.');
+        document.getElementById('amount').value = '';
+        document.getElementById('wallet').value = '';
+        loadHistory(); loadInfo();
+    } catch(e) { alert('Ошибка сети'); }
+    finally { btn.disabled = false; btn.textContent = 'Вывести'; }
+}
+
+async function loadHistory() {
+    try {
+        var res = await Auth.apiFetch('/api/transactions/history?type=withdraw&limit=10');
+        if (!res.ok) return;
+        var d = await res.json(); var items = d.data || [];
+        var c = document.getElementById('historyList');
+        if (!items.length) { c.innerHTML = '<div class="empty-text">Нет выводов</div>'; return; }
+        c.innerHTML = items.map(function(t) {
+            var dt = new Date(t.created_at);
+            var ds = String(dt.getDate()).padStart(2,'0')+'.'+String(dt.getMonth()+1).padStart(2,'0')+' '+String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+            var st = t.status==='approved'?'status-approved':(t.status==='rejected'?'status-rejected':'status-pending');
+            var sl = t.status==='approved'?'Одобрено':(t.status==='rejected'?'Отклонено':'Ожидание');
+            return '<div class="hist-item"><div class="hist-left"><div class="hist-type">Вывод '+(t.currency||'USDT')+'</div><div class="hist-date">'+ds+'</div></div><div class="hist-right"><div class="hist-amount">-'+parseFloat(t.amount).toFixed(2)+'</div><div class="hist-status '+st+'">'+sl+'</div></div></div>';
+        }).join('');
+    } catch(e) {}
+}
+</script>
+</body>
+</html>

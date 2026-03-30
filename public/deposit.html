@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Депозит — TrustEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="js/auth.js" defer></script>
+<script src="js/balance.js" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=2">
+<script src="js/nav.js?v=2" defer></script>
+<style>
+
+.content{max-width:1200px;margin:0 auto;padding:20px 20px 80px}
+.dep-grid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+
+.panel{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px}
+.panel-title{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:16px}
+
+.notice{background:rgba(240,185,11,.08);border:1px solid rgba(240,185,11,.25);border-radius:4px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--yellow);display:flex;gap:10px;align-items:flex-start;line-height:1.5}
+.notice svg{width:18px;height:18px;fill:var(--yellow);flex-shrink:0;margin-top:2px}
+
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;color:var(--text3);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+.form-select{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px 14px;color:var(--text);font-size:14px;font-family:inherit;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23848e9c' fill='none' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.form-select:focus{outline:none;border-color:var(--yellow)}.form-select option{background:var(--card);color:var(--text)}
+.form-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px 14px;color:var(--text);font-size:14px;font-family:inherit}
+.form-input:focus{outline:none;border-color:var(--yellow)}.form-input::placeholder{color:var(--text3)}
+
+.quick-amounts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.qa-btn{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:8px 16px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s}
+.qa-btn:hover{background:var(--bg3);color:var(--text);border-color:var(--text3)}
+
+.wallet-addr{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px;font-size:13px;display:flex;align-items:center;gap:10px;margin-top:6px;word-break:break-all}
+.wallet-addr code{flex:1;color:var(--text);font-family:'Courier New',monospace;font-size:13px}
+.copy-btn{background:none;border:none;color:var(--yellow);cursor:pointer;padding:4px;flex-shrink:0}.copy-btn svg{width:18px;height:18px;fill:currentColor}
+
+.submit-btn{width:100%;padding:14px;background:var(--yellow);border:none;border-radius:4px;font-size:15px;font-weight:700;color:#000;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.submit-btn:hover{opacity:.9}.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.side-panels{display:flex;flex-direction:column;gap:12px}
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-label{color:var(--text3)}.info-value{font-weight:600;color:var(--text)}
+
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.hist-item:last-child{border-bottom:none}
+.hist-left{min-width:0}.hist-type{font-size:13px;font-weight:500;color:var(--text)}.hist-date{font-size:11px;color:var(--text3);margin-top:2px}
+.hist-right{text-align:right;flex-shrink:0}.hist-amount{font-size:13px;font-weight:600;color:var(--green)}.hist-status{font-size:10px;margin-top:2px}
+.status-pending{color:var(--yellow)}.status-approved{color:var(--green)}.status-rejected{color:var(--red)}
+.empty-text{text-align:center;color:var(--text3);font-size:13px;padding:20px 0}
+
+.steps{font-size:13px;color:var(--text2);line-height:1.8}
+.steps span{display:block}
+
+@media(max-width:960px){.dep-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.content{padding:16px 12px 100px}}
+</style>
+</head>
+<body>
+
+<header class="header"></header>
+
+<nav class="mobnav"></nav>
+
+<div class="content">
+<div class="dep-grid">
+
+<div>
+    <div class="notice">
+        <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        <span>Средства зачисляются после подтверждения администратором. Обычно это занимает до 30 минут.</span>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Пополнение счёта</div>
+
+        <div class="form-group">
+            <label class="form-label">Валюта</label>
+            <select class="form-select" id="currency" onchange="updateMinAmount()">
+                <option value="USDT">USDT (Tether TRC-20)</option>
+                <option value="BTC">BTC (Bitcoin)</option>
+                <option value="ETH">ETH (Ethereum)</option>
+                <option value="RUB">RUB (Рубли)</option>
+                <option value="EUR">EUR (Евро)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Сумма</label>
+            <input type="number" class="form-input" id="amount" placeholder="Введите сумму" min="1" step="any">
+        </div>
+
+        <div class="quick-amounts">
+            <button class="qa-btn" onclick="setAmount(50)">$50</button>
+            <button class="qa-btn" onclick="setAmount(100)">$100</button>
+            <button class="qa-btn" onclick="setAmount(250)">$250</button>
+            <button class="qa-btn" onclick="setAmount(500)">$500</button>
+            <button class="qa-btn" onclick="setAmount(1000)">$1000</button>
+        </div>
+
+        <div id="walletSection" style="margin-bottom:16px;display:none">
+            <label class="form-label">Переведите на адрес</label>
+            <div class="wallet-addr">
+                <code id="walletAddr">—</code>
+                <button class="copy-btn" onclick="copyAddr()" title="Копировать"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+            </div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="submitDeposit()">Пополнить</button>
+    </div>
+</div>
+
+<div class="side-panels">
+    <div class="panel">
+        <div class="panel-title">Информация</div>
+        <div class="info-row"><span class="info-label">Баланс USDT</span><span class="info-value" id="sideUsdt">0.00</span></div>
+        <div class="info-row"><span class="info-label">Мин. депозит</span><span class="info-value" id="sideMinDeposit">—</span></div>
+        <div class="info-row"><span class="info-label">Верификация</span><span class="info-value" id="sideVerified">—</span></div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Как пополнить</div>
+        <div class="steps">
+            <span>1. Выберите валюту пополнения</span>
+            <span>2. Введите сумму</span>
+            <span>3. Переведите средства на указанный кошелёк</span>
+            <span>4. Нажмите «Пополнить» и ожидайте подтверждения</span>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Последние пополнения</div>
+        <div id="historyList"><div class="empty-text">Загрузка...</div></div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<script>
+var wallets = {
+    USDT: 'TJeKfL1PqbnGZgpN3sxy8w8ApPSLj8dWgQ',
+    BTC: 'bc1qxyz123456789examplebtcwallet',
+    ETH: '0x742d35Cc6634C0532925a3b844example'
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!Auth.requireAuth()) return;
+    var user = Auth.getUser();
+    if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
+    loadInfo();
+    loadHistory();
+    updateMinAmount();
+});
+
+async function loadInfo() {
+    try {
+        var res = await Auth.apiFetch('/api/profile');
+        if (!res.ok) return;
+        var d = await res.json(); var u = d.data;
+        document.getElementById('sideUsdt').textContent = parseFloat(u.usdt||0).toFixed(2);
+        document.getElementById('sideMinDeposit').textContent = (u.min_deposit || 10) + ' USDT';
+        document.getElementById('sideVerified').textContent = u.is_verified ? '✅ Да' : '❌ Нет';
+    } catch(e) {}
+}
+
+function updateMinAmount() {
+    var cur = document.getElementById('currency').value;
+    var sec = document.getElementById('walletSection');
+    if (wallets[cur]) {
+        sec.style.display = 'block';
+        document.getElementById('walletAddr').textContent = wallets[cur];
+    } else {
+        sec.style.display = 'none';
+    }
+}
+
+function setAmount(v) { document.getElementById('amount').value = v; }
+
+function copyAddr() {
+    var t = document.getElementById('walletAddr').textContent;
+    if (t && t !== '—') navigator.clipboard.writeText(t);
+}
+
+async function submitDeposit() {
+    var amount = parseFloat(document.getElementById('amount').value);
+    var currency = document.getElementById('currency').value;
+    if (!amount || amount <= 0) return alert('Введите сумму');
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Обработка...';
+    try {
+        var res = await Auth.apiFetch('/api/transactions/deposit', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({amount: amount, currency: currency})
+        });
+        var d = await res.json();
+        if (!res.ok) { alert(d.error || 'Ошибка'); return; }
+        alert('Заявка на пополнение создана! Ожидайте подтверждения.');
+        document.getElementById('amount').value = '';
+        loadHistory(); loadInfo();
+    } catch(e) { alert('Ошибка сети'); }
+    finally { btn.disabled = false; btn.textContent = 'Пополнить'; }
+}
+
+async function loadHistory() {
+    try {
+        var res = await Auth.apiFetch('/api/transactions/history?type=deposit&limit=10');
+        if (!res.ok) return;
+        var d = await res.json(); var items = d.data || [];
+        var c = document.getElementById('historyList');
+        if (!items.length) { c.innerHTML = '<div class="empty-text">Нет пополнений</div>'; return; }
+        c.innerHTML = items.map(function(t) {
+            var dt = new Date(t.created_at);
+            var ds = String(dt.getDate()).padStart(2,'0')+'.'+String(dt.getMonth()+1).padStart(2,'0')+' '+String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+            var st = t.status === 'approved' ? 'status-approved' : (t.status === 'rejected' ? 'status-rejected' : 'status-pending');
+            var sl = t.status === 'approved' ? 'Подтверждено' : (t.status === 'rejected' ? 'Отклонено' : 'Ожидание');
+            return '<div class="hist-item"><div class="hist-left"><div class="hist-type">Пополнение '+(t.currency||'USDT')+'</div><div class="hist-date">'+ds+'</div></div><div class="hist-right"><div class="hist-amount">+'+parseFloat(t.amount).toFixed(2)+'</div><div class="hist-status '+st+'">'+sl+'</div></div></div>';
+        }).join('');
+    } catch(e) {}
+}
+</script>
+</body>
+</html>

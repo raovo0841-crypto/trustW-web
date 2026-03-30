@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Профиль — TrustEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="js/auth.js" defer></script>
+<script src="js/balance.js" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=2">
+<script src="js/nav.js?v=2" defer></script>
+<style>
+
+.content{max-width:1200px;margin:0 auto;padding:20px 20px 80px}
+.prof-grid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+
+.panel{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px}
+.panel-title{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:16px}
+
+.profile-header{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.avatar{width:64px;height:64px;border-radius:4px;background:var(--yellow);color:#000;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;flex-shrink:0}
+.prof-info{min-width:0}
+.prof-name{font-size:20px;font-weight:700}.prof-email{font-size:13px;color:var(--text2);margin-top:2px}
+.prof-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;margin-top:6px}
+.badge-verified{background:rgba(14,203,129,.12);color:var(--green);border:1px solid rgba(14,203,129,.3)}
+.badge-unverified{background:rgba(246,70,93,.12);color:var(--red);border:1px solid rgba(246,70,93,.3)}
+
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-label{color:var(--text3)}.info-value{font-weight:600;color:var(--text)}
+
+.pin-status{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px}
+.dot-on{width:8px;height:8px;border-radius:50%;background:var(--green)}.dot-off{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.pin-row{display:flex;gap:8px}
+.pin-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit;text-align:center;letter-spacing:6px}
+.pin-input:focus{outline:none;border-color:var(--yellow)}.pin-input::placeholder{color:var(--text3);letter-spacing:2px}
+.pin-btn{background:var(--yellow);border:none;color:#000;padding:10px 18px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.pin-btn:hover{opacity:.9}.pin-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.nav-links{display:flex;flex-direction:column;gap:6px}
+.nav-link{display:flex;align-items:center;gap:12px;padding:12px;border-radius:4px;background:var(--bg2);border:1px solid var(--border);color:var(--text);transition:border-color .15s,background .15s}
+.nav-link:hover{border-color:var(--text3);background:var(--hover)}
+.nav-link svg{width:20px;height:20px;fill:var(--yellow);flex-shrink:0}
+.nav-link-text{flex:1;font-size:14px;font-weight:500}
+.nav-link-sub{font-size:11px;color:var(--text3)}
+.nav-link-arrow{color:var(--text3);font-size:16px}
+
+.logout-btn{width:100%;padding:12px;border-radius:4px;border:1px solid var(--red);background:rgba(246,70,93,.08);color:var(--red);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;margin-top:8px}
+.logout-btn:hover{background:var(--red);color:#fff}
+
+.side-panels{display:flex;flex-direction:column;gap:12px}
+.stat-val-green{color:var(--green)}.stat-val-red{color:var(--red)}
+
+@media(max-width:960px){.prof-grid{grid-template-columns:1fr}}
+@media(max-width:768px){
+    .content{padding:16px 12px 100px}
+}
+</style>
+</head>
+<body>
+
+<header class="header"></header>
+
+<nav class="mobnav"></nav>
+
+<div class="content">
+<div class="prof-grid">
+
+<div>
+    <div class="panel" style="margin-bottom:16px">
+        <div class="profile-header">
+            <div class="avatar" id="avatarLetter">U</div>
+            <div class="prof-info">
+                <div class="prof-name" id="profileName">Пользователь</div>
+                <div class="prof-email" id="profileEmail">—</div>
+                <span class="prof-badge badge-unverified" id="verifyBadge">Не верифицирован</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:16px">
+        <div class="panel-title">Информация</div>
+        <div class="info-row"><span class="info-label">ID</span><span class="info-value" id="userId">—</span></div>
+        <div class="info-row"><span class="info-label">Email</span><span class="info-value" id="userEmail">—</span></div>
+        <div class="info-row"><span class="info-label">Дата регистрации</span><span class="info-value" id="userDate">—</span></div>
+        <div class="info-row"><span class="info-label">Соглашение</span><span class="info-value" id="userAgreement">—</span></div>
+    </div>
+
+    <div class="panel" style="margin-bottom:16px">
+        <div class="panel-title">Безопасность</div>
+        <div class="pin-status">
+            <span id="pinDot" class="dot-off"></span>
+            <span id="pinLabel">PIN-код не установлен</span>
+        </div>
+        <div id="pinSection">
+            <div class="pin-row">
+                <input type="password" class="pin-input" id="pinInput" maxlength="6" placeholder="••••" inputmode="numeric">
+                <button class="pin-btn" id="pinBtn" onclick="handlePin()">Установить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:16px">
+        <div class="panel-title">Навигация</div>
+        <div class="nav-links">
+            <a href="wallet.html" class="nav-link">
+                <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                <div><div class="nav-link-text">Кошелек</div><div class="nav-link-sub">Управление активами</div></div>
+                <span class="nav-link-arrow">›</span>
+            </a>
+            <a href="support.html" class="nav-link">
+                <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+                <div><div class="nav-link-text">Поддержка</div><div class="nav-link-sub">Связаться с оператором</div></div>
+                <span class="nav-link-arrow">›</span>
+            </a>
+            <a href="reviews.html" class="nav-link">
+                <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <div><div class="nav-link-text">Отзывы</div><div class="nav-link-sub">Оставить отзыв о платформе</div></div>
+                <span class="nav-link-arrow">›</span>
+            </a>
+        </div>
+    </div>
+
+    <button class="logout-btn" onclick="Auth.logout()">Выйти из аккаунта</button>
+</div>
+
+<div class="side-panels">
+    <div class="panel">
+        <div class="panel-title">Балансы</div>
+        <div class="info-row"><span class="info-label">USDT</span><span class="info-value" id="sideUsdt">0.00</span></div>
+        <div class="info-row"><span class="info-label">RUB</span><span class="info-value" id="sideRub">0.00</span></div>
+        <div class="info-row"><span class="info-label">EUR</span><span class="info-value" id="sideEur">0.00</span></div>
+        <div class="info-row"><span class="info-label">BTC</span><span class="info-value" id="sideBtc">0.00000000</span></div>
+        <div class="info-row"><span class="info-label">ETH</span><span class="info-value" id="sideEth">0.000000</span></div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Торговая статистика</div>
+        <div class="info-row"><span class="info-label">Всего сделок</span><span class="info-value" id="sTotalTrades">0</span></div>
+        <div class="info-row"><span class="info-label">Побед</span><span class="info-value stat-val-green" id="sWins">0</span></div>
+        <div class="info-row"><span class="info-label">Поражений</span><span class="info-value stat-val-red" id="sLosses">0</span></div>
+        <div class="info-row"><span class="info-label">Прибыль</span><span class="info-value stat-val-green" id="sProfit">0.00</span></div>
+        <div class="info-row"><span class="info-label">Убыток</span><span class="info-value stat-val-red" id="sLoss">0.00</span></div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<script>
+var hasPin = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!Auth.requireAuth()) return;
+    var user = Auth.getUser();
+    if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
+    loadProfile();
+    loadStats();
+    loadSecurity();
+});
+
+async function loadProfile() {
+    try {
+        var res = await Auth.apiFetch('/api/profile');
+        if (!res.ok) return;
+        var d = await res.json(); var u = d.data;
+        var email = u.email || '—';
+        document.getElementById('profileName').textContent = email.split('@')[0];
+        document.getElementById('profileEmail').textContent = email;
+        document.getElementById('avatarLetter').textContent = email.charAt(0).toUpperCase();
+        document.getElementById('userId').textContent = '#' + u.id;
+        document.getElementById('userEmail').textContent = email;
+        if (u.created_at) {
+            var dt = new Date(u.created_at);
+            document.getElementById('userDate').textContent = String(dt.getDate()).padStart(2,'0')+'.'+String(dt.getMonth()+1).padStart(2,'0')+'.'+dt.getFullYear();
+        }
+        document.getElementById('userAgreement').textContent = u.agreement_accepted ? '✅ Принято' : '❌ Не принято';
+        var vb = document.getElementById('verifyBadge');
+        if (u.is_verified) { vb.className = 'prof-badge badge-verified'; vb.textContent = '✅ Верифицирован'; }
+        else { vb.className = 'prof-badge badge-unverified'; vb.textContent = '❌ Не верифицирован'; }
+        document.getElementById('sideUsdt').textContent = parseFloat(u.usdt||0).toFixed(2);
+        document.getElementById('sideRub').textContent = parseFloat(u.rub||0).toFixed(2);
+        document.getElementById('sideEur').textContent = parseFloat(u.eur||0).toFixed(2);
+        document.getElementById('sideBtc').textContent = parseFloat(u.btc||0).toFixed(8);
+        document.getElementById('sideEth').textContent = parseFloat(u.eth||0).toFixed(6);
+    } catch(e) {}
+}
+
+async function loadStats() {
+    try {
+        var res = await Auth.apiFetch('/api/trades/stats');
+        if (!res.ok) return;
+        var d = await res.json(); var s = d.data || {};
+        document.getElementById('sTotalTrades').textContent = parseInt(s.total_trades)||0;
+        document.getElementById('sWins').textContent = parseInt(s.wins)||0;
+        document.getElementById('sLosses').textContent = parseInt(s.losses)||0;
+        document.getElementById('sProfit').textContent = '+' + parseFloat(s.total_profit||0).toFixed(2);
+        document.getElementById('sLoss').textContent = '-' + parseFloat(s.total_loss||0).toFixed(2);
+    } catch(e) {}
+}
+
+async function loadSecurity() {
+    try {
+        var res = await Auth.apiFetch('/api/security/status');
+        if (!res.ok) return;
+        var d = await res.json(); var s = d.data || {};
+        hasPin = !!s.has_pin;
+        document.getElementById('pinDot').className = hasPin ? 'dot-on' : 'dot-off';
+        document.getElementById('pinLabel').textContent = hasPin ? 'PIN-код установлен' : 'PIN-код не установлен';
+        document.getElementById('pinBtn').textContent = hasPin ? 'Отключить' : 'Установить';
+    } catch(e) {}
+}
+
+async function handlePin() {
+    var pin = document.getElementById('pinInput').value.trim();
+    if (!pin || pin.length < 4 || pin.length > 6 || !/^\d+$/.test(pin)) return alert('PIN должен содержать 4-6 цифр');
+    var btn = document.getElementById('pinBtn');
+    btn.disabled = true;
+    try {
+        if (hasPin) {
+            var res = await Auth.apiFetch('/api/security/disable', {
+                method: 'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({pin:pin})
+            });
+            var d = await res.json();
+            if (!res.ok) { alert(d.error || 'Неверный PIN'); return; }
+            alert('PIN-код отключен');
+        } else {
+            var res = await Auth.apiFetch('/api/security/pin/setup', {
+                method: 'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({pin:pin})
+            });
+            var d = await res.json();
+            if (!res.ok) { alert(d.error || 'Ошибка'); return; }
+            alert('PIN-код установлен');
+        }
+        document.getElementById('pinInput').value = '';
+        loadSecurity();
+    } catch(e) { alert('Ошибка сети'); }
+    finally { btn.disabled = false; }
+}
+</script>
+</body>
+</html>

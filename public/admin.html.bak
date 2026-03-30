@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>TrustEx Admin</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0e1a;
+      color: #fff;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #1a1f35 0%, #0d1117 100%);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .header h1 { font-size: 24px; color: #ffd700; margin-bottom: 5px; }
+    .header p { color: #8892b0; font-size: 14px; }
+    
+    .container { padding: 15px; max-width: 600px; margin: 0 auto; }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #1a2332 0%, #141c2b 100%);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .stat-card .value { font-size: 28px; font-weight: bold; color: #4db8ff; }
+    .stat-card .label { font-size: 12px; color: #8892b0; margin-top: 5px; }
+    
+    .section {
+      background: linear-gradient(135deg, #1a2332 0%, #141c2b 100%);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .section-title {
+      font-size: 16px; font-weight: 600; margin-bottom: 15px;
+      color: #ffd700; display: flex; align-items: center; gap: 8px;
+    }
+    
+    .tabs {
+      display: flex; gap: 8px; margin-bottom: 15px;
+      overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex: 0 0 auto; padding: 10px 14px;
+      background: rgba(255,255,255,0.05); border: none; border-radius: 10px;
+      color: #8892b0; font-weight: 500; cursor: pointer;
+      transition: all 0.2s; white-space: nowrap; font-size: 13px;
+    }
+    .tab.active { background: linear-gradient(135deg, #4db8ff 0%, #2ea3e8 100%); color: #fff; }
+    
+    .user-list { display: flex; flex-direction: column; gap: 10px; }
+    .user-card {
+      background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .user-card:hover { background: rgba(255,255,255,0.08); }
+    .user-info { display: flex; flex-direction: column; gap: 3px; }
+    .user-name { font-weight: 600; font-size: 15px; }
+    .user-email { font-size: 12px; color: #8892b0; }
+    .user-balance { text-align: right; }
+    .user-balance .amount { font-weight: 600; color: #4db8ff; font-size: 13px; }
+    .user-balance .mode {
+      font-size: 12px; padding: 3px 8px; border-radius: 10px;
+      margin-top: 5px; display: inline-block;
+    }
+    .mode-win { background: rgba(0,255,136,0.2); color: #00ff88; }
+    .mode-loss { background: rgba(255,68,68,0.2); color: #ff4444; }
+    
+    .search-box {
+      width: 100%; padding: 12px 15px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; color: #fff; font-size: 15px; margin-bottom: 15px;
+    }
+    .search-box::placeholder { color: #8892b0; }
+    
+    /* Request cards */
+    .req-card {
+      background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px;
+      margin-bottom: 10px; border-left: 3px solid #ffd700;
+    }
+    .req-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .req-user { font-weight: 600; font-size: 14px; }
+    .req-amount { font-weight: bold; color: #4db8ff; font-size: 16px; }
+    .req-details { font-size: 12px; color: #8892b0; margin-bottom: 10px; }
+    .req-actions { display: flex; gap: 8px; }
+    .btn-approve {
+      flex: 1; padding: 10px; background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+      border: none; border-radius: 8px; color: #000; font-weight: 600; font-size: 13px; cursor: pointer;
+    }
+    .btn-reject {
+      padding: 10px 16px; background: rgba(255,68,68,0.2); border: 1px solid rgba(255,68,68,0.3);
+      border-radius: 8px; color: #ff4444; font-weight: 600; font-size: 13px; cursor: pointer;
+    }
+    .btn-approve:disabled, .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8); z-index: 1000;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #1a2332; border-radius: 16px; width: 100%; max-width: 440px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-header {
+      padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; background: #1a2332; z-index: 10; border-radius: 16px 16px 0 0;
+    }
+    .modal-header h3 { font-size: 18px; }
+    .modal-close { background: none; border: none; color: #8892b0; font-size: 24px; cursor: pointer; }
+    .modal-body { padding: 20px; }
+    
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 13px; color: #8892b0; margin-bottom: 8px; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 12px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 16px;
+    }
+    .form-group input:focus { outline: none; border-color: #4db8ff; }
+    
+    .mode-buttons { display: flex; gap: 10px; }
+    .mode-btn {
+      flex: 1; padding: 12px; border: none; border-radius: 8px;
+      font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .mode-btn.win { background: rgba(0,255,136,0.2); color: #00ff88; border: 2px solid transparent; }
+    .mode-btn.win.active { border-color: #00ff88; }
+    .mode-btn.loss { background: rgba(255,68,68,0.2); color: #ff4444; border: 2px solid transparent; }
+    .mode-btn.loss.active { border-color: #ff4444; }
+    
+    .btn-primary {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #4db8ff 0%, #2ea3e8 100%);
+      border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 16px;
+      cursor: pointer; margin-top: 10px;
+    }
+    .btn-primary:disabled { opacity: 0.5; }
+    
+    .detail-row {
+      display: flex; justify-content: space-between; padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: #8892b0; }
+    .detail-value { font-weight: 500; }
+    
+    .history-tab {
+      flex: 1; padding: 6px 8px; background: rgba(255,255,255,0.05);
+      border: none; border-radius: 6px; color: #8892b0; font-size: 11px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .history-tab.active { background: linear-gradient(135deg, #4db8ff 0%, #2ea3e8 100%); color: #fff; }
+    
+    .history-item {
+      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 13px; display: flex; justify-content: space-between;
+    }
+    
+    /* Chat */
+    .chat-messages {
+      max-height: 400px; overflow-y: auto; margin-bottom: 10px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .chat-msg {
+      padding: 10px 14px; border-radius: 12px; max-width: 85%;
+      font-size: 14px; line-height: 1.4;
+    }
+    .chat-msg.user { background: rgba(77,184,255,0.15); align-self: flex-start; }
+    .chat-msg.admin { background: rgba(255,215,0,0.15); align-self: flex-end; }
+    .chat-msg .time { font-size: 10px; color: #8892b0; margin-top: 4px; }
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input {
+      flex: 1; padding: 12px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+      color: #fff; font-size: 14px;
+    }
+    .chat-send {
+      padding: 12px 20px; background: linear-gradient(135deg, #ffd700 0%, #e0a800 100%);
+      border: none; border-radius: 10px; color: #000; font-weight: 600; cursor: pointer;
+    }
+    
+    .loading { text-align: center; padding: 40px; color: #8892b0; }
+    
+    .toast {
+      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+      background: #1a2332; color: #fff; padding: 12px 24px; border-radius: 10px;
+      z-index: 2000; display: none; border: 1px solid rgba(255,255,255,0.1);
+    }
+    .toast.success { border-color: #00ff88; }
+    .toast.error { border-color: #ff4444; }
+    .toast.show { display: block; animation: fadeIn 0.3s; }
+    
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-pending { background: rgba(255,152,0,0.2); color: #ff9800; }
+    .badge-success { background: rgba(0,255,136,0.2); color: #00ff88; }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>👑 TrustEx Admin</h1>
+    <p id="roleLabel">Панель управления</p>
+  </div>
+  
+  <div class="container">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="value" id="totalUsers">-</div>
+        <div class="label">Пользователей</div>
+      </div>
+      <div class="stat-card">
+        <div class="value" id="totalBalance">-</div>
+        <div class="label">Общий USDT</div>
+      </div>
+      <div class="stat-card">
+        <div class="value" id="winModeCount">-</div>
+        <div class="label">🟢 WIN</div>
+      </div>
+      <div class="stat-card">
+        <div class="value" id="lossModeCount">-</div>
+        <div class="label">🔴 LOSS</div>
+      </div>
+      <div class="stat-card">
+        <div class="value" id="pendingDeps">-</div>
+        <div class="label">📥 Депозитов ожидает</div>
+      </div>
+      <div class="stat-card">
+        <div class="value" id="pendingWds">-</div>
+        <div class="label">📤 Выводов ожидает</div>
+      </div>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('users')">👥 Пользователи</button>
+      <button class="tab" onclick="switchTab('deposits')">📥 Депозиты</button>
+      <button class="tab" onclick="switchTab('withdrawals')">📤 Выводы</button>
+      <button class="tab" onclick="switchTab('chats')">💬 Чаты</button>
+      <button class="tab" onclick="switchTab('settings')">⚙️ Курсы</button>
+    </div>
+    
+    <!-- Users -->
+    <div class="section" id="sectionUsers">
+      <div class="section-title">👥 Пользователи</div>
+      <input type="text" class="search-box" id="searchInput" placeholder="🔍 Поиск по email или имени...">
+      <div class="user-list" id="userList"><div class="loading">Загрузка...</div></div>
+    </div>
+    
+    <!-- Deposits -->
+    <div class="section" id="sectionDeposits" style="display:none">
+      <div class="section-title">📥 Ожидающие депозиты</div>
+      <div id="depositList"><div class="loading">Загрузка...</div></div>
+    </div>
+    
+    <!-- Withdrawals -->
+    <div class="section" id="sectionWithdrawals" style="display:none">
+      <div class="section-title">📤 Ожидающие выводы</div>
+      <div id="withdrawalList"><div class="loading">Загрузка...</div></div>
+    </div>
+    
+    <!-- Chats -->
+    <div class="section" id="sectionChats" style="display:none">
+      <div class="section-title">💬 Чаты поддержки</div>
+      <div id="chatList"><div class="loading">Загрузка...</div></div>
+    </div>
+    
+    <!-- Settings -->
+    <div class="section" id="sectionSettings" style="display:none">
+      <div class="section-title">⚙️ Курсы валют</div>
+      <div class="form-group">
+        <label>RUB → USDT</label>
+        <input type="number" id="rateRub" placeholder="83.33" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>EUR → USDT</label>
+        <input type="number" id="rateEur" placeholder="0.92" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>BYN → USDT</label>
+        <input type="number" id="rateByn" placeholder="3.27" step="0.01">
+      </div>
+      <button class="btn-primary" onclick="saveRates()">💾 Сохранить курсы</button>
+    </div>
+  </div>
+  
+  <!-- User Modal -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalUserName">Пользователь</h3>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button onclick="refreshUser()" style="background:none;border:none;color:#fcd535;font-size:18px;cursor:pointer;">🔄</button>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div id="userDetails"></div>
+        
+        <div class="form-group"><label>Баланс USDT</label><input type="number" id="newBalanceUsdt" step="0.01"></div>
+        <div class="form-group"><label>Баланс RUB (₽)</label><input type="number" id="newBalanceRub" step="0.01"></div>
+        <div class="form-group"><label>Баланс EUR (€)</label><input type="number" id="newBalanceEur" step="0.01"></div>
+        <div class="form-group"><label>Баланс BYN (Br)</label><input type="number" id="newBalanceByn" step="0.01"></div>
+        <div class="form-group"><label>Баланс BTC</label><input type="number" id="newBalanceBtc" step="0.00000001"></div>
+        <div class="form-group"><label>Баланс ETH</label><input type="number" id="newBalanceEth" step="0.00000001"></div>
+        <div class="form-group"><label>Баланс TON</label><input type="number" id="newBalanceTon" step="0.00000001"></div>
+        
+        <div class="form-group">
+          <label>📊 Множитель профита (%)</label>
+          <input type="number" id="profitMultiplier" step="0.1" min="0" max="1000">
+          <small style="color:#848e9c;font-size:11px;margin-top:4px;display:block;">1.5 = +1.5% профита от ставки</small>
+        </div>
+        
+        <div class="form-group">
+          <label>Режим торговли</label>
+          <div class="mode-buttons">
+            <button class="mode-btn win" id="btnWin" onclick="setMode('win')">🟢 WIN</button>
+            <button class="mode-btn loss" id="btnLoss" onclick="setMode('loss')">🔴 LOSS</button>
+          </div>
+        </div>
+        
+        <div style="display:flex;gap:10px;margin-top:10px;">
+          <button class="btn-primary" onclick="saveUser()" style="flex:1;">💾 Сохранить</button>
+          <button class="btn-primary" onclick="openUserChat()" style="flex:1;background:linear-gradient(135deg,#9b59b6 0%,#8e44ad 100%);">💬 Чат</button>
+        </div>
+        
+        <div style="margin-top:10px;">
+          <button class="btn-primary" id="btnBlock" onclick="toggleBlock()" style="width:100%;background:linear-gradient(135deg,#ff4444 0%,#cc0000 100%);">⛔ Заблокировать</button>
+        </div>
+        
+        <!-- History -->
+        <div style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.1);padding-top:15px;">
+          <div style="font-size:14px;font-weight:600;color:#ffd700;margin-bottom:10px;">📊 История активности</div>
+          <div style="display:flex;gap:5px;margin-bottom:10px;">
+            <button class="history-tab active" onclick="switchHistory('all')">Все</button>
+            <button class="history-tab" onclick="switchHistory('deposit')">💰 Деп</button>
+            <button class="history-tab" onclick="switchHistory('withdrawal')">📤 Вывод</button>
+            <button class="history-tab" onclick="switchHistory('trade')">📈 Сделки</button>
+          </div>
+          <div id="userHistory" style="max-height:300px;overflow-y:auto;">
+            <div class="loading" style="font-size:12px;padding:10px;">Загрузка...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Chat Modal -->
+  <div class="modal-overlay" id="chatModal">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <h3 id="chatUserName">Чат</h3>
+        <button class="modal-close" onclick="closeChatModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-row">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Сообщение..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+          <button class="chat-send" onclick="sendChatMsg()">📤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="toast" id="toast"></div>
+  
+  <script>
+    const API_BASE = window.location.origin + '/api/admin';
+    const tg = window.Telegram?.WebApp;
+    let adminId = null;
+    
+    // Get admin ID from Telegram WebApp
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      adminId = tg.initDataUnsafe?.user?.id;
+      if (adminId) localStorage.setItem('trustex_admin_id', String(adminId));
+    }
+    if (!adminId) adminId = localStorage.getItem('trustex_admin_id');
+    
+    let currentUser = null;
+    let allUsers = [];
+    let selectedMode = 'loss';
+    let historyData = [];
+    let currentHistoryTab = 'all';
+    let currentTab = 'users';
+    let chatUserId = null;
+    
+    // ── API helper ──
+    async function api(path, opts = {}) {
+      const sep = path.includes('?') ? '&' : '?';
+      const url = `${API_BASE}${path}${sep}adminId=${adminId}`;
+      const res = await fetch(url, {
+        ...opts,
+        headers: { 'Content-Type': 'application/json', ...opts.headers }
+      });
+      return res.json();
+    }
+    
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!adminId) {
+        document.querySelector('.container').innerHTML = '<div class="loading">⛔ Нет доступа. Откройте через Telegram бот.</div>';
+        return;
+      }
+      document.getElementById('roleLabel').textContent = '👑 Главный админ';
+      loadStats();
+      loadUsers();
+      document.getElementById('searchInput').addEventListener('input', filterUsers);
+    });
+    
+    // ── Tabs ──
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        const tabs = ['users','deposits','withdrawals','chats','settings'];
+        t.classList.toggle('active', tabs[i] === tab);
+      });
+      ['Users','Deposits','Withdrawals','Chats','Settings'].forEach(s => {
+        document.getElementById('section' + s).style.display = 'none';
+      });
+      document.getElementById('section' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
+      
+      if (tab === 'deposits') loadDeposits();
+      if (tab === 'withdrawals') loadWithdrawals();
+      if (tab === 'chats') loadChats();
+      if (tab === 'settings') loadRates();
+    }
+    
+    // ── Stats ──
+    async function loadStats() {
+      try {
+        const data = await api('/stats');
+        if (data.success) {
+          document.getElementById('totalUsers').textContent = data.data.totalUsers;
+          document.getElementById('totalBalance').textContent = data.data.totalBalance;
+          document.getElementById('winModeCount').textContent = data.data.winModeCount;
+          document.getElementById('lossModeCount').textContent = data.data.lossModeCount;
+          document.getElementById('pendingDeps').textContent = data.data.pendingDeposits;
+          document.getElementById('pendingWds').textContent = data.data.pendingWithdrawals;
+        }
+      } catch(e) { console.error(e); }
+    }
+    
+    // ── Users ──
+    async function loadUsers() {
+      try {
+        const data = await api('/users');
+        if (data.success) {
+          allUsers = data.data;
+          renderUsers(allUsers);
+        }
+      } catch(e) { 
+        document.getElementById('userList').innerHTML = '<div class="loading">❌ Ошибка загрузки</div>';
+      }
+    }
+    
+    function renderUsers(users) {
+      const list = document.getElementById('userList');
+      if (!users.length) { list.innerHTML = '<div class="loading">Пользователей нет</div>'; return; }
+      
+      list.innerHTML = users.map(u => `
+        <div class="user-card" onclick="openUser('${u.id}')">
+          <div class="user-info">
+            <div class="user-name">${u.is_blocked ? '⛔ ' : ''}${esc(u.first_name || u.email.split('@')[0])}</div>
+            <div class="user-email">${esc(u.email)}</div>
+          </div>
+          <div class="user-balance">
+            <div class="amount">${fmt(u.balance_usdt)} $ | ${fmt(u.balance_rub)} ₽</div>
+            <div class="mode ${u.trade_mode === 'win' ? 'mode-win' : 'mode-loss'}">
+              ${u.trade_mode === 'win' ? '🟢 WIN' : '🔴 LOSS'}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function filterUsers() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allUsers.filter(u =>
+        u.email.toLowerCase().includes(q) ||
+        (u.first_name || '').toLowerCase().includes(q) ||
+        (u.last_name || '').toLowerCase().includes(q) ||
+        u.id.includes(q)
+      );
+      renderUsers(filtered);
+    }
+    
+    // ── Open User ──
+    async function openUser(id) {
+      document.getElementById('userModal').classList.add('active');
+      try {
+        const data = await api(`/user/${id}`);
+        if (!data.success) { closeModal(); showToast('Не найден', 'error'); return; }
+        
+        currentUser = data.data;
+        selectedMode = currentUser.trade_mode || 'loss';
+        
+        document.getElementById('modalUserName').textContent = currentUser.first_name || currentUser.email;
+        
+        document.getElementById('userDetails').innerHTML = `
+          <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${esc(currentUser.email)}</span></div>
+          <div class="detail-row"><span class="detail-label">Имя</span><span class="detail-value">${esc(currentUser.first_name || '—')} ${esc(currentUser.last_name || '')}</span></div>
+          <div class="detail-row"><span class="detail-label">Статус</span><span class="detail-value" style="color:${currentUser.is_blocked ? '#ff4444' : '#00ff88'}">${currentUser.is_blocked ? '⛔ Заблокирован' : '✅ Активен'}</span></div>
+          <div class="detail-row"><span class="detail-label">Верификация</span><span class="detail-value">${currentUser.verified ? '✅ Да' : '❌ Нет'}</span></div>
+          <div class="detail-row"><span class="detail-label">Сделок</span><span class="detail-value">${currentUser.trades_count} (✅${currentUser.trades_wins} / ❌${currentUser.trades_losses})</span></div>
+          <div class="detail-row"><span class="detail-label">P&L</span><span class="detail-value">${currentUser.trades_profit} USDT</span></div>
+          <div class="detail-row"><span class="detail-label">Регистрация</span><span class="detail-value">${fmtDate(currentUser.created_at)}</span></div>
+        `;
+        
+        document.getElementById('newBalanceUsdt').value = parseFloat(currentUser.balance_usdt || 0).toFixed(2);
+        document.getElementById('newBalanceRub').value = parseFloat(currentUser.balance_rub || 0).toFixed(2);
+        document.getElementById('newBalanceEur').value = parseFloat(currentUser.balance_eur || 0).toFixed(2);
+        document.getElementById('newBalanceByn').value = parseFloat(currentUser.balance_byn || 0).toFixed(2);
+        document.getElementById('newBalanceBtc').value = parseFloat(currentUser.balance_btc || 0).toFixed(8);
+        document.getElementById('newBalanceEth').value = parseFloat(currentUser.balance_eth || 0).toFixed(8);
+        document.getElementById('newBalanceTon').value = parseFloat(currentUser.balance_ton || 0).toFixed(8);
+        document.getElementById('profitMultiplier').value = ((parseFloat(currentUser.profit_multiplier) || 0.015) * 100).toFixed(1);
+        
+        updateModeButtons();
+        
+        // Block button
+        const btn = document.getElementById('btnBlock');
+        if (currentUser.is_blocked) {
+          btn.textContent = '✅ Разблокировать';
+          btn.style.background = 'linear-gradient(135deg, #00ff88 0%, #00cc6a 100%)';
+        } else {
+          btn.textContent = '⛔ Заблокировать';
+          btn.style.background = 'linear-gradient(135deg, #ff4444 0%, #cc0000 100%)';
+        }
+        
+        loadUserHistory(id);
+      } catch(e) {
+        console.error(e);
+        closeModal();
+        showToast('Ошибка: ' + e.message, 'error');
+      }
+    }
+    
+    function refreshUser() { if (currentUser) openUser(currentUser.id); }
+    function closeModal() { document.getElementById('userModal').classList.remove('active'); currentUser = null; }
+    
+    function setMode(mode) { selectedMode = mode; updateModeButtons(); }
+    function updateModeButtons() {
+      document.getElementById('btnWin').classList.toggle('active', selectedMode === 'win');
+      document.getElementById('btnLoss').classList.toggle('active', selectedMode === 'loss');
+    }
+    
+    // ── Save User ──
+    async function saveUser() {
+      if (!currentUser) return;
+      
+      const body = {
+        balance_usdt: parseFloat(document.getElementById('newBalanceUsdt').value),
+        expected_balance_usdt: parseFloat(currentUser.balance_usdt || 0),
+        balance_rub: parseFloat(document.getElementById('newBalanceRub').value),
+        expected_balance_rub: parseFloat(currentUser.balance_rub || 0),
+        balance_eur: parseFloat(document.getElementById('newBalanceEur').value),
+        balance_byn: parseFloat(document.getElementById('newBalanceByn').value),
+        balance_btc: parseFloat(document.getElementById('newBalanceBtc').value),
+        balance_eth: parseFloat(document.getElementById('newBalanceEth').value),
+        balance_ton: parseFloat(document.getElementById('newBalanceTon').value),
+        profit_multiplier: parseFloat(document.getElementById('profitMultiplier').value) / 100,
+        trade_mode: selectedMode
+      };
+      
+      try {
+        const data = await api(`/user/${currentUser.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(body)
+        });
+        
+        if (data.success) {
+          showToast('✅ Сохранено', 'success');
+          loadStats();
+          loadUsers();
+          refreshUser();
+        } else {
+          showToast('❌ ' + data.error, 'error');
+        }
+      } catch(e) { showToast('❌ Ошибка', 'error'); }
+    }
+    
+    // ── Block ──
+    async function toggleBlock() {
+      if (!currentUser) return;
+      const action = currentUser.is_blocked ? 'разблокировать' : 'заблокировать';
+      if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} пользователя?`)) return;
+      
+      try {
+        const data = await api(`/user/${currentUser.id}/block`, { method: 'POST' });
+        if (data.success) {
+          showToast(data.blocked ? '⛔ Заблокирован' : '✅ Разблокирован', 'success');
+          refreshUser();
+          loadUsers();
+        }
+      } catch(e) { showToast('❌ Ошибка', 'error'); }
+    }
+    
+    // ── User History ──
+    async function loadUserHistory(userId) {
+      const container = document.getElementById('userHistory');
+      container.innerHTML = '<div class="loading" style="font-size:12px;padding:10px;">Загрузка...</div>';
+      
+      try {
+        const data = await api(`/user/${userId}/history`);
+        if (data.success) {
+          historyData = data.data || [];
+          renderHistory();
+        }
+      } catch(e) { container.innerHTML = '<div style="color:#ff4444;text-align:center;font-size:12px;">Ошибка</div>'; }
+    }
+    
+    function switchHistory(tab) {
+      currentHistoryTab = tab;
+      document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      renderHistory();
+    }
+    
+    function renderHistory() {
+      const container = document.getElementById('userHistory');
+      let items = historyData;
+      if (currentHistoryTab !== 'all') items = items.filter(i => i.type === currentHistoryTab);
+      
+      if (!items.length) { container.innerHTML = '<div style="color:#8892b0;text-align:center;font-size:12px;padding:10px;">Пустая история</div>'; return; }
+      
+      container.innerHTML = items.map(i => {
+        let icon = '🔄', desc = '', color = '#fff';
+        if (i.type === 'deposit') { icon = '📥'; desc = `${fmt(i.amount)} ${i.currency || 'USDT'}`; color = '#00ff88'; }
+        else if (i.type === 'withdrawal') { icon = '📤'; desc = `${fmt(i.amount)} USDT → ${esc(i.wallet || '?')}`; color = '#ff4444'; }
+        else if (i.type === 'trade') {
+          icon = i.direction === 'up' ? '📈' : '📉';
+          const res = i.result === 'win' ? '✅' : i.result === 'loss' ? '❌' : '🔄';
+          desc = `${fmt(i.amount)} ${i.symbol || 'BTC'} → ${res} ${i.result || 'active'}`;
+          color = i.result === 'win' ? '#00ff88' : i.result === 'loss' ? '#ff4444' : '#ffd700';
+        }
+        const status = i.status || '';
+        return `<div class="history-item"><span>${icon} ${desc} <span class="badge ${status === 'pending' ? 'badge-pending' : 'badge-success'}">${status}</span></span><span style="color:#8892b0;font-size:11px;">${fmtDate(i.created_at)}</span></div>`;
+      }).join('');
+    }
+    
+    // ── Deposits ──
+    async function loadDeposits() {
+      const list = document.getElementById('depositList');
+      list.innerHTML = '<div class="loading">Загрузка...</div>';
+      try {
+        const data = await api('/deposits');
+        if (data.success) renderRequests(list, data.data, 'dep');
+      } catch(e) { list.innerHTML = '<div class="loading">❌ Ошибка</div>'; }
+    }
+    
+    async function loadWithdrawals() {
+      const list = document.getElementById('withdrawalList');
+      list.innerHTML = '<div class="loading">Загрузка...</div>';
+      try {
+        const data = await api('/withdrawals');
+        if (data.success) renderRequests(list, data.data, 'wd');
+      } catch(e) { list.innerHTML = '<div class="loading">❌ Ошибка</div>'; }
+    }
+    
+    function renderRequests(container, items, prefix) {
+      if (!items.length) { container.innerHTML = '<div class="loading">Пусто</div>'; return; }
+      
+      container.innerHTML = items.map(item => `
+        <div class="req-card">
+          <div class="req-header">
+            <span class="req-user">👤 ${esc(item.first_name || item.email.split('@')[0])}</span>
+            <span class="req-amount">${fmt(item.amount)} ${item.currency || 'USDT'}</span>
+          </div>
+          <div class="req-details">
+            📧 ${esc(item.email)}<br>
+            ${item.wallet ? '🏦 ' + esc(item.wallet) + '<br>' : ''}
+            📅 ${fmtDate(item.created_at)}
+          </div>
+          <div class="req-actions">
+            <button class="btn-approve" onclick="approveReq('${prefix}','${item.id}',this)">✅ Одобрить</button>
+            <button class="btn-reject" onclick="rejectReq('${prefix}','${item.id}',this)">❌</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    async function approveReq(prefix, id, btn) {
+      btn.disabled = true;
+      const endpoint = prefix === 'dep' ? 'deposits' : 'withdrawals';
+      try {
+        const data = await api(`/${endpoint}/${id}/approve`, { method: 'POST' });
+        if (data.success) {
+          showToast('✅ Одобрено', 'success');
+          btn.closest('.req-card').style.opacity = '0.3';
+          loadStats();
+        } else showToast('❌ ' + data.error, 'error');
+      } catch(e) { showToast('❌ Ошибка', 'error'); }
+      btn.disabled = false;
+    }
+    
+    async function rejectReq(prefix, id, btn) {
+      btn.disabled = true;
+      const endpoint = prefix === 'dep' ? 'deposits' : 'withdrawals';
+      try {
+        const data = await api(`/${endpoint}/${id}/reject`, { method: 'POST' });
+        if (data.success) {
+          showToast('❌ Отклонено', 'success');
+          btn.closest('.req-card').style.opacity = '0.3';
+          loadStats();
+        }
+      } catch(e) { showToast('❌ Ошибка', 'error'); }
+      btn.disabled = false;
+    }
+    
+    // ── Chats ──
+    async function loadChats() {
+      const list = document.getElementById('chatList');
+      list.innerHTML = '<div class="loading">Загрузка...</div>';
+      try {
+        const data = await api('/chats');
+        if (data.success) {
+          if (!data.data.length) { list.innerHTML = '<div class="loading">Нет чатов</div>'; return; }
+          list.innerHTML = data.data.map(c => `
+            <div class="user-card" onclick="openChat('${c.id}','${esc(c.first_name || c.email)}')">
+              <div class="user-info">
+                <div class="user-name">${esc(c.first_name || c.email.split('@')[0])}</div>
+                <div class="user-email">${esc(c.email)}</div>
+              </div>
+              <div style="text-align:right">
+                ${parseInt(c.unread) > 0 ? `<span class="badge badge-pending">${c.unread} новых</span>` : '<span style="color:#8892b0;font-size:12px;">прочитано</span>'}
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch(e) { list.innerHTML = '<div class="loading">❌ Ошибка</div>'; }
+    }
+    
+    function openUserChat() {
+      if (currentUser) openChat(currentUser.id, currentUser.first_name || currentUser.email);
+    }
+    
+    async function openChat(userId, name) {
+      chatUserId = userId;
+      document.getElementById('chatUserName').textContent = '💬 ' + (name || 'Чат');
+      document.getElementById('chatModal').classList.add('active');
+      
+      try {
+        const data = await api(`/chat/${userId}`);
+        if (data.success) {
+          const msgs = document.getElementById('chatMessages');
+          msgs.innerHTML = data.data.map(m => `
+            <div class="chat-msg ${m.sender}">
+              <div>${esc(m.message)}</div>
+              <div class="time">${fmtDate(m.created_at)}</div>
+            </div>
+          `).join('');
+          msgs.scrollTop = msgs.scrollHeight;
+        }
+      } catch(e) { console.error(e); }
+    }
+    
+    function closeChatModal() { document.getElementById('chatModal').classList.remove('active'); chatUserId = null; }
+    
+    async function sendChatMsg() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message || !chatUserId) return;
+      
+      input.value = '';
+      try {
+        await api(`/chat/${chatUserId}`, { method: 'POST', body: JSON.stringify({ message }) });
+        openChat(chatUserId, document.getElementById('chatUserName').textContent.replace('💬 ', ''));
+      } catch(e) { showToast('❌ Ошибка', 'error'); }
+    }
+    
+    // ── Rates ──
+    async function loadRates() {
+      try {
+        const data = await api('/rates');
+        if (data.success) {
+          document.getElementById('rateRub').value = data.data.rub_usdt_rate || '';
+          document.getElementById('rateEur').value = data.data.eur_usdt_rate || '';
+          document.getElementById('rateByn').value = data.data.byn_usdt_rate || '';
+        }
+      } catch(e) { console.error(e); }
+    }
+    
+    async function saveRates() {
+      try {
+        const data = await api('/rates', {
+          method: 'PUT',
+          body: JSON.stringify({
+            rub_usdt_rate: document.getElementById('rateRub').value,
+            eur_usdt_rate: document.getElementById('rateEur').value,
+            byn_usdt_rate: document.getElementById('rateByn').value
+          })
+        });
+        if (data.success) showToast('✅ Курсы сохранены', 'success');
+        else showToast('❌ ' + data.error, 'error');
+      } catch(e) { showToast('❌ Ошибка', 'error'); }
+    }
+    
+    // ── Helpers ──
+    function fmt(n) { return parseFloat(n || 0).toFixed(2); }
+    function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    function fmtDate(d) { return d ? new Date(d).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'; }
+    
+    function showToast(text, type) {
+      const t = document.getElementById('toast');
+      t.textContent = text;
+      t.className = 'toast show ' + (type || '');
+      setTimeout(() => t.className = 'toast', 3000);
+    }
+  </script>
+</body>
+</html>

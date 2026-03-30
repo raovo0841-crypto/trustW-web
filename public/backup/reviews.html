@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustEx — Отзывы</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+    <script src="js/auth.js" defer></script>
+    <style>
+        :root{--bg-primary:#0a0e17;--bg-secondary:#111827;--bg-card:#1a2235;--bg-input:#0f1520;--bg-hover:#1e293b;--accent:#00d4aa;--accent-glow:rgba(0,212,170,0.15);--text-primary:#fff;--text-secondary:#94a3b8;--text-muted:#64748b;--border:rgba(255,255,255,0.08);--border-solid:#1e293b;--success:#22c55e;--danger:#ef4444;--warning:#fbbf24}
+        *{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg-primary);color:var(--text-primary);font-family:'Inter',-apple-system,sans-serif;min-height:100vh}
+
+        .top-nav{display:none;background:var(--bg-secondary);border-bottom:1px solid var(--border-solid);height:64px;padding:0 32px;align-items:center;position:sticky;top:0;z-index:1000}
+        .top-nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;width:100%;height:100%;gap:40px}
+        .top-nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+        .top-nav-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#00a896);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#0a0e17}
+        .top-nav-logo-text{font-size:20px;font-weight:700;color:var(--text-primary)}.top-nav-logo-text span{color:var(--accent)}
+        .top-nav-links{display:flex;gap:4px;flex:1}
+        .top-nav-link{text-decoration:none;color:var(--text-secondary);font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all .15s}
+        .top-nav-link:hover{color:var(--text-primary);background:rgba(255,255,255,0.05)}.top-nav-link.active{color:var(--accent);background:var(--accent-glow)}
+        .top-nav-user{display:flex;align-items:center;gap:12px;flex-shrink:0}
+        .top-nav-email{font-size:13px;color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .top-nav-logout{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-secondary);padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}.top-nav-logout:hover{color:var(--danger);border-color:var(--danger)}
+
+        .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:9999;background:linear-gradient(180deg,#161b22,#0d1117);border-top:1px solid rgba(48,54,61,0.8);backdrop-filter:blur(20px);padding:10px 0 max(14px,env(safe-area-inset-bottom));display:flex;justify-content:space-around;align-items:center;min-height:65px}
+        .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:#6e7681;padding:6px 0;width:20%;position:relative;transition:color .15s}.nav-item:hover{color:#8b949e}.nav-item.active{color:var(--accent)}.nav-item.active::before{content:'';position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--accent);border-radius:2px}
+        .nav-icon{width:24px;height:24px;margin-bottom:3px;display:flex;align-items:center;justify-content:center}.nav-icon svg{width:22px;height:22px;fill:currentColor}.nav-label{font-size:10px;font-weight:500}
+
+        .mobile-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+        .mobile-header-title{font-size:18px;font-weight:600}
+        .mobile-header-btn{width:36px;height:36px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;text-decoration:none}.mobile-header-btn:hover{border-color:var(--accent);color:var(--accent)}.mobile-header-btn svg{width:20px;height:20px;fill:currentColor}
+
+        .main-content{padding:16px 16px 90px}
+        .page-layout{display:flex;flex-direction:column;gap:16px;max-width:560px;margin:0 auto}
+        .sidebar-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px}
+        .sidebar-panel h3{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:14px}.sidebar-panel h3 svg{width:18px;height:18px;fill:var(--accent);flex-shrink:0}
+
+        .avg-rating{text-align:center;margin-bottom:10px}
+        .avg-rating-num{font-size:40px;font-weight:800;color:var(--accent)}
+        .avg-rating-stars{font-size:20px;color:var(--warning);margin:4px 0}
+        .avg-rating-count{font-size:12px;color:var(--text-muted)}
+
+        .review-form{background:linear-gradient(135deg,#1a2332,#0f1520);border:1px solid var(--border);border-radius:20px;padding:24px}
+        .review-form-title{font-size:16px;font-weight:700;margin-bottom:12px}
+        .star-select{display:flex;gap:6px;margin-bottom:12px}
+        .star-btn{background:none;border:none;font-size:28px;cursor:pointer;color:var(--text-muted);transition:color .15s;padding:0}.star-btn:hover,.star-btn.active{color:var(--warning)}
+        .form-textarea{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text-primary);font-size:14px;font-family:'Inter',sans-serif;resize:vertical;min-height:80px;transition:border-color .2s}
+        .form-textarea:focus{outline:none;border-color:var(--accent)}.form-textarea::placeholder{color:var(--text-muted)}
+        .submit-btn{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),#00a896);color:#0a0e17;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .2s;margin-top:12px}
+        .submit-btn:hover{opacity:.9}.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+        .form-hint{font-size:11px;color:var(--text-muted);margin-top:6px}
+
+        .review-card{background:var(--bg-input);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;transition:border-color .2s}
+        .review-card:hover{border-color:rgba(255,255,255,0.15)}
+        .review-card:last-child{margin-bottom:0}
+        .rc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+        .rc-user{display:flex;align-items:center;gap:8px}
+        .rc-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#3b82f6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#0a0e17;flex-shrink:0}
+        .rc-name{font-size:13px;font-weight:600}
+        .rc-stars{color:var(--warning);font-size:13px}
+        .rc-text{font-size:13px;color:var(--text-secondary);line-height:1.5}
+        .rc-date{font-size:10px;color:var(--text-muted);margin-top:8px}
+        .rc-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--accent);background:var(--accent-glow);padding:2px 8px;border-radius:6px;margin-left:6px;font-weight:500}
+        .rc-badge::before{content:'✓';font-size:9px}
+        .rc-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+        .rc-helpful{display:flex;align-items:center;gap:4px}
+        .rc-helpful-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--text-muted);font-size:11px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .15s;font-family:'Inter',sans-serif}
+        .rc-helpful-btn:hover{border-color:var(--accent);color:var(--accent)}
+        .filter-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+        .filter-tab{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-secondary);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+        .filter-tab:hover{border-color:var(--accent);color:var(--text-primary)}
+        .filter-tab.active{background:var(--accent-glow);border-color:var(--accent);color:var(--accent)}
+        .empty-text{text-align:center;color:var(--text-muted);font-size:12px;padding:16px 0}
+
+        .load-more{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;margin-top:10px}
+        .load-more:hover{border-color:var(--accent);color:var(--text-primary)}
+
+        @media(min-width:768px){.bottom-nav{display:none!important}.top-nav{display:flex}.mobile-header{display:none}.main-content{padding:32px}
+            .page-layout{flex-direction:row;max-width:1200px;align-items:flex-start}
+            .sidebar-left{width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;position:sticky;top:96px}
+            .center-column{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
+            .sidebar-right{width:300px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;position:sticky;top:96px}}
+        @media(min-width:1200px){.sidebar-left{width:280px}.sidebar-right{width:340px}}
+        @media(max-width:767px){.sidebar-left,.sidebar-right{display:none}.center-column{width:100%}.page-layout{max-width:100%}}
+        @media(min-width:768px) and (max-width:1023px){.sidebar-left{display:none}.sidebar-right{width:260px}.page-layout{max-width:900px}}
+    </style>
+</head>
+<body>
+
+<nav class="top-nav"><div class="top-nav-inner">
+    <a href="/" class="top-nav-logo"><div class="top-nav-logo-icon">T</div><div class="top-nav-logo-text">Trust<span>Ex</span></div></a>
+    <div class="top-nav-links">
+        <a href="/" class="top-nav-link">Главная</a><a href="trading.html" class="top-nav-link">Рынки</a><a href="exchange.html" class="top-nav-link">Обмен</a>
+        <a href="wallet.html" class="top-nav-link">Кошелек</a><a href="deposit.html" class="top-nav-link">Пополнить</a><a href="withdraw.html" class="top-nav-link">Вывести</a><a href="profile.html" class="top-nav-link">Профиль</a>
+    </div>
+    <div class="top-nav-user"><span class="top-nav-email" id="navUserEmail"></span><button class="top-nav-logout" onclick="Auth.logout()">Выйти</button></div>
+</div></nav>
+
+<div class="main-content">
+    <div class="mobile-header"><span class="mobile-header-title">Отзывы</span><a href="profile.html" class="mobile-header-btn"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a></div>
+
+    <div class="page-layout">
+        <!-- LEFT -->
+        <div class="sidebar-left">
+            <div class="sidebar-panel">
+                <h3><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> Рейтинг</h3>
+                <div class="avg-rating">
+                    <div class="avg-rating-num" id="avgRating">0.0</div>
+                    <div class="avg-rating-stars" id="avgStars">☆☆☆☆☆</div>
+                    <div class="avg-rating-count" id="totalCount">0 отзывов</div>
+                </div>
+            </div>
+            <div class="sidebar-panel">
+                <h3><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Распределение</h3>
+                <div id="ratingBars">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:12px;width:12px">5</span><div style="flex:1;height:6px;background:var(--bg-input);border-radius:3px;overflow:hidden"><div id="bar5" style="height:100%;background:var(--success);border-radius:3px;width:0%;transition:width .3s"></div></div><span style="font-size:11px;color:var(--text-muted);width:24px;text-align:right" id="cnt5">0</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:12px;width:12px">4</span><div style="flex:1;height:6px;background:var(--bg-input);border-radius:3px;overflow:hidden"><div id="bar4" style="height:100%;background:var(--accent);border-radius:3px;width:0%;transition:width .3s"></div></div><span style="font-size:11px;color:var(--text-muted);width:24px;text-align:right" id="cnt4">0</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:12px;width:12px">3</span><div style="flex:1;height:6px;background:var(--bg-input);border-radius:3px;overflow:hidden"><div id="bar3" style="height:100%;background:var(--warning);border-radius:3px;width:0%;transition:width .3s"></div></div><span style="font-size:11px;color:var(--text-muted);width:24px;text-align:right" id="cnt3">0</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:12px;width:12px">2</span><div style="flex:1;height:6px;background:var(--bg-input);border-radius:3px;overflow:hidden"><div id="bar2" style="height:100%;background:#f97316;border-radius:3px;width:0%;transition:width .3s"></div></div><span style="font-size:11px;color:var(--text-muted);width:24px;text-align:right" id="cnt2">0</span></div>
+                    <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;width:12px">1</span><div style="flex:1;height:6px;background:var(--bg-input);border-radius:3px;overflow:hidden"><div id="bar1" style="height:100%;background:var(--danger);border-radius:3px;width:0%;transition:width .3s"></div></div><span style="font-size:11px;color:var(--text-muted);width:24px;text-align:right" id="cnt1">0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER -->
+        <div class="center-column">
+            <div class="filter-tabs" id="filterTabs">
+                <button class="filter-tab active" data-filter="all">Все</button>
+                <button class="filter-tab" data-filter="5">★ 5</button>
+                <button class="filter-tab" data-filter="4">★ 4</button>
+                <button class="filter-tab" data-filter="3">★ 3</button>
+            </div>
+            <div id="reviewsList"><div class="empty-text">Загрузка отзывов...</div></div>
+            <button class="load-more" id="loadMoreBtn" onclick="loadMore()" style="display:none">Показать ещё</button>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="sidebar-right">
+            <div class="review-form" id="reviewForm">
+                <div class="review-form-title">Оставить отзыв</div>
+                <div class="star-select" id="starSelect">
+                    <button class="star-btn" data-star="1">★</button>
+                    <button class="star-btn" data-star="2">★</button>
+                    <button class="star-btn" data-star="3">★</button>
+                    <button class="star-btn" data-star="4">★</button>
+                    <button class="star-btn" data-star="5">★</button>
+                </div>
+                <textarea class="form-textarea" id="reviewText" placeholder="Поделитесь своим опытом использования платформы..." maxlength="1000"></textarea>
+                <div class="form-hint">Минимум 10 символов. Доступно только верифицированным пользователям.</div>
+                <button class="submit-btn" id="submitBtn" onclick="submitReview()">Отправить отзыв</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="index.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span><span class="nav-label">Главная</span></a>
+    <a href="trading.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></span><span class="nav-label">Рынки</span></a>
+    <a href="exchange.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg></span><span class="nav-label">Обмен</span></a>
+    <a href="wallet.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></span><span class="nav-label">Кошелек</span></a>
+    <a href="profile.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span><span class="nav-label">Профиль</span></a>
+</nav>
+
+<script>
+var selectedRating = 0, currentPage = 1, hasMore = false, allReviews = [], currentFilter = 'all';
+
+function generateReviews() {
+    var names = [
+        'Алексей М.', 'Мария К.', 'Михаил Р.', 'Елена Ж.', 'Дмитрий Л.', 'Анна В.',
+        'Кирилл Б.', 'Ольга П.', 'Роман Т.', 'Наталья С.', 'Борис Х.', 'Марина Ц.',
+        'Тимур Д.', 'Алина Ф.', 'Константин Г.', 'Светлана Н.', 'Артём В.', 'Дарья Е.',
+        'Даниил К.', 'Полина О.', 'Андрей Ш.', 'Виктория З.', 'Иван Ф.', 'Екатерина Х.',
+        'Максим Р.', 'Александра Л.', 'Никита С.', 'Вероника Б.', 'Сергей Д.', 'Юлия Ж.',
+        'Григорий П.', 'София Т.', 'Павел А.', 'Валерия К.', 'Денис М.', 'Ксения В.',
+        'Владислав С.', 'Зоя Ф.', 'Олег Е.', 'Лилия Р.', 'Степан Г.', 'Арина Н.',
+        'Владимир Х.', 'Эмма Д.', 'Руслан Л.', 'Карина П.', 'Тарас Б.', 'Милана С.'
+    ];
+    var texts = [
+        'Отличная платформа! Быстрые транзакции и интуитивный интерфейс. Рекомендую.',
+        'Использую TrustEx уже 3 месяца. Отличный опыт, поддержка отвечает быстро.',
+        'Лучшая торговая платформа. Низкие комиссии и надёжное исполнение.',
+        'Легко использовать даже новичкам. Мобильный интерфейс чистый и современный.',
+        'Выводы обрабатываются быстро. Очень доволен сервисом.',
+        'Профессиональная платформа с отличной безопасностью. Торгую здесь спокойно.',
+        'Новый дизайн огонь! Намного лучше, чем было. Так держать!',
+        'Конкурентные курсы и быстрый обмен. Буду продолжать использовать TrustEx.',
+        'Поддержка помогла решить проблему за пару часов. Впечатляет!',
+        'Простая регистрация и быстрая верификация. Начал торговать за минуты.',
+        'Инструменты графиков отличные. Идеально для технического анализа.',
+        'Быстрые депозиты и выводы. Проблем пока не было.',
+        'Хорошая ликвидность и узкие спреды. Профессиональный трейдинг.',
+        'Мобильное приложение работает отлично. Торгую на ходу без проблем.',
+        'Прозрачные комиссии без скрытых платежей. Честная платформа.',
+        'Бинарные опционы — супер функция. Легко прогнозировать и зарабатывать.',
+        'Сначала сомневался, но после полугода использования могу сказать — всё реально работает. Интерфейс удобный, ничего лишнего.',
+        'Наконец-то платформа, где вывод реально приходит, а не ждёшь неделю. У меня было минут 20.',
+        'Друг посоветовал TrustEx, и я реально рад. Уже сделал первые сделки, всё прошло гладко.',
+        'В целом неплохо. Был маленький вопрос с верификацией, но поддержка разобралась в тот же день.',
+        'Пользуюсь больше года. Стабильно работает, курсы адекватные, ни разу не подвели.',
+        'Перешёл с другой биржи и разница колоссальная. Тут всё в разы удобнее.',
+        'Нравится, что всё чисто и понятно. Никакого мусора на экране, просто торговля.',
+        'Вчера впервые пополнил, всё прошло идеально. Пока впечатления отличные!',
+        'Графики реально помогают. Можно нормально оценить ситуацию перед сделкой.',
+        'Два года торгую здесь и это до сих пор моя основная площадка. С выплатами ни разу не было проблем.',
+        'Поддержка ответила мне в 2 часа ночи, я был в шоке честно. Ребята реально работают.',
+        'Попробовал кучу платформ перед тем как остановиться на TrustEx. Эта просто удобнее всех.',
+        'Задал вопрос по комиссиям — ответили буквально за 5 минут. Приятно удивлён.',
+        'Интерфейс красивый, торги быстрые. Что ещё нужно?',
+        'Начал с маленькой суммы, чтобы протестировать. Всё сработало — пополнил уже нормально.',
+        'Честно, не ожидал многого, но платформа реально хорошая. Дизайн приятный, сделки быстрые.',
+        'Уже порекомендовал коллегам на работе. Трое из них уже зарегались.)',
+        'Верификация заняла меньше дня. Это быстрее, чем на любой другой площадке, которую я пробовал.',
+        'Курсы тут стабильно лучше, чем то, что я получал в других местах.',
+        'Кайф, что можно всё проверить с телефона. Мобильная версия сделана на совесть.',
+        'Выводил уже дважды, оба раза быстро и без проблем. Нареканий нет.',
+        'Хорошая площадка для тех, кто не хочет разбираться в сложных интерфейсах. Всё интуитивно.',
+        'Почти два года пользуюсь. Ноль проблем. Для крипты это уже о чём-то говорит.',
+        'Больше всего ценю прозрачность. Видно чётко, за что платишь и сколько получишь.',
+        'Только начал на прошлой неделе, но пока всё супер. Очень удобно для новичка.',
+        'Надёжная платформа. Без лишних понтов, без ненужных усложнений. Просто работает.',
+        'Знакомый потерял деньги на другой бирже, перешёл сюда. Говорит — небо и земля по безопасности.',
+        'Всё грузится моментально, сделки проходят быстро. Никаких задержек.',
+        'В основном использую для обмена. Курсы всегда нормальные, без сюрпризов.',
+        'Лучшая команда поддержки, с которой я сталкивался в торговых приложениях. Реально помогают.',
+        'Чисто, быстро, надёжно. Больше мне от торговой платформы ничего не надо.',
+        'Недавно обновили приложение, стало ещё лучше. Работает супер плавно.'
+    ];
+    var badges = ['Верифицирован', 'Трейдер', 'Активный', 'Pro', 'Верифицирован', 'Активный'];
+    var colors = ['#4f46e5', '#7c3aed', '#2563eb', '#0891b2', '#059669', '#d97706'];
+    var daysAgoList = [
+        1, 2, 3, 4, 6, 8, 11, 15, 19, 25, 33, 42, 55, 70, 90,
+        110, 140, 175, 210, 250, 290, 330, 370, 410, 455, 500,
+        540, 580, 630, 670, 710, 750, 790, 830, 870, 920, 960,
+        400, 450, 520, 600, 650, 730, 800, 850, 900, 950, 1000
+    ];
+    var result = [];
+    for (var i = 0; i < 48; i++) {
+        var rating = i < 35 ? 5 : (i < 44 ? 4 : 3);
+        var d = new Date(); d.setDate(d.getDate() - daysAgoList[i]);
+        var parts = names[i].split(' ');
+        var initials = parts.map(function(n) { return n[0]; }).join('');
+        result.push({
+            id: 1001 + i,
+            name: names[i],
+            initials: initials,
+            badge: badges[i % badges.length],
+            text: texts[i],
+            rating: rating,
+            date: d.toLocaleDateString('ru-RU'),
+            helpful: ((1001 + i) * 7 + 3) % 30 + 1,
+            color: colors[i % colors.length]
+        });
+    }
+    return result;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!Auth.requireAuth()) return;
+    var user = Auth.getUser();
+    if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
+
+    document.querySelectorAll('.star-btn').forEach(function(b) {
+        b.addEventListener('click', function() {
+            selectedRating = parseInt(b.dataset.star);
+            document.querySelectorAll('.star-btn').forEach(function(x, i) {
+                x.classList.toggle('active', i < selectedRating);
+            });
+        });
+    });
+
+    document.querySelectorAll('.filter-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            currentFilter = tab.dataset.filter;
+            currentPage = 1;
+            renderReviews();
+        });
+    });
+
+    loadReviews();
+});
+
+async function loadReviews() {
+    var hardcoded = generateReviews();
+    var apiReviews = [];
+    try {
+        var res = await Auth.apiFetch('/api/reviews?page=1&limit=50');
+        if (res.ok) {
+            var d = await res.json();
+            var raw = d.data || [];
+            apiReviews = raw.map(function(r) {
+                var name = r.author_name || (r.user_email ? r.user_email.split('@')[0] : 'Пользователь');
+                return {
+                    id: r.id,
+                    name: name,
+                    initials: name.charAt(0).toUpperCase(),
+                    badge: 'Верифицирован',
+                    text: r.text,
+                    rating: r.rating,
+                    date: new Date(r.created_at).toLocaleDateString('ru-RU'),
+                    helpful: 0,
+                    color: '#00d4aa',
+                    isUser: true
+                };
+            });
+        }
+    } catch(e) {}
+    allReviews = apiReviews.concat(hardcoded);
+    updateStats();
+    renderReviews();
+}
+
+function getFilteredReviews() {
+    if (currentFilter === 'all') return allReviews;
+    var star = parseInt(currentFilter);
+    return allReviews.filter(function(r) { return r.rating === star; });
+}
+
+function renderReviews() {
+    var c = document.getElementById('reviewsList');
+    var filtered = getFilteredReviews();
+    var show = filtered.slice(0, currentPage * 10);
+    hasMore = show.length < filtered.length;
+    document.getElementById('loadMoreBtn').style.display = hasMore ? 'block' : 'none';
+
+    if (!filtered.length) { c.innerHTML = '<div class="empty-text">Отзывов с такой оценкой пока нет</div>'; return; }
+    c.innerHTML = show.map(function(r) {
+        var stars = '';
+        for (var i = 0; i < 5; i++) stars += i < r.rating ? '★' : '☆';
+        var bgColor = r.color || '#4f46e5';
+        var helpfulHtml = r.helpful > 0 ? '<div class="rc-helpful"><button class="rc-helpful-btn" onclick="this.style.color=\'var(--accent)\';this.style.borderColor=\'var(--accent)\'">👍 ' + r.helpful + '</button></div>' : '';
+        return '<div class="review-card">' +
+            '<div class="rc-header">' +
+                '<div class="rc-user">' +
+                    '<div class="rc-avatar" style="background:linear-gradient(135deg,' + bgColor + ',' + bgColor + 'cc)">' + escapeHtml(r.initials) + '</div>' +
+                    '<div><div class="rc-name">' + escapeHtml(r.name) + '<span class="rc-badge">' + escapeHtml(r.badge) + '</span></div></div>' +
+                '</div>' +
+                '<div class="rc-stars">' + stars + '</div>' +
+            '</div>' +
+            '<div class="rc-text">' + escapeHtml(r.text) + '</div>' +
+            '<div class="rc-footer">' +
+                '<div class="rc-date">' + r.date + '</div>' +
+                helpfulHtml +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function updateStats() {
+    if (!allReviews.length) return;
+    var total = allReviews.length;
+    var sum = 0;
+    var counts = {1:0, 2:0, 3:0, 4:0, 5:0};
+    allReviews.forEach(function(r) { sum += r.rating; counts[r.rating] = (counts[r.rating] || 0) + 1; });
+    var avg = (sum / total).toFixed(1);
+    document.getElementById('avgRating').textContent = avg;
+    var stars = '';
+    for (var i = 0; i < 5; i++) stars += i < Math.round(avg) ? '★' : '☆';
+    document.getElementById('avgStars').textContent = stars;
+    var word = total % 10 === 1 && total % 100 !== 11 ? '' : (total % 10 >= 2 && total % 10 <= 4 && (total % 100 < 10 || total % 100 >= 20) ? 'а' : 'ов');
+    document.getElementById('totalCount').textContent = total + ' отзыв' + word;
+    for (var s = 1; s <= 5; s++) {
+        document.getElementById('bar' + s).style.width = (counts[s] / total * 100) + '%';
+        document.getElementById('cnt' + s).textContent = counts[s];
+    }
+}
+
+function loadMore() { currentPage++; renderReviews(); }
+
+function escapeHtml(t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+async function submitReview() {
+    if (selectedRating < 1) return alert('Выберите оценку');
+    var text = document.getElementById('reviewText').value.trim();
+    if (text.length < 10) return alert('Минимум 10 символов');
+
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Отправка...';
+    try {
+        var res = await Auth.apiFetch('/api/reviews', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({rating: selectedRating, text: text})
+        });
+        var d = await res.json();
+        if (!res.ok) { alert(d.error || 'Ошибка'); return; }
+        alert('Отзыв опубликован!');
+        document.getElementById('reviewText').value = '';
+        selectedRating = 0;
+        document.querySelectorAll('.star-btn').forEach(function(x) { x.classList.remove('active'); });
+        loadReviews();
+    } catch(e) { alert('Ошибка сети'); }
+    finally { btn.disabled = false; btn.textContent = 'Отправить отзыв'; }
+}
+</script>
+</body>
+</html>

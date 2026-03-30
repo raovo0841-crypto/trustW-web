@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustEx — Вывод</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+    <script src="js/auth.js" defer></script>
+    <script src="js/balance.js" defer></script>
+    <style>
+        :root{--bg-primary:#0a0e17;--bg-secondary:#111827;--bg-card:#1a2235;--bg-input:#0f1520;--bg-hover:#1e293b;--accent:#00d4aa;--accent-glow:rgba(0,212,170,0.15);--text-primary:#fff;--text-secondary:#94a3b8;--text-muted:#64748b;--border:rgba(255,255,255,0.08);--border-solid:#1e293b;--success:#22c55e;--danger:#ef4444;--warning:#fbbf24}
+        *{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg-primary);color:var(--text-primary);font-family:'Inter',-apple-system,sans-serif;min-height:100vh}
+
+        .top-nav{display:none;background:var(--bg-secondary);border-bottom:1px solid var(--border-solid);height:64px;padding:0 32px;align-items:center;position:sticky;top:0;z-index:1000}
+        .top-nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;width:100%;height:100%;gap:40px}
+        .top-nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+        .top-nav-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#00a896);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#0a0e17}
+        .top-nav-logo-text{font-size:20px;font-weight:700;color:var(--text-primary)}.top-nav-logo-text span{color:var(--accent)}
+        .top-nav-links{display:flex;gap:4px;flex:1}
+        .top-nav-link{text-decoration:none;color:var(--text-secondary);font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all .15s}
+        .top-nav-link:hover{color:var(--text-primary);background:rgba(255,255,255,0.05)}.top-nav-link.active{color:var(--accent);background:var(--accent-glow)}
+        .top-nav-user{display:flex;align-items:center;gap:12px;flex-shrink:0}
+        .top-nav-email{font-size:13px;color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .top-nav-logout{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-secondary);padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}.top-nav-logout:hover{color:var(--danger);border-color:var(--danger)}
+
+        .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:9999;background:linear-gradient(180deg,#161b22,#0d1117);border-top:1px solid rgba(48,54,61,0.8);backdrop-filter:blur(20px);padding:10px 0 max(14px,env(safe-area-inset-bottom));display:flex;justify-content:space-around;align-items:center;min-height:65px}
+        .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:#6e7681;padding:6px 0;width:20%;position:relative;transition:color .15s}.nav-item:hover{color:#8b949e}.nav-item.active{color:var(--accent)}.nav-item.active::before{content:'';position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--accent);border-radius:2px}
+        .nav-icon{width:24px;height:24px;margin-bottom:3px;display:flex;align-items:center;justify-content:center}.nav-icon svg{width:22px;height:22px;fill:currentColor}.nav-label{font-size:10px;font-weight:500}
+
+        .mobile-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+        .mobile-header-title{font-size:18px;font-weight:600}
+        .mobile-header-btn{width:36px;height:36px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;text-decoration:none}.mobile-header-btn:hover{border-color:var(--accent);color:var(--accent)}.mobile-header-btn svg{width:20px;height:20px;fill:currentColor}
+
+        .main-content{padding:16px 16px 90px}
+        .page-layout{display:flex;flex-direction:column;gap:16px;max-width:560px;margin:0 auto}
+        .sidebar-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px}
+        .sidebar-panel h3{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:14px}.sidebar-panel h3 svg{width:18px;height:18px;fill:var(--accent);flex-shrink:0}
+
+        .withdraw-card{background:linear-gradient(135deg,#1a2332,#0f1520);border:1px solid var(--border);border-radius:20px;padding:24px;position:relative;overflow:hidden}
+        .withdraw-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--danger),#f97316)}
+        .withdraw-title{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+        .withdraw-title svg{width:24px;height:24px;fill:var(--danger)}
+
+        .form-group{margin-bottom:16px}
+        .form-label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:6px;font-weight:500}
+        .form-input{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text-primary);font-size:15px;font-family:'Inter',sans-serif;transition:border-color .2s}
+        .form-input:focus{outline:none;border-color:var(--accent)}.form-input::placeholder{color:var(--text-muted)}
+        .form-select{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text-primary);font-size:15px;font-family:'Inter',sans-serif;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' fill='none' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+        .form-select:focus{outline:none;border-color:var(--accent)}.form-select option{background:var(--bg-card);color:var(--text-primary)}
+
+        .balance-row{display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;margin-bottom:16px}
+        .bal-label{font-size:12px;color:var(--text-secondary)}.bal-value{font-size:16px;font-weight:700}
+        .max-btn{background:var(--accent-glow);border:1px solid var(--accent);color:var(--accent);padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}.max-btn:hover{background:var(--accent);color:#0a0e17}
+
+        .submit-btn{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--danger),#dc2626);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .2s}
+        .submit-btn:hover{opacity:.9}.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+
+        .info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}.info-row:last-child{border-bottom:none}
+        .info-label{font-size:12px;color:var(--text-secondary)}.info-value{font-size:13px;font-weight:600}
+
+        .hist-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}.hist-item:last-child{border-bottom:none}
+        .hist-left{min-width:0}.hist-type{font-size:13px;font-weight:600}.hist-date{font-size:10px;color:var(--text-muted);margin-top:1px}
+        .hist-right{text-align:right;flex-shrink:0}.hist-amount{font-size:13px;font-weight:600;color:var(--danger)}.hist-status{font-size:10px;margin-top:1px}
+        .status-pending{color:var(--warning)}.status-approved{color:var(--success)}.status-rejected{color:var(--danger)}
+        .empty-text{text-align:center;color:var(--text-muted);font-size:12px;padding:16px 0}
+
+        .notice-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--danger);display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+        .notice-box svg{width:18px;height:18px;fill:var(--danger);flex-shrink:0;margin-top:1px}
+
+        @media(min-width:768px){.bottom-nav{display:none!important}.top-nav{display:flex}.mobile-header{display:none}.main-content{padding:32px}
+            .page-layout{flex-direction:row;max-width:1200px;align-items:flex-start}
+            .sidebar-left{width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;position:sticky;top:96px}
+            .center-column{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
+            .sidebar-right{width:300px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;position:sticky;top:96px}}
+        @media(min-width:1200px){.sidebar-left{width:280px}.sidebar-right{width:340px}}
+        @media(max-width:767px){.sidebar-left,.sidebar-right{display:none}.center-column{width:100%}.page-layout{max-width:100%}}
+        @media(min-width:768px) and (max-width:1023px){.sidebar-left{display:none}.sidebar-right{width:260px}.page-layout{max-width:900px}}
+    </style>
+</head>
+<body>
+
+<nav class="top-nav"><div class="top-nav-inner">
+    <a href="/" class="top-nav-logo"><div class="top-nav-logo-icon">T</div><div class="top-nav-logo-text">Trust<span>Ex</span></div></a>
+    <div class="top-nav-links">
+        <a href="/" class="top-nav-link">Главная</a><a href="trading.html" class="top-nav-link">Рынки</a><a href="exchange.html" class="top-nav-link">Обмен</a>
+        <a href="wallet.html" class="top-nav-link">Кошелек</a><a href="deposit.html" class="top-nav-link">Пополнить</a><a href="withdraw.html" class="top-nav-link active">Вывести</a><a href="profile.html" class="top-nav-link">Профиль</a>
+    </div>
+    <div class="top-nav-user"><span class="top-nav-email" id="navUserEmail"></span><button class="top-nav-logout" onclick="Auth.logout()">Выйти</button></div>
+</div></nav>
+
+<div class="main-content">
+    <div class="mobile-header"><span class="mobile-header-title">Вывод средств</span><a href="index.html" class="mobile-header-btn"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></a></div>
+
+    <div class="page-layout">
+        <!-- LEFT -->
+        <div class="sidebar-left">
+            <div class="sidebar-panel">
+                <h3><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg> Баланс</h3>
+                <div class="info-row"><span class="info-label">USDT</span><span class="info-value" id="sideUsdt">0.00</span></div>
+                <div class="info-row"><span class="info-label">RUB</span><span class="info-value" id="sideRub">0.00</span></div>
+                <div class="info-row"><span class="info-label">EUR</span><span class="info-value" id="sideEur">0.00</span></div>
+            </div>
+            <div class="sidebar-panel">
+                <h3><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Условия</h3>
+                <div class="info-row"><span class="info-label">Мин. вывод</span><span class="info-value" id="sideMinWithdraw">—</span></div>
+                <div class="info-row"><span class="info-label">Верификация</span><span class="info-value" id="sideVerified">—</span></div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:10px;line-height:1.5">Вывод обрабатывается администратором в течение 24 часов.</div>
+            </div>
+        </div>
+
+        <!-- CENTER -->
+        <div class="center-column">
+            <div class="notice-box">
+                <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                <span>Убедитесь, что адрес кошелька указан верно. Средства, отправленные на неверный адрес, не подлежат возврату.</span>
+            </div>
+
+            <div class="withdraw-card">
+                <div class="withdraw-title"><svg viewBox="0 0 24 24"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></svg> Вывод средств</div>
+
+                <div class="form-group">
+                    <label class="form-label">Валюта</label>
+                    <select class="form-select" id="currency" onchange="updateMax()">
+                        <option value="USDT">USDT (Tether TRC-20)</option>
+                        <option value="BTC">BTC (Bitcoin)</option>
+                        <option value="ETH">ETH (Ethereum)</option>
+                        <option value="RUB">RUB (Рубли)</option>
+                        <option value="EUR">EUR (Евро)</option>
+                    </select>
+                </div>
+
+                <div class="balance-row">
+                    <div><div class="bal-label">Доступно</div><div class="bal-value" id="availBalance">0.00</div></div>
+                    <button class="max-btn" onclick="setMax()">MAX</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Сумма</label>
+                    <input type="number" class="form-input" id="amount" placeholder="Введите сумму" min="1" step="any">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Адрес кошелька</label>
+                    <input type="text" class="form-input" id="wallet" placeholder="Введите адрес">
+                </div>
+
+                <button class="submit-btn" id="submitBtn" onclick="submitWithdraw()">Вывести</button>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="sidebar-right">
+            <div class="sidebar-panel">
+                <h3><svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg> Последние выводы</h3>
+                <div id="historyList"><div class="empty-text">Загрузка...</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="index.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span><span class="nav-label">Главная</span></a>
+    <a href="trading.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></span><span class="nav-label">Рынки</span></a>
+    <a href="exchange.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg></span><span class="nav-label">Обмен</span></a>
+    <a href="wallet.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></span><span class="nav-label">Кошелек</span></a>
+    <a href="profile.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span><span class="nav-label">Профиль</span></a>
+</nav>
+
+<script>
+var balances = {USDT:0,RUB:0,EUR:0,BTC:0,ETH:0};
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!Auth.requireAuth()) return;
+    var user = Auth.getUser();
+    if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
+    loadInfo();
+    loadHistory();
+});
+
+async function loadInfo() {
+    try {
+        var res = await Auth.apiFetch('/api/profile');
+        if (!res.ok) return;
+        var d = await res.json(); var u = d.data;
+        balances.USDT = parseFloat(u.usdt)||0;
+        balances.RUB = parseFloat(u.rub)||0;
+        balances.EUR = parseFloat(u.eur)||0;
+        balances.BTC = parseFloat(u.btc)||0;
+        balances.ETH = parseFloat(u.eth)||0;
+        document.getElementById('sideUsdt').textContent = balances.USDT.toFixed(2);
+        document.getElementById('sideRub').textContent = balances.RUB.toFixed(2);
+        document.getElementById('sideEur').textContent = balances.EUR.toFixed(2);
+        document.getElementById('sideMinWithdraw').textContent = (u.min_withdraw||10) + ' USDT';
+        document.getElementById('sideVerified').textContent = u.is_verified ? '✅ Да' : '❌ Нет';
+        updateMax();
+    } catch(e) {}
+}
+
+function updateMax() {
+    var cur = document.getElementById('currency').value;
+    var bal = balances[cur] || 0;
+    document.getElementById('availBalance').textContent = bal.toFixed(cur==='BTC'?8:(cur==='ETH'?6:2));
+}
+
+function setMax() {
+    var cur = document.getElementById('currency').value;
+    document.getElementById('amount').value = balances[cur] || 0;
+}
+
+async function submitWithdraw() {
+    var amount = parseFloat(document.getElementById('amount').value);
+    var currency = document.getElementById('currency').value;
+    var wallet = document.getElementById('wallet').value.trim();
+    if (!amount || amount <= 0) return alert('Введите сумму');
+    if (!wallet) return alert('Введите адрес кошелька');
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Обработка...';
+    try {
+        var res = await Auth.apiFetch('/api/transactions/withdraw', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({amount:amount, wallet:wallet, currency:currency})
+        });
+        var d = await res.json();
+        if (!res.ok) { alert(d.error || 'Ошибка'); return; }
+        alert('Заявка на вывод создана! Ожидайте обработки.');
+        document.getElementById('amount').value = '';
+        document.getElementById('wallet').value = '';
+        loadHistory(); loadInfo();
+    } catch(e) { alert('Ошибка сети'); }
+    finally { btn.disabled = false; btn.textContent = 'Вывести'; }
+}
+
+async function loadHistory() {
+    try {
+        var res = await Auth.apiFetch('/api/transactions/history?type=withdraw&limit=10');
+        if (!res.ok) return;
+        var d = await res.json(); var items = d.data || [];
+        var c = document.getElementById('historyList');
+        if (!items.length) { c.innerHTML = '<div class="empty-text">Нет выводов</div>'; return; }
+        c.innerHTML = items.map(function(t) {
+            var dt = new Date(t.created_at);
+            var ds = String(dt.getDate()).padStart(2,'0')+'.'+String(dt.getMonth()+1).padStart(2,'0')+' '+String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+            var st = t.status==='approved'?'status-approved':(t.status==='rejected'?'status-rejected':'status-pending');
+            var sl = t.status==='approved'?'Одобрено':(t.status==='rejected'?'Отклонено':'Ожидание');
+            return '<div class="hist-item"><div class="hist-left"><div class="hist-type">Вывод '+(t.currency||'USDT')+'</div><div class="hist-date">'+ds+'</div></div><div class="hist-right"><div class="hist-amount">-'+parseFloat(t.amount).toFixed(2)+'</div><div class="hist-status '+st+'">'+sl+'</div></div></div>';
+        }).join('');
+    } catch(e) {}
+}
+</script>
+</body>
+</html>

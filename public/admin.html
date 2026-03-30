@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>TrustEx Admin</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0e1a; color: #fff; min-height: 100vh; padding-bottom: 80px;
+    }
+    .header {
+      background: linear-gradient(135deg, #1a1f35 0%, #0d1117 100%);
+      padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .header h1 { font-size: 24px; color: #ffd700; margin-bottom: 5px; }
+    .header p { color: #8892b0; font-size: 14px; }
+
+    .container { padding: 15px; max-width: 600px; margin: 0 auto; }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #1a2332 0%, #141c2b 100%);
+      border-radius: 12px; padding: 15px; text-align: center;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .stat-card .value { font-size: 28px; font-weight: bold; color: #4db8ff; }
+    .stat-card .label { font-size: 12px; color: #8892b0; margin-top: 5px; }
+
+    .section {
+      background: linear-gradient(135deg, #1a2332 0%, #141c2b 100%);
+      border-radius: 12px; padding: 15px; margin-bottom: 15px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .section-title {
+      font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #ffd700;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .tabs {
+      display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto;
+      scrollbar-width: none; padding-bottom: 2px;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex: 0 0 auto; padding: 10px 14px; background: rgba(255,255,255,0.05);
+      border: none; border-radius: 10px; color: #8892b0; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap; font-size: 13px;
+    }
+    .tab.active {
+      background: linear-gradient(135deg, #4db8ff 0%, #2ea3e8 100%); color: #fff;
+    }
+
+    .user-list { display: flex; flex-direction: column; gap: 10px; }
+    .user-card {
+      background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .user-card:hover { background: rgba(255,255,255,0.08); }
+    .user-card.deleted { background: rgba(128,128,128,0.08); opacity: 0.55; }
+    .user-card.deleted:hover { opacity: 0.75; }
+    .user-info { display: flex; flex-direction: column; gap: 3px; }
+    .user-name { font-weight: 600; font-size: 15px; }
+    .user-email { font-size: 12px; color: #8892b0; }
+    .user-balance { text-align: right; }
+    .user-balance .amount { font-weight: 600; color: #4db8ff; font-size: 13px; }
+    .user-balance .mode {
+      font-size: 12px; padding: 3px 8px; border-radius: 10px;
+      margin-top: 5px; display: inline-block;
+    }
+    .mode-win { background: rgba(0,255,136,0.2); color: #00ff88; }
+    .mode-loss { background: rgba(255,68,68,0.2); color: #ff4444; }
+
+    .search-box {
+      width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+      color: #fff; font-size: 15px; margin-bottom: 15px;
+    }
+    .search-box::placeholder { color: #8892b0; }
+
+    .req-card {
+      background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px;
+      margin-bottom: 10px; border-left: 3px solid #ffd700;
+    }
+    .req-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+    }
+    .req-user { font-weight: 600; font-size: 14px; }
+    .req-amount { font-weight: bold; color: #4db8ff; font-size: 16px; }
+    .req-details { font-size: 12px; color: #8892b0; margin-bottom: 10px; }
+    .req-actions { display: flex; gap: 8px; }
+    .btn-approve {
+      flex: 1; padding: 10px;
+      background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+      border: none; border-radius: 8px; color: #000; font-weight: 600;
+      font-size: 13px; cursor: pointer;
+    }
+    .btn-reject {
+      padding: 10px 16px; background: rgba(255,68,68,0.2);
+      border: 1px solid rgba(255,68,68,0.3); border-radius: 8px;
+      color: #ff4444; font-weight: 600; font-size: 13px; cursor: pointer;
+    }
+    .btn-approve:disabled, .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8); z-index: 1000;
+      align-items: center; justify-content: center; padding: 15px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #1a2332; border-radius: 16px; width: 100%; max-width: 440px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-header {
+      padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; background: #1a2332; z-index: 10;
+      border-radius: 16px 16px 0 0;
+    }
+    .modal-header h3 { font-size: 18px; }
+    .modal-close {
+      background: none; border: none; color: #8892b0; font-size: 24px; cursor: pointer;
+    }
+    .modal-body { padding: 20px; }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label {
+      display: block; font-size: 13px; color: #8892b0; margin-bottom: 8px;
+    }
+    .form-group input, .form-group select {
+      width: 100%; padding: 12px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+      color: #fff; font-size: 16px;
+    }
+    .form-group input:focus { outline: none; border-color: #4db8ff; }
+    .form-group input:disabled { opacity: 0.4; }
+    .form-group small {
+      color: #848e9c; font-size: 11px; margin-top: 4px; display: block;
+    }
+
+    .mode-buttons { display: flex; gap: 10px; }
+    .mode-buttons.wrap { flex-wrap: wrap; }
+    .mode-btn {
+      flex: 1; padding: 12px; border: 2px solid transparent; border-radius: 8px;
+      font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center;
+      font-size: 13px; min-width: 0;
+    }
+    .mode-btn.half { min-width: calc(50% - 5px); }
+    .mode-btn.win { background: rgba(0,255,136,0.2); color: #00ff88; }
+    .mode-btn.win.active { border-color: #00ff88; }
+    .mode-btn.loss { background: rgba(255,68,68,0.2); color: #ff4444; }
+    .mode-btn.loss.active { border-color: #ff4444; }
+
+    .btn-primary {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #4db8ff 0%, #2ea3e8 100%);
+      border: none; border-radius: 10px; color: #fff; font-weight: 600;
+      font-size: 16px; cursor: pointer; margin-top: 10px;
+    }
+    .btn-primary:disabled { opacity: 0.5; }
+
+    .detail-row {
+      display: flex; justify-content: space-between; padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: #8892b0; font-size: 14px; }
+    .detail-value { font-weight: 500; font-size: 14px; }
+
+    .history-tab {
+      flex: 1; padding: 6px 8px; background: rgba(255,255,255,0.05); border: none;
+      border-radius: 6px; color: #8892b0; font-size: 11px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .history-tab.active {
+      background: linear-gradient(135deg, #4db8ff 0%, #2ea3e8 100%); color: #fff;
+    }
+    .history-item {
+      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 13px; display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .chat-messages {
+      max-height: 400px; overflow-y: auto; margin-bottom: 10px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .chat-msg {
+      padding: 10px 14px; border-radius: 12px; max-width: 85%;
+      font-size: 14px; line-height: 1.4;
+    }
+    .chat-msg.user { background: rgba(77,184,255,0.15); align-self: flex-start; }
+    .chat-msg.admin { background: rgba(255,215,0,0.15); align-self: flex-end; }
+    .chat-msg .time { font-size: 10px; color: #8892b0; margin-top: 4px; }
+
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input {
+      flex: 1; padding: 12px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+      color: #fff; font-size: 14px;
+    }
+    .chat-send {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #ffd700 0%, #e0a800 100%);
+      border: none; border-radius: 10px; color: #000; font-weight: 600; cursor: pointer;
+    }
+
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-pending { background: rgba(255,152,0,0.2); color: #ff9800; }
+    .badge-success { background: rgba(0,255,136,0.2); color: #00ff88; }
+    .badge-returned { background: rgba(77,184,255,0.2); color: #4db8ff; }
+    .badge-rejected { background: rgba(255,68,68,0.2); color: #ff4444; }
+
+    .loading { text-align: center; padding: 40px; color: #8892b0; }
+
+    .snapshot-box {
+      margin-top: 10px; padding: 10px;
+      background: rgba(128,128,128,0.1); border-radius: 8px;
+      border: 1px solid rgba(128,128,128,0.2);
+    }
+    .snapshot-box .snap-label {
+      font-size: 12px; color: #888; margin-bottom: 6px;
+    }
+    .snapshot-box .snap-data {
+      font-size: 12px; color: #aaa; line-height: 1.6;
+    }
+
+    .toast {
+      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+      background: #1a2332; color: #fff; padding: 12px 24px; border-radius: 10px;
+      z-index: 2000; display: none; border: 1px solid rgba(255,255,255,0.1);
+      max-width: 90%; text-align: center;
+    }
+    .toast.success { border-color: #00ff88; }
+    .toast.error { border-color: #ff4444; }
+    .toast.show { display: block; animation: fadeIn 0.3s; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>👑 TrustEx Admin</h1>
+    <p id="roleLabel">Панель управления</p>
+  </div>
+
+  <div class="container">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="value" id="totalUsers">-</div><div class="label">Пользователей</div></div>
+      <div class="stat-card"><div class="value" id="totalBalance">-</div><div class="label">Общий баланс $</div></div>
+      <div class="stat-card"><div class="value" id="winModeCount">-</div><div class="label">🟢 WIN</div></div>
+      <div class="stat-card"><div class="value" id="lossModeCount">-</div><div class="label">🔴 LOSS</div></div>
+      <div class="stat-card"><div class="value" id="pendingDeps">-</div><div class="label">📥 Ожид. депозитов</div></div>
+      <div class="stat-card"><div class="value" id="pendingWds">-</div><div class="label">📤 Ожид. выводов</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('users')">👥 Пользователи</button>
+      <button class="tab" onclick="switchTab('deposits')">📥 Депозиты</button>
+      <button class="tab" onclick="switchTab('withdrawals')">📤 Выводы</button>
+      <button class="tab" onclick="switchTab('chats')">💬 Чаты</button>
+      <button class="tab" onclick="switchTab('settings')">⚙️ Настройки</button>
+    </div>
+
+    <!-- Users Section -->
+    <div class="section" id="sectionUsers">
+      <div class="section-title">👥 Пользователи</div>
+      <input type="text" class="search-box" id="searchInput" placeholder="🔍 Поиск по email, имени или ID...">
+      <div class="user-list" id="userList"><div class="loading">Загрузка...</div></div>
+    </div>
+
+    <!-- Deposits Section -->
+    <div class="section" id="sectionDeposits" style="display:none">
+      <div class="section-title">📥 Ожидающие депозиты</div>
+      <div id="depositList"><div class="loading">Загрузка...</div></div>
+    </div>
+
+    <!-- Withdrawals Section -->
+    <div class="section" id="sectionWithdrawals" style="display:none">
+      <div class="section-title">📤 Ожидающие выводы</div>
+      <div id="withdrawalList"><div class="loading">Загрузка...</div></div>
+    </div>
+
+    <!-- Chats Section -->
+    <div class="section" id="sectionChats" style="display:none">
+      <div class="section-title">💬 Чаты поддержки</div>
+      <div id="chatList"><div class="loading">Загрузка...</div></div>
+    </div>
+
+    <!-- Settings Section -->
+    <div class="section" id="sectionSettings" style="display:none">
+      <div class="section-title">⚙️ Курсы обмена</div>
+      <div class="form-group">
+        <label>RUB → USDT (сколько рублей за 1 USDT)</label>
+        <input type="number" id="rateRub" step="0.01" placeholder="95.00">
+      </div>
+      <div class="form-group">
+        <label>EUR → USDT (сколько EUR за 1 USDT)</label>
+        <input type="number" id="rateEur" step="0.01" placeholder="0.92">
+      </div>
+      <div class="form-group">
+        <label>BYN → USDT (сколько BYN за 1 USDT)</label>
+        <input type="number" id="rateByn" step="0.01" placeholder="3.15">
+      </div>
+      <button class="btn-primary" onclick="saveRates()">💾 Сохранить курсы</button>
+    </div>
+  </div>
+
+  <!-- ═══════════ User Modal ═══════════ -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalUserName">Пользователь</h3>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button onclick="refreshUser()" style="background:none;border:none;color:#fcd535;font-size:18px;cursor:pointer;" title="Обновить">🔄</button>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <!-- User details (dynamic) -->
+        <div id="userDetails"></div>
+
+        <!-- Balances -->
+        <div class="form-group">
+          <label>💰 Баланс USDT</label>
+          <input type="number" id="fBalanceUsdt" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>💰 Баланс RUB (₽)</label>
+          <input type="number" id="fBalanceRub" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>💰 Баланс EUR (€)</label>
+          <input type="number" id="fBalanceEur" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>💰 Баланс BYN (Br)</label>
+          <input type="number" id="fBalanceByn" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>₿ Баланс BTC</label>
+          <input type="number" id="fBalanceBtc" step="0.00000001">
+        </div>
+        <div class="form-group">
+          <label>Ξ Баланс ETH</label>
+          <input type="number" id="fBalanceEth" step="0.00000001">
+        </div>
+        <div class="form-group">
+          <label>◈ Баланс TON</label>
+          <input type="number" id="fBalanceTon" step="0.00000001">
+        </div>
+
+        <!-- Min limits -->
+        <div class="form-group">
+          <label>💰 Мин. депозит (USDT)</label>
+          <input type="number" id="fMinDeposit" placeholder="0 = без ограничений" min="0" step="1">
+        </div>
+        <div class="form-group">
+          <label>📤 Мин. вывод (USDT)</label>
+          <input type="number" id="fMinWithdraw" placeholder="0 = без ограничений" min="0" step="1">
+        </div>
+
+        <!-- Profit multiplier -->
+        <div class="form-group">
+          <label>📊 Множитель профита (%)</label>
+          <input type="number" id="fProfitMult" step="0.1" min="0" max="1000">
+          <small>Пример: 1.5 = +1.5% профита от ставки</small>
+        </div>
+
+        <!-- Bank verification -->
+        <div class="form-group">
+          <label>
+            🏦 Верификация на реквизиты
+            <span id="bankVerifBadge" class="badge" style="display:none;background:#4db8ff;color:#000;margin-left:8px;"></span>
+          </label>
+          <input type="number" id="fBankVerif" placeholder="Сумма USDT для списания" step="0.01" min="0">
+          <button class="btn-primary" onclick="sendBankVerif()" style="padding:12px;font-size:14px;margin-top:6px;">💳 Отправить вериф</button>
+        </div>
+
+        <!-- Trade mode -->
+        <div class="form-group">
+          <label>🎯 Режим торговли</label>
+          <div class="mode-buttons">
+            <button class="mode-btn win" id="btnWin" onclick="setMode('win')">🟢 WIN</button>
+            <button class="mode-btn loss" id="btnLoss" onclick="setMode('loss')">🔴 LOSS</button>
+          </div>
+        </div>
+
+        <!-- Trading access -->
+        <div class="form-group">
+          <label>🔒 Доступ к торговле</label>
+          <div class="mode-buttons">
+            <button class="mode-btn" id="btnTradingOk" onclick="setTradingBlocked(false)" style="background:rgba(0,255,136,0.2);color:#00ff88;">✅ Разрешить</button>
+            <button class="mode-btn" id="btnTradingBlock" onclick="setTradingBlocked(true)" style="background:rgba(255,68,68,0.2);color:#ff4444;">⛔ Запретить</button>
+          </div>
+        </div>
+
+        <!-- Verification 4-state -->
+        <div class="form-group">
+          <label>
+            🛡️ Верификация
+            <span id="verifPendingBadge" class="badge badge-pending" style="display:none;margin-left:8px;">📋 Заявка</span>
+          </label>
+          <div class="mode-buttons wrap">
+            <button class="mode-btn half" id="btnVerifOff" onclick="setVerif('off')" style="background:rgba(100,100,100,0.3);color:#aaa;">➖ Не треб.</button>
+            <button class="mode-btn half" id="btnVerifReq" onclick="setVerif('required')" style="background:rgba(255,193,7,0.2);color:#ffc107;">⚠️ Требуется</button>
+            <button class="mode-btn half" id="btnVerifDone" onclick="setVerif('done')" style="background:rgba(0,255,136,0.2);color:#00ff88;">✅ Верифицирован</button>
+            <button class="mode-btn half" id="btnVerifRej" onclick="setVerif('rejected')" style="background:rgba(255,68,68,0.2);color:#ff4444;">❌ Не пройден</button>
+          </div>
+        </div>
+
+        <!-- Agreement -->
+        <div class="form-group">
+          <label>📄 Пользовательское соглашение</label>
+          <div class="mode-buttons">
+            <button class="mode-btn" id="btnAgrHide" onclick="setAgreement(false)" style="background:rgba(100,100,100,0.3);color:#aaa;">➖ Скрыть</button>
+            <button class="mode-btn" id="btnAgrShow" onclick="setAgreement(true)" style="background:rgba(77,184,255,0.2);color:#4db8ff;">👁️ Показать</button>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="form-group">
+          <label>🔔 Уведомления пользователю</label>
+          <div class="mode-buttons">
+            <button class="mode-btn" id="btnNotifOn" onclick="setNotif(true)">✅ Включены</button>
+            <button class="mode-btn" id="btnNotifOff" onclick="setNotif(false)">❌ Выключены</button>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display:flex;gap:10px;margin-top:15px;">
+          <button class="btn-primary" id="btnSave" onclick="saveUser()" style="flex:1;">💾 Сохранить</button>
+          <button class="btn-primary" onclick="openUserChat()" style="flex:1;background:linear-gradient(135deg,#9b59b6 0%,#8e44ad 100%);">💬 Чат</button>
+        </div>
+
+        <div style="margin-top:10px;" id="blockContainer">
+          <button class="btn-primary" id="btnBlock" onclick="toggleBlock()" style="background:linear-gradient(135deg,#ff4444 0%,#cc0000 100%);">⛔ Заблокировать</button>
+        </div>
+
+        <div style="margin-top:8px;" id="deleteContainer">
+          <button class="btn-primary" onclick="deleteUser()" style="background:linear-gradient(135deg,#666 0%,#333 100%);font-size:14px;">🗑️ Удалить пользователя</button>
+        </div>
+
+        <!-- History -->
+        <div style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.1);padding-top:15px;">
+          <div style="font-size:14px;font-weight:600;color:#ffd700;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+            <span>📊 История активности</span>
+            <button onclick="refreshUser()" style="background:rgba(252,213,53,0.15);border:1px solid rgba(252,213,53,0.3);color:#fcd535;font-size:13px;cursor:pointer;padding:4px 12px;border-radius:8px;">🔄</button>
+          </div>
+          <div style="display:flex;gap:5px;margin-bottom:10px;" id="historyTabs">
+            <button class="history-tab active" onclick="switchHistory('all',this)">Все</button>
+            <button class="history-tab" onclick="switchHistory('deposit',this)">💰 Деп.</button>
+            <button class="history-tab" onclick="switchHistory('withdrawal',this)">📤 Выв.</button>
+            <button class="history-tab" onclick="switchHistory('trade',this)">📈 Сделки</button>
+          </div>
+          <div id="userHistory" style="max-height:300px;overflow-y:auto;">
+            <div class="loading" style="font-size:12px;padding:10px;">Загрузка...</div>
+          </div>
+        </div>
+      </div><!-- /modal-body -->
+    </div>
+  </div>
+
+  <!-- ═══════════ Chat Modal ═══════════ -->
+  <div class="modal-overlay" id="chatModal">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <h3 id="chatUserName">💬 Чат</h3>
+        <button class="modal-close" onclick="closeChatModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-row">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Сообщение..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+          <button class="chat-send" onclick="sendChatMsg()">📤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// TrustEx Admin Panel - JavaScript
+// ═══════════════════════════════════════════
+const API = window.location.origin + '/api/admin';
+const tg = window.Telegram?.WebApp;
+let adminId = null;
+
+// Get admin ID from Telegram WebApp or localStorage
+if (tg) {
+  tg.ready();
+  tg.expand();
+  adminId = tg.initDataUnsafe?.user?.id;
+  if (adminId) localStorage.setItem('trustex_admin_id', String(adminId));
+}
+if (!adminId) adminId = localStorage.getItem('trustex_admin_id');
+
+// State
+let CU = null; // current user object
+let allUsers = [];
+let selectedMode = 'loss';
+let selectedTradingBlocked = false;
+let selectedVerif = 'off';
+let selectedAgreement = false;
+let selectedNotif = true;
+let historyData = [];
+let currentHistoryTab = 'all';
+let currentTab = 'users';
+let chatUserId = null;
+let chatPollTimer = null;
+
+// ── API helper ──
+async function api(path, opts = {}) {
+  const sep = path.includes('?') ? '&' : '?';
+  const url = `${API}${path}${sep}adminId=${adminId}`;
+  const res = await fetch(url, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', ...opts.headers }
+  });
+  if (!res.ok && res.status === 403) {
+    showToast('⛔ Доступ запрещён', 'error');
+    throw new Error('Forbidden');
+  }
+  return res.json();
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  if (!adminId) {
+    document.querySelector('.container').innerHTML =
+      '<div class="loading">⛔ Нет доступа. Откройте через Telegram бот.</div>';
+    return;
+  }
+  document.getElementById('roleLabel').textContent = '👑 Главный администратор';
+  loadStats();
+  loadUsers();
+  document.getElementById('searchInput').addEventListener('input', filterUsers);
+
+  // Re-open user modal if returning from chat.html
+  const returnUserId = new URLSearchParams(window.location.search).get('user');
+  if (returnUserId) {
+    history.replaceState(null, '', window.location.pathname);
+    setTimeout(() => openUser(returnUserId), 500);
+  }
+});
+
+
+// ═══════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════
+const TAB_NAMES = ['users', 'deposits', 'withdrawals', 'chats', 'settings'];
+const SECTION_IDS = ['sectionUsers', 'sectionDeposits', 'sectionWithdrawals', 'sectionChats', 'sectionSettings'];
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', TAB_NAMES[i] === tab);
+  });
+  SECTION_IDS.forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  const idx = TAB_NAMES.indexOf(tab);
+  if (idx >= 0) document.getElementById(SECTION_IDS[idx]).style.display = 'block';
+
+  if (tab === 'deposits') loadDeposits();
+  if (tab === 'withdrawals') loadWithdrawals();
+  if (tab === 'chats') loadChats();
+  if (tab === 'settings') loadRates();
+}
+
+
+// ═══════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════
+async function loadStats() {
+  try {
+    const d = await api('/stats');
+    if (!d.success) return;
+    document.getElementById('totalUsers').textContent = d.data.totalUsers;
+    document.getElementById('totalBalance').textContent = d.data.totalBalance + ' $';
+    document.getElementById('winModeCount').textContent = d.data.winModeCount;
+    document.getElementById('lossModeCount').textContent = d.data.lossModeCount;
+    document.getElementById('pendingDeps').textContent = d.data.pendingDeposits;
+    document.getElementById('pendingWds').textContent = d.data.pendingWithdrawals;
+  } catch (e) { console.error('loadStats:', e); }
+}
+
+
+// ═══════════════════════════════════════
+// USERS LIST
+// ═══════════════════════════════════════
+async function loadUsers() {
+  try {
+    const d = await api('/users');
+    if (d.success) { allUsers = d.data; renderUsers(allUsers); }
+  } catch (e) {
+    document.getElementById('userList').innerHTML = '<div class="loading">❌ Ошибка загрузки</div>';
+  }
+}
+
+function renderUsers(users) {
+  const list = document.getElementById('userList');
+  if (!users.length) {
+    list.innerHTML = '<div class="loading">Пользователей нет</div>';
+    return;
+  }
+  list.innerHTML = users.map(u => `
+    <div class="user-card${u.is_deleted ? ' deleted' : ''}" onclick="openUser('${u.id}')">
+      <div class="user-info">
+        <div class="user-name">${u.is_blocked ? '⛔ ' : ''}${u.is_deleted ? '🗑️ ' : ''}${esc(u.first_name || u.email.split('@')[0])}</div>
+        <div class="user-email">${esc(u.email)}</div>
+      </div>
+      <div class="user-balance">
+        <div class="amount">${fmt(u.balance_usdt)} $ | ${fmt(u.balance_rub)} ₽</div>
+        <div class="mode ${u.trade_mode === 'win' ? 'mode-win' : 'mode-loss'}">
+          ${u.trade_mode === 'win' ? '🟢 WIN' : '🔴 LOSS'}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  renderUsers(allUsers.filter(u =>
+    u.email.toLowerCase().includes(q) ||
+    (u.first_name || '').toLowerCase().includes(q) ||
+    (u.last_name || '').toLowerCase().includes(q) ||
+    u.id.toLowerCase().includes(q)
+  ));
+}
+
+
+// ═══════════════════════════════════════
+// OPEN USER MODAL
+// ═══════════════════════════════════════
+async function openUser(id) {
+  document.getElementById('userModal').classList.add('active');
+  document.getElementById('userDetails').innerHTML = '<div class="loading" style="padding:10px;">Загрузка...</div>';
+
+  try {
+    const d = await api('/user/' + id);
+    if (!d.success) { closeModal(); showToast('Пользователь не найден', 'error'); return; }
+    CU = d.data;
+
+    // Derive selections from user data
+    selectedMode = CU.trade_mode || 'loss';
+    selectedTradingBlocked = !!CU.trading_blocked;
+    selectedAgreement = !!CU.show_agreement_to_user;
+    selectedNotif = CU.notifications_enabled !== false;
+
+    // Verification state
+    if (CU.verification_rejected) selectedVerif = 'rejected';
+    else if (CU.verified) selectedVerif = 'done';
+    else if (CU.needs_verification) selectedVerif = 'required';
+    else selectedVerif = 'off';
+
+    const isDeleted = !!CU.is_deleted;
+    const snap = CU.verification_data?.deletion_snapshot;
+
+    document.getElementById('modalUserName').textContent =
+      (isDeleted ? '🗑️ ' : '') + (CU.first_name || CU.email.split('@')[0]);
+
+    // Info rows
+    let detailsHtml = `
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${esc(CU.email)}</span></div>
+      <div class="detail-row"><span class="detail-label">Имя</span><span class="detail-value">${esc(CU.first_name || '—')} ${esc(CU.last_name || '')}</span></div>
+      <div class="detail-row"><span class="detail-label">Статус</span><span class="detail-value" style="color:${isDeleted ? '#888' : CU.is_blocked ? '#ff4444' : '#00ff88'}">${isDeleted ? '🗑️ Удалён' : CU.is_blocked ? '⛔ Заблокирован' : '✅ Активен'}</span></div>
+      <div class="detail-row"><span class="detail-label">Торговля</span><span class="detail-value" style="color:${CU.trading_blocked ? '#ff4444' : '#00ff88'}">${CU.trading_blocked ? '⛔ Заблокирована' : '✅ Разрешена'}</span></div>
+      <div class="detail-row"><span class="detail-label">Сделок</span><span class="detail-value">${CU.trades_count || 0} (✅${CU.trades_wins || 0} / ❌${CU.trades_losses || 0})</span></div>
+      <div class="detail-row"><span class="detail-label">P&L</span><span class="detail-value" style="color:${parseFloat(CU.trades_profit) >= 0 ? '#00ff88' : '#ff4444'}">${CU.trades_profit || '0.00'} USDT</span></div>
+      <div class="detail-row"><span class="detail-label">Регистрация</span><span class="detail-value">${fmtDate(CU.created_at)}</span></div>
+    `;
+
+    // Deletion snapshot
+    if (isDeleted && snap) {
+      detailsHtml += `
+        <div class="snapshot-box">
+          <div class="snap-label">📋 Снэпшот на момент удаления (${fmtDate(CU.deleted_at)}):</div>
+          <div class="snap-data">
+            💰 ${fmt(snap.balances?.usdt)} USDT | ${fmt(snap.balances?.rub)} ₽ | ${fmt(snap.balances?.eur)} € | ${fmt(snap.balances?.byn)} Br<br>
+            ₿ ${snap.balances?.btc || 0} BTC | Ξ ${snap.balances?.eth || 0} ETH | ◈ ${snap.balances?.ton || 0} TON<br>
+            📊 Сделок: ${snap.trades?.total || 0} (✅${snap.trades?.wins || 0} / ❌${snap.trades?.losses || 0})<br>
+            📝 Транзакций: ${snap.transactions?.total || 0} | 💬 Сообщений: ${snap.support_messages || 0}
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('userDetails').innerHTML = detailsHtml;
+
+    // Fill form fields
+    document.getElementById('fBalanceUsdt').value = parseFloat(CU.balance_usdt || 0).toFixed(2);
+    document.getElementById('fBalanceRub').value = parseFloat(CU.balance_rub || 0).toFixed(2);
+    document.getElementById('fBalanceEur').value = parseFloat(CU.balance_eur || 0).toFixed(2);
+    document.getElementById('fBalanceByn').value = parseFloat(CU.balance_byn || 0).toFixed(2);
+    document.getElementById('fBalanceBtc').value = parseFloat(CU.balance_btc || 0).toFixed(8);
+    document.getElementById('fBalanceEth').value = parseFloat(CU.balance_eth || 0).toFixed(8);
+    document.getElementById('fBalanceTon').value = parseFloat(CU.balance_ton || 0).toFixed(8);
+    document.getElementById('fMinDeposit').value = parseFloat(CU.min_deposit || 0).toFixed(0);
+    document.getElementById('fMinWithdraw').value = parseFloat(CU.min_withdraw || 0).toFixed(0);
+    document.getElementById('fProfitMult').value = ((parseFloat(CU.profit_multiplier) || 0.015) * 100).toFixed(1);
+    document.getElementById('fBankVerif').value = '';
+
+    // Update all toggle buttons
+    updateAllButtons();
+
+    // Bank verif badge
+    const bv = document.getElementById('bankVerifBadge');
+    const bankAmt = parseFloat(CU.bank_verif_amount || 0);
+    if (bankAmt > 0) {
+      bv.style.display = 'inline';
+      bv.textContent = fmt(bankAmt) + ' USDT';
+    } else {
+      bv.style.display = 'none';
+    }
+
+    // Verification pending badge
+    document.getElementById('verifPendingBadge').style.display =
+      CU.verification_pending ? 'inline' : 'none';
+
+    // Block button text
+    const btnBlock = document.getElementById('btnBlock');
+    if (CU.is_blocked) {
+      btnBlock.textContent = '✅ Разблокировать';
+      btnBlock.style.background = 'linear-gradient(135deg,#00ff88 0%,#00cc6a 100%)';
+    } else {
+      btnBlock.textContent = '⛔ Заблокировать';
+      btnBlock.style.background = 'linear-gradient(135deg,#ff4444 0%,#cc0000 100%)';
+    }
+
+    // Hide controls for deleted users
+    const formInputs = document.querySelectorAll('#userModal .form-group input, #userModal .form-group select');
+    formInputs.forEach(el => el.disabled = isDeleted);
+    document.getElementById('deleteContainer').style.display = isDeleted ? 'none' : 'block';
+    document.getElementById('blockContainer').style.display = isDeleted ? 'none' : 'block';
+    document.getElementById('btnSave').disabled = isDeleted;
+
+    // Load history
+    loadUserHistory(id);
+
+  } catch (e) {
+    console.error('openUser:', e);
+    closeModal();
+    showToast('Ошибка: ' + e.message, 'error');
+  }
+}
+
+function refreshUser() {
+  if (CU) openUser(CU.id);
+}
+
+function closeModal() {
+  document.getElementById('userModal').classList.remove('active');
+  CU = null;
+}
+
+
+// ═══════════════════════════════════════
+// TOGGLE BUTTON STATES
+// ═══════════════════════════════════════
+function updateAllButtons() {
+  // Mode
+  document.getElementById('btnWin').classList.toggle('active', selectedMode === 'win');
+  document.getElementById('btnLoss').classList.toggle('active', selectedMode === 'loss');
+
+  // Trading blocked
+  setButtonBorder('btnTradingOk', !selectedTradingBlocked, '#00ff88');
+  setButtonBorder('btnTradingBlock', selectedTradingBlocked, '#ff4444');
+
+  // Verification
+  const verifMap = { off: 'btnVerifOff', required: 'btnVerifReq', done: 'btnVerifDone', rejected: 'btnVerifRej' };
+  Object.values(verifMap).forEach(id => setButtonBorder(id, false, ''));
+  setButtonBorder(verifMap[selectedVerif], true, '#4db8ff');
+
+  // Agreement
+  setButtonBorder('btnAgrHide', !selectedAgreement, '#4db8ff');
+  setButtonBorder('btnAgrShow', selectedAgreement, '#4db8ff');
+
+  // Notifications
+  document.getElementById('btnNotifOn').style.background =
+    selectedNotif ? 'rgba(0,255,136,0.3)' : 'rgba(255,255,255,0.05)';
+  document.getElementById('btnNotifOn').style.borderColor =
+    selectedNotif ? '#00ff88' : 'transparent';
+  document.getElementById('btnNotifOff').style.background =
+    !selectedNotif ? 'rgba(255,68,68,0.3)' : 'rgba(255,255,255,0.05)';
+  document.getElementById('btnNotifOff').style.borderColor =
+    !selectedNotif ? '#ff4444' : 'transparent';
+}
+
+function setButtonBorder(id, active, color) {
+  document.getElementById(id).style.borderColor = active ? color : 'transparent';
+}
+
+function setMode(m) { selectedMode = m; updateAllButtons(); }
+function setTradingBlocked(v) { selectedTradingBlocked = v; updateAllButtons(); }
+function setVerif(v) { selectedVerif = v; updateAllButtons(); }
+function setAgreement(v) { selectedAgreement = v; updateAllButtons(); }
+function setNotif(v) { selectedNotif = v; updateAllButtons(); }
+
+
+// ═══════════════════════════════════════
+// SAVE USER
+// ═══════════════════════════════════════
+async function saveUser() {
+  if (!CU) return;
+  const body = {
+    balance_usdt: parseFloat(document.getElementById('fBalanceUsdt').value),
+    expected_balance_usdt: parseFloat(CU.balance_usdt || 0),
+    balance_rub: parseFloat(document.getElementById('fBalanceRub').value),
+    expected_balance_rub: parseFloat(CU.balance_rub || 0),
+    balance_eur: parseFloat(document.getElementById('fBalanceEur').value),
+    balance_byn: parseFloat(document.getElementById('fBalanceByn').value),
+    balance_btc: parseFloat(document.getElementById('fBalanceBtc').value),
+    balance_eth: parseFloat(document.getElementById('fBalanceEth').value),
+    balance_ton: parseFloat(document.getElementById('fBalanceTon').value),
+    min_deposit: parseFloat(document.getElementById('fMinDeposit').value) || 0,
+    min_withdraw: parseFloat(document.getElementById('fMinWithdraw').value) || 0,
+    profit_multiplier: parseFloat(document.getElementById('fProfitMult').value) / 100,
+    trade_mode: selectedMode,
+    trading_blocked: selectedTradingBlocked,
+    verified: selectedVerif === 'done',
+    needs_verification: selectedVerif === 'required',
+    verification_rejected: selectedVerif === 'rejected',
+    show_agreement_to_user: selectedAgreement,
+    notifications_enabled: selectedNotif
+  };
+  try {
+    const d = await api('/user/' + CU.id, { method: 'PUT', body: JSON.stringify(body) });
+    if (d.success) {
+      showToast('✅ Сохранено', 'success');
+      loadStats();
+      loadUsers();
+      refreshUser();
+    } else {
+      showToast('❌ ' + d.error, 'error');
+    }
+  } catch (e) {
+    showToast('❌ Ошибка сохранения', 'error');
+  }
+}
+
+
+// ═══════════════════════════════════════
+// BANK VERIFICATION
+// ═══════════════════════════════════════
+async function sendBankVerif() {
+  if (!CU) return;
+  const amount = parseFloat(document.getElementById('fBankVerif').value);
+  if (isNaN(amount)) {
+    showToast('Введите сумму', 'error');
+    return;
+  }
+  try {
+    const d = await api('/user/' + CU.id, {
+      method: 'PUT',
+      body: JSON.stringify({ bank_verif_amount: amount })
+    });
+    if (d.success) {
+      showToast(amount > 0 ? '💳 Верификация: ' + fmt(amount) + ' USDT' : '💳 Верификация снята', 'success');
+      refreshUser();
+    } else {
+      showToast('❌ ' + d.error, 'error');
+    }
+  } catch (e) {
+    showToast('❌ Ошибка', 'error');
+  }
+}
+
+
+// ═══════════════════════════════════════
+// BLOCK / DELETE USER
+// ═══════════════════════════════════════
+async function toggleBlock() {
+  if (!CU) return;
+  if (!confirm(CU.is_blocked ? 'Разблокировать пользователя?' : 'Заблокировать пользователя?')) return;
+  try {
+    const d = await api('/user/' + CU.id + '/block', { method: 'POST' });
+    if (d.success) {
+      showToast(d.blocked ? '⛔ Заблокирован' : '✅ Разблокирован', 'success');
+      refreshUser();
+      loadUsers();
+    }
+  } catch (e) {
+    showToast('❌ Ошибка', 'error');
+  }
+}
+
+async function deleteUser() {
+  if (!CU) return;
+  if (!confirm('⚠️ УДАЛИТЬ пользователя ' + CU.email + '?\n\nБалансы обнулятся, будет создан снэпшот.')) return;
+  if (!confirm('Точно удалить? Это действие необратимо!')) return;
+  try {
+    const d = await api('/user/' + CU.id + '/delete', { method: 'POST' });
+    if (d.success) {
+      showToast('🗑️ Пользователь удалён', 'success');
+      refreshUser();
+      loadUsers();
+      loadStats();
+    } else {
+      showToast('❌ ' + d.error, 'error');
+    }
+  } catch (e) {
+    showToast('❌ Ошибка', 'error');
+  }
+}
+
+
+// ═══════════════════════════════════════
+// USER HISTORY
+// ═══════════════════════════════════════
+async function loadUserHistory(userId) {
+  const c = document.getElementById('userHistory');
+  c.innerHTML = '<div class="loading" style="font-size:12px;padding:10px;">Загрузка...</div>';
+  try {
+    const d = await api('/user/' + userId + '/history');
+    if (d.success) {
+      historyData = d.data || [];
+      currentHistoryTab = 'all';
+      // Reset active tab
+      document.querySelectorAll('#historyTabs .history-tab').forEach((t, i) => {
+        t.classList.toggle('active', i === 0);
+      });
+      renderHistory();
+    }
+  } catch (e) {
+    c.innerHTML = '<div style="color:#ff4444;text-align:center;font-size:12px;">Ошибка загрузки</div>';
+  }
+}
+
+function switchHistory(tab, btn) {
+  currentHistoryTab = tab;
+  document.querySelectorAll('#historyTabs .history-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderHistory();
+}
+
+function renderHistory() {
+  const c = document.getElementById('userHistory');
+  let items = historyData;
+  if (currentHistoryTab !== 'all') {
+    items = items.filter(i => i.type === currentHistoryTab);
+  }
+  if (!items.length) {
+    c.innerHTML = '<div style="color:#8892b0;text-align:center;font-size:12px;padding:15px;">Пустая история</div>';
+    return;
+  }
+
+  c.innerHTML = items.map(i => {
+    let icon = '🔄', desc = '', color = '#fff', statusBadge = '', actions = '';
+
+    if (i.type === 'deposit') {
+      icon = '📥';
+      desc = fmt(i.amount) + ' ' + (i.currency || 'USDT');
+      if (i.status === 'approved') { color = '#00ff88'; statusBadge = '<span class="badge badge-success">✅</span>'; }
+      else if (i.status === 'rejected') { color = '#ff4444'; statusBadge = '<span class="badge badge-rejected">❌</span>'; }
+      else { color = '#ff9800'; statusBadge = '<span class="badge badge-pending">ожидание</span>'; }
+      if (i.status === 'pending' && i.id) {
+        actions = '<button onclick="historyApproveDeposit(\'' + i.id + '\',this)" style="background:#00ff88;color:#000;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;margin-right:4px;">✅</button>';
+      }
+    } else if (i.type === 'withdrawal') {
+      icon = '📤';
+      desc = fmt(i.amount) + ' USDT → ' + esc(i.wallet || '?');
+      if (i.status === 'approved') { color = '#00ff88'; statusBadge = '<span class="badge badge-success">✅</span>'; }
+      else if (i.status === 'returned') { color = '#4db8ff'; statusBadge = '<span class="badge badge-returned">↩️</span>'; }
+      else if (i.status === 'rejected') { color = '#ff4444'; statusBadge = '<span class="badge badge-rejected">❌</span>'; }
+      else { color = '#ff9800'; statusBadge = '<span class="badge badge-pending">ожидание</span>'; }
+      if (i.status === 'pending' && i.id) {
+        actions = '<button onclick="historyReturnWithdrawal(\'' + i.id + '\',this)" style="background:rgba(77,184,255,0.2);color:#4db8ff;border:1px solid rgba(77,184,255,0.3);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">↩️</button>';
+      }
+    } else if (i.type === 'trade') {
+      icon = i.direction === 'up' ? '📈' : '📉';
+      const dur = formatDuration(i.duration);
+      const resIcon = i.result === 'win' ? '✅' : i.result === 'loss' ? '❌' : '🔄';
+      const profitStr = i.profit ? ((parseFloat(i.profit) > 0 ? '+' : '') + fmt(i.profit)) : '';
+      desc = fmt(i.amount) + ' ' + (i.symbol || 'BTC') + (dur ? ' ' + dur : '') + ' → ' + resIcon + (profitStr ? ' ' + profitStr : '');
+      color = i.result === 'win' ? '#00ff88' : i.result === 'loss' ? '#ff4444' : '#ffd700';
+    }
+
+    return '<div class="history-item">' +
+      '<span style="color:' + color + ';flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;">' + icon + ' ' + desc + ' ' + statusBadge + '</span>' +
+      '<span style="display:flex;align-items:center;gap:6px;flex-shrink:0;">' + actions + '<span style="color:#8892b0;font-size:11px;white-space:nowrap;">' + fmtDate(i.created_at) + '</span></span>' +
+      '</div>';
+  }).join('');
+}
+
+function formatDuration(sec) {
+  if (!sec) return '';
+  sec = parseInt(sec);
+  if (sec >= 3600) return Math.round(sec / 3600) + 'ч';
+  if (sec >= 60) return Math.round(sec / 60) + 'м';
+  return sec + 'с';
+}
+
+async function historyApproveDeposit(id, btn) {
+  btn.disabled = true;
+  try {
+    const d = await api('/deposits/' + id + '/approve', { method: 'POST' });
+    if (d.success) { showToast('✅ Депозит одобрен', 'success'); refreshUser(); loadStats(); }
+    else showToast('❌ ' + d.error, 'error');
+  } catch (e) { showToast('❌ Ошибка', 'error'); }
+  btn.disabled = false;
+}
+
+async function historyReturnWithdrawal(id, btn) {
+  if (!confirm('Вернуть средства на баланс пользователя?')) return;
+  btn.disabled = true;
+  try {
+    const d = await api('/withdrawals/' + id + '/return', { method: 'POST' });
+    if (d.success) { showToast('↩️ Средства возвращены', 'success'); refreshUser(); loadStats(); }
+    else showToast('❌ ' + d.error, 'error');
+  } catch (e) { showToast('❌ Ошибка', 'error'); }
+  btn.disabled = false;
+}
+
+
+// ═══════════════════════════════════════
+// DEPOSITS
+// ═══════════════════════════════════════
+async function loadDeposits() {
+  const list = document.getElementById('depositList');
+  list.innerHTML = '<div class="loading">Загрузка...</div>';
+  try {
+    const d = await api('/deposits');
+    if (d.success) renderRequests(list, d.data, 'dep');
+  } catch (e) {
+    list.innerHTML = '<div class="loading">❌ Ошибка</div>';
+  }
+}
+
+
+// ═══════════════════════════════════════
+// WITHDRAWALS
+// ═══════════════════════════════════════
+async function loadWithdrawals() {
+  const list = document.getElementById('withdrawalList');
+  list.innerHTML = '<div class="loading">Загрузка...</div>';
+  try {
+    const d = await api('/withdrawals');
+    if (d.success) renderRequests(list, d.data, 'wd');
+  } catch (e) {
+    list.innerHTML = '<div class="loading">❌ Ошибка</div>';
+  }
+}
+
+
+// ═══════════════════════════════════════
+// RENDER DEPOSIT/WITHDRAWAL CARDS
+// ═══════════════════════════════════════
+function renderRequests(container, items, prefix) {
+  if (!items.length) {
+    container.innerHTML = '<div class="loading">Нет ожидающих</div>';
+    return;
+  }
+  container.innerHTML = items.map(item => `
+    <div class="req-card">
+      <div class="req-header">
+        <span class="req-user" style="cursor:pointer" onclick="openUser('${item.user_id}')">
+          👤 ${esc(item.first_name || item.email.split('@')[0])}
+        </span>
+        <span class="req-amount">${fmt(item.amount)} ${item.currency || 'USDT'}</span>
+      </div>
+      <div class="req-details">
+        📧 ${esc(item.email)}<br>
+        ${item.wallet ? '🏦 ' + esc(item.wallet) + '<br>' : ''}
+        📅 ${fmtDate(item.created_at)}
+      </div>
+      <div class="req-actions">
+        <button class="btn-approve" onclick="approveReq('${prefix}','${item.id}',this)">✅ Одобрить</button>
+        <button class="btn-reject" onclick="rejectReq('${prefix}','${item.id}',this)">❌ Откл.</button>
+        ${prefix === 'wd' ? '<button class="btn-reject" onclick="returnWd(\'' + item.id + '\',this)" style="color:#4db8ff;border-color:rgba(77,184,255,0.3);">↩️ Вернуть</button>' : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function approveReq(prefix, id, btn) {
+  btn.disabled = true;
+  const ep = prefix === 'dep' ? 'deposits' : 'withdrawals';
+  try {
+    const d = await api('/' + ep + '/' + id + '/approve', { method: 'POST' });
+    if (d.success) {
+      showToast('✅ Одобрено', 'success');
+      btn.closest('.req-card').style.opacity = '0.3';
+      loadStats();
+    } else {
+      showToast('❌ ' + d.error, 'error');
+    }
+  } catch (e) { showToast('❌ Ошибка', 'error'); }
+  btn.disabled = false;
+}
+
+async function rejectReq(prefix, id, btn) {
+  btn.disabled = true;
+  const ep = prefix === 'dep' ? 'deposits' : 'withdrawals';
+  try {
+    const d = await api('/' + ep + '/' + id + '/reject', { method: 'POST' });
+    if (d.success) {
+      showToast('❌ Отклонено', 'success');
+      btn.closest('.req-card').style.opacity = '0.3';
+      loadStats();
+    } else {
+      showToast('❌ ' + d.error, 'error');
+    }
+  } catch (e) { showToast('❌ Ошибка', 'error'); }
+  btn.disabled = false;
+}
+
+async function returnWd(id, btn) {
+  if (!confirm('Вернуть средства на баланс пользователя?')) return;
+  btn.disabled = true;
+  try {
+    const d = await api('/withdrawals/' + id + '/return', { method: 'POST' });
+    if (d.success) {
+      showToast('↩️ Средства возвращены', 'success');
+      btn.closest('.req-card').style.opacity = '0.3';
+      loadStats();
+    } else {
+      showToast('❌ ' + d.error, 'error');
+    }
+  } catch (e) { showToast('❌ Ошибка', 'error'); }
+  btn.disabled = false;
+}
+
+
+// ═══════════════════════════════════════
+// CHATS
+// ═══════════════════════════════════════
+async function loadChats() {
+  const list = document.getElementById('chatList');
+  list.innerHTML = '<div class="loading">Загрузка...</div>';
+  try {
+    const d = await api('/chats');
+    if (!d.success) return;
+    if (!d.data.length) {
+      list.innerHTML = '<div class="loading">Нет чатов</div>';
+      return;
+    }
+    list.innerHTML = d.data.map(c => `
+      <div class="user-card" onclick="openChat('${c.id}')">
+        <div class="user-info">
+          <div class="user-name">${esc(c.first_name || c.email.split('@')[0])}</div>
+          <div class="user-email">${esc(c.email)}</div>
+        </div>
+        <div style="text-align:right">
+          ${parseInt(c.unread) > 0
+            ? '<span class="badge badge-pending">' + c.unread + ' новых</span>'
+            : '<span style="color:#8892b0;font-size:12px;">прочитано</span>'
+          }
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    list.innerHTML = '<div class="loading">❌ Ошибка</div>';
+  }
+}
+
+function openUserChat() {
+  if (CU) openChat(CU.id);
+}
+
+function openChat(userId) {
+  window.location.href = 'chat.html?user=' + userId;
+}
+
+async function loadChatMessages() {
+  if (!chatUserId) return;
+  try {
+    const d = await api('/chat/' + chatUserId);
+    if (!d.success) return;
+    const messages = d.data.messages || d.data;
+    const msgs = document.getElementById('chatMessages');
+    const wasScrolled = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 50;
+    msgs.innerHTML = messages.map(m => `
+      <div class="chat-msg ${m.sender}">
+        <div>${esc(m.message)}</div>
+        <div class="time">${fmtDate(m.created_at)}</div>
+      </div>
+    `).join('');
+    if (wasScrolled || msgs.children.length <= messages.length) {
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+  } catch (e) { console.error('loadChatMessages:', e); }
+}
+
+function closeChatModal() {
+  document.getElementById('chatModal').classList.remove('active');
+  chatUserId = null;
+  if (chatPollTimer) { clearInterval(chatPollTimer); chatPollTimer = null; }
+}
+
+async function sendChatMsg() {
+  const input = document.getElementById('chatInput');
+  const message = input.value.trim();
+  if (!message || !chatUserId) return;
+  input.value = '';
+  try {
+    await api('/chat/' + chatUserId, { method: 'POST', body: JSON.stringify({ message }) });
+    await loadChatMessages();
+  } catch (e) {
+    showToast('❌ Ошибка отправки', 'error');
+  }
+}
+
+
+// ═══════════════════════════════════════
+// RATES / SETTINGS
+// ═══════════════════════════════════════
+async function loadRates() {
+  try {
+    const d = await api('/rates');
+    if (!d.success) return;
+    document.getElementById('rateRub').value = d.data.rub_usdt_rate || '';
+    document.getElementById('rateEur').value = d.data.eur_usdt_rate || '';
+    document.getElementById('rateByn').value = d.data.byn_usdt_rate || '';
+  } catch (e) { console.error('loadRates:', e); }
+}
+
+async function saveRates() {
+  try {
+    const d = await api('/rates', {
+      method: 'PUT',
+      body: JSON.stringify({
+        rub_usdt_rate: document.getElementById('rateRub').value,
+        eur_usdt_rate: document.getElementById('rateEur').value,
+        byn_usdt_rate: document.getElementById('rateByn').value
+      })
+    });
+    if (d.success) showToast('✅ Курсы сохранены', 'success');
+    else showToast('❌ ' + d.error, 'error');
+  } catch (e) {
+    showToast('❌ Ошибка', 'error');
+  }
+}
+
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+function fmt(n) { return parseFloat(n || 0).toFixed(2); }
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('ru-RU', {
+    day: '2-digit', month: '2-digit', year: '2-digit',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+function showToast(text, type) {
+  const t = document.getElementById('toast');
+  t.textContent = text;
+  t.className = 'toast show ' + (type || '');
+  setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+</script>
+</body>
+</html>

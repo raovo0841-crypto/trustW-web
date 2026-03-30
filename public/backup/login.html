@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustEx — Вход</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e17;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .auth-logo h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #00d2ff, #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .auth-logo p {
+            color: #8a8f98;
+            margin-top: 8px;
+        }
+        .auth-card {
+            background: #141824;
+            border-radius: 16px;
+            padding: 28px 24px;
+            border: 1px solid #1e2436;
+        }
+        .auth-card h2 {
+            font-size: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #8a8f98;
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0d1117;
+            border: 1px solid #2a2f3e;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            border-color: #00d2ff;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00d2ff, #7b2ff7);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: opacity 0.2s;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #8a8f98;
+            font-size: 14px;
+        }
+        .auth-footer a {
+            color: #00d2ff;
+            text-decoration: none;
+        }
+        .error-msg {
+            background: #ff4d4f20;
+            border: 1px solid #ff4d4f40;
+            color: #ff6b6b;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-logo">
+            <h1>TrustEx</h1>
+            <p>Криптобиржа нового поколения</p>
+        </div>
+        <div class="auth-card">
+            <h2>Вход</h2>
+            <div class="error-msg" id="error"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="your@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="password" placeholder="••••••" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary" id="submitBtn">Войти</button>
+            </form>
+        </div>
+        <div class="auth-footer">
+            Нет аккаунта? <a href="/register.html">Зарегистрироваться</a>
+        </div>
+    </div>
+
+    <script>
+        // Redirect if already logged in
+        if (localStorage.getItem('trustex_token')) {
+            window.location.href = '/';
+        }
+
+        const form = document.getElementById('loginForm');
+        const errorEl = document.getElementById('error');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorEl.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Входим...';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value.trim(),
+                        password: document.getElementById('password').value
+                    })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Ошибка входа');
+                }
+
+                localStorage.setItem('trustex_token', data.token);
+                localStorage.setItem('trustex_user', JSON.stringify(data.user));
+                window.location.href = '/';
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Войти';
+            }
+        });
+    </script>
+</body>
+</html>

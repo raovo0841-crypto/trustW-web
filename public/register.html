@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustEx — Регистрация</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#0b0e11;color:#eaecef;min-height:100vh;display:flex;flex-direction:column}
+        .header{height:64px;background:#0b0e11;border-bottom:1px solid #1e2329;display:flex;align-items:center;padding:0 24px}
+        .logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+        .logo-mark{width:32px;height:32px;background:#f0b90b;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#000}
+        .logo-text{font-size:20px;font-weight:700;color:#eaecef;letter-spacing:-0.5px}
+        .logo-text span{color:#f0b90b}
+        .main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
+        .auth-box{width:100%;max-width:380px}
+        .auth-title{font-size:24px;font-weight:700;margin-bottom:8px}
+        .auth-sub{color:#848e9c;font-size:14px;margin-bottom:32px}
+        .field{margin-bottom:20px}
+        .field label{display:block;font-size:14px;color:#848e9c;margin-bottom:8px;font-weight:500}
+        .field input{width:100%;height:48px;background:#181a20;border:1px solid #2b2f36;border-radius:4px;padding:0 16px;color:#eaecef;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s}
+        .field input:focus{border-color:#f0b90b}
+        .field input::placeholder{color:#5e6673}
+        .row{display:flex;gap:12px}.row .field{flex:1}
+        .btn-submit{width:100%;height:48px;background:#f0b90b;border:none;border-radius:4px;color:#000;font-size:16px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s;margin-top:8px}
+        .btn-submit:hover{opacity:.9}
+        .btn-submit:disabled{opacity:.5;cursor:not-allowed}
+        .error-msg{background:rgba(246,70,93,.1);border:1px solid rgba(246,70,93,.2);color:#f6465d;padding:12px 16px;border-radius:4px;font-size:13px;margin-bottom:20px;display:none}
+        .footer-link{text-align:center;margin-top:24px;font-size:14px;color:#848e9c}
+        .footer-link a{color:#f0b90b;text-decoration:none;font-weight:500}
+        .footer-link a:hover{text-decoration:underline}
+    </style>
+</head>
+<body>
+    <div class="header"><a href="/" class="logo"><div class="logo-mark">T</div><div class="logo-text">Trust<span>Ex</span></div></a></div>
+    <div class="main">
+        <div class="auth-box">
+            <div class="auth-title">Создать аккаунт</div>
+            <div class="auth-sub">Зарегистрируйтесь для начала торговли</div>
+            <div class="error-msg" id="error"></div>
+            <form id="registerForm">
+                <div class="row">
+                    <div class="field"><label>Имя</label><input type="text" id="firstName" placeholder="Иван"></div>
+                    <div class="field"><label>Фамилия</label><input type="text" id="lastName" placeholder="Иванов"></div>
+                </div>
+                <div class="field"><label>Email</label><input type="email" id="email" placeholder="name@example.com" required autocomplete="email"></div>
+                <div class="field"><label>Пароль</label><input type="password" id="password" placeholder="Минимум 6 символов" required autocomplete="new-password" minlength="6"></div>
+                <div class="field"><label>Подтвердите пароль</label><input type="password" id="password2" placeholder="Повторите пароль" required autocomplete="new-password"></div>
+                <button type="submit" class="btn-submit" id="submitBtn">Зарегистрироваться</button>
+            </form>
+            <div class="footer-link">Уже есть аккаунт? <a href="/login.html">Войти</a></div>
+        </div>
+    </div>
+    <script>
+        if(localStorage.getItem('trustex_token')){window.location.href='/'}
+        var form=document.getElementById('registerForm'),errorEl=document.getElementById('error'),submitBtn=document.getElementById('submitBtn');
+        form.addEventListener('submit',async function(e){
+            e.preventDefault();errorEl.style.display='none';
+            var pw=document.getElementById('password').value,pw2=document.getElementById('password2').value;
+            if(pw!==pw2){errorEl.textContent='Пароли не совпадают';errorEl.style.display='block';return}
+            submitBtn.disabled=true;submitBtn.textContent='Создаём...';
+            try{var res=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('email').value.trim(),password:pw,firstName:document.getElementById('firstName').value.trim()||undefined,lastName:document.getElementById('lastName').value.trim()||undefined})});var data=await res.json();if(!res.ok)throw new Error(data.error||'Ошибка регистрации');if(data.needsVerification){window.location.href='/verify.html?email='+encodeURIComponent(data.email);return}localStorage.setItem('trustex_token',data.token);localStorage.setItem('trustex_user',JSON.stringify(data.user));window.location.href='/';}catch(err){errorEl.textContent=err.message;errorEl.style.display='block'}finally{submitBtn.disabled=false;submitBtn.textContent='Зарегистрироваться'}
+        });
+    </script>
+</body>
+</html>

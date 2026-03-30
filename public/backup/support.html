@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustEx — Поддержка</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+    <script src="js/auth.js" defer></script>
+    <style>
+        :root{--bg-primary:#0a0e17;--bg-secondary:#111827;--bg-card:#1a2235;--bg-input:#0f1520;--bg-hover:#1e293b;--accent:#00d4aa;--accent-glow:rgba(0,212,170,0.15);--text-primary:#fff;--text-secondary:#94a3b8;--text-muted:#64748b;--border:rgba(255,255,255,0.08);--border-solid:#1e293b;--success:#22c55e;--danger:#ef4444;--warning:#fbbf24}
+        *{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg-primary);color:var(--text-primary);font-family:'Inter',-apple-system,sans-serif;min-height:100vh}
+
+        .top-nav{display:none;background:var(--bg-secondary);border-bottom:1px solid var(--border-solid);height:64px;padding:0 32px;align-items:center;position:sticky;top:0;z-index:1000}
+        .top-nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;width:100%;height:100%;gap:40px}
+        .top-nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+        .top-nav-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#00a896);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#0a0e17}
+        .top-nav-logo-text{font-size:20px;font-weight:700;color:var(--text-primary)}.top-nav-logo-text span{color:var(--accent)}
+        .top-nav-links{display:flex;gap:4px;flex:1}
+        .top-nav-link{text-decoration:none;color:var(--text-secondary);font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all .15s}
+        .top-nav-link:hover{color:var(--text-primary);background:rgba(255,255,255,0.05)}.top-nav-link.active{color:var(--accent);background:var(--accent-glow)}
+        .top-nav-user{display:flex;align-items:center;gap:12px;flex-shrink:0}
+        .top-nav-email{font-size:13px;color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .top-nav-logout{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-secondary);padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}.top-nav-logout:hover{color:var(--danger);border-color:var(--danger)}
+
+        .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:9999;background:linear-gradient(180deg,#161b22,#0d1117);border-top:1px solid rgba(48,54,61,0.8);backdrop-filter:blur(20px);padding:10px 0 max(14px,env(safe-area-inset-bottom));display:flex;justify-content:space-around;align-items:center;min-height:65px}
+        .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:#6e7681;padding:6px 0;width:20%;position:relative;transition:color .15s}.nav-item:hover{color:#8b949e}.nav-item.active{color:var(--accent)}.nav-item.active::before{content:'';position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--accent);border-radius:2px}
+        .nav-icon{width:24px;height:24px;margin-bottom:3px;display:flex;align-items:center;justify-content:center}.nav-icon svg{width:22px;height:22px;fill:currentColor}.nav-label{font-size:10px;font-weight:500}
+
+        .mobile-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+        .mobile-header-title{font-size:18px;font-weight:600}
+        .mobile-header-btn{width:36px;height:36px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;text-decoration:none}.mobile-header-btn:hover{border-color:var(--accent);color:var(--accent)}.mobile-header-btn svg{width:20px;height:20px;fill:currentColor}
+
+        .main-content{padding:16px 16px 90px}
+        .page-layout{display:flex;flex-direction:column;gap:16px;max-width:560px;margin:0 auto}
+        .sidebar-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px}
+        .sidebar-panel h3{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:14px}.sidebar-panel h3 svg{width:18px;height:18px;fill:var(--accent);flex-shrink:0}
+
+        .chat-container{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 200px);min-height:400px;max-height:700px}
+        .chat-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0}
+        .chat-header-icon{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#3b82f6);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .chat-header-icon svg{width:22px;height:22px;fill:#0a0e17}
+        .chat-header-info{flex:1;min-width:0}.chat-header-name{font-size:14px;font-weight:600}.chat-header-status{font-size:11px;color:var(--success);display:flex;align-items:center;gap:4px}
+        .chat-header-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success)}
+
+        .chat-messages{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px}
+        .chat-messages::-webkit-scrollbar{width:4px}.chat-messages::-webkit-scrollbar-track{background:transparent}.chat-messages::-webkit-scrollbar-thumb{background:var(--border-solid);border-radius:2px}
+
+        .msg{max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;position:relative;word-wrap:break-word}
+        .msg-user{align-self:flex-end;background:var(--accent);color:#0a0e17;border-bottom-right-radius:4px}
+        .msg-admin{align-self:flex-start;background:var(--bg-input);border:1px solid var(--border);border-bottom-left-radius:4px}
+        .msg-time{font-size:9px;opacity:.6;margin-top:3px;text-align:right}
+        .msg-system{align-self:center;background:none;color:var(--text-muted);font-size:11px;text-align:center;padding:8px}
+        .empty-chat{flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;text-align:center;padding:20px}
+
+        .chat-input{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;background:var(--bg-secondary)}
+        .chat-input input{flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;padding:10px 14px;color:var(--text-primary);font-size:14px;font-family:'Inter',sans-serif}
+        .chat-input input:focus{outline:none;border-color:var(--accent)}.chat-input input::placeholder{color:var(--text-muted)}
+        .send-btn{background:var(--accent);border:none;border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .2s;flex-shrink:0}
+        .send-btn:hover{opacity:.9}.send-btn:disabled{opacity:.4;cursor:not-allowed}.send-btn svg{width:20px;height:20px;fill:#0a0e17}
+
+        .faq-item{border-bottom:1px solid var(--border);padding:10px 0;cursor:pointer;transition:color .15s}
+        .faq-item:last-child{border-bottom:none}
+        .faq-q{font-size:13px;font-weight:500;display:flex;justify-content:space-between;align-items:center}
+        .faq-q span{color:var(--text-muted);transition:transform .2s}
+        .faq-a{font-size:12px;color:var(--text-secondary);line-height:1.5;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s}
+        .faq-item.open .faq-a{max-height:200px;padding-top:8px}
+        .faq-item.open .faq-q span{transform:rotate(180deg)}
+
+        @media(min-width:768px){.bottom-nav{display:none!important}.top-nav{display:flex}.mobile-header{display:none}.main-content{padding:32px}
+            .page-layout{flex-direction:row;max-width:1200px;align-items:flex-start}
+            .sidebar-left{width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;position:sticky;top:96px}
+            .center-column{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
+            .sidebar-right{width:300px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;position:sticky;top:96px}
+            .chat-container{height:auto;min-height:500px;max-height:calc(100vh - 160px)}}
+        @media(min-width:1200px){.sidebar-left{width:280px}.sidebar-right{width:340px}}
+        @media(max-width:767px){.sidebar-left,.sidebar-right{display:none}.center-column{width:100%}.page-layout{max-width:100%}.chat-container{height:calc(100vh - 170px);max-height:none}}
+        @media(min-width:768px) and (max-width:1023px){.sidebar-left{display:none}.sidebar-right{width:260px}.page-layout{max-width:900px}}
+    </style>
+</head>
+<body>
+
+<nav class="top-nav"><div class="top-nav-inner">
+    <a href="/" class="top-nav-logo"><div class="top-nav-logo-icon">T</div><div class="top-nav-logo-text">Trust<span>Ex</span></div></a>
+    <div class="top-nav-links">
+        <a href="/" class="top-nav-link">Главная</a><a href="trading.html" class="top-nav-link">Рынки</a><a href="exchange.html" class="top-nav-link">Обмен</a>
+        <a href="wallet.html" class="top-nav-link">Кошелек</a><a href="deposit.html" class="top-nav-link">Пополнить</a><a href="withdraw.html" class="top-nav-link">Вывести</a><a href="profile.html" class="top-nav-link">Профиль</a>
+    </div>
+    <div class="top-nav-user"><span class="top-nav-email" id="navUserEmail"></span><button class="top-nav-logout" onclick="Auth.logout()">Выйти</button></div>
+</div></nav>
+
+<div class="main-content">
+    <div class="mobile-header"><span class="mobile-header-title">Поддержка</span><a href="profile.html" class="mobile-header-btn"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a></div>
+
+    <div class="page-layout">
+        <!-- LEFT -->
+        <div class="sidebar-left">
+            <div class="sidebar-panel">
+                <h3><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Информация</h3>
+                <div style="font-size:12px;color:var(--text-secondary);line-height:1.6">
+                    <div style="margin-bottom:8px">Служба поддержки работает <strong style="color:var(--text-primary)">24/7</strong></div>
+                    <div style="margin-bottom:8px">Среднее время ответа: <strong style="color:var(--accent)">~15 мин</strong></div>
+                    <div>Макс. длина сообщения: 2000 символов</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER -->
+        <div class="center-column">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-header-icon"><svg viewBox="0 0 24 24"><path d="M12 1c-4.97 0-9 2.69-9 6v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1V7.64C6 5.13 8.69 3 12 3s6 2.13 6 4.64V8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1V7c0-3.31-4.03-6-9-6zM7.05 14.87c-.13-.02-.28-.04-.44-.04C4.59 14.83 3 16.42 3 18.44V20c0 .55.45 1 1 1h3.5v-4c0-.73.21-1.41.55-2.01-.36-.07-.64-.12-1-.12zM19 14.83c-.15 0-.31.02-.44.04-.36 0-.64.05-1 .12.35.59.55 1.28.55 2.01v4H21.5c.55 0 1-.45 1-1v-1.56c0-2.02-1.59-3.61-3.5-3.61zM12 12c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg></div>
+                    <div class="chat-header-info"><div class="chat-header-name">Служба поддержки</div><div class="chat-header-status">Онлайн</div></div>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="empty-chat">Загрузка сообщений...</div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="msgInput" placeholder="Введите сообщение..." maxlength="2000">
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="sidebar-right">
+            <div class="sidebar-panel">
+                <h3><svg viewBox="0 0 24 24"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg> Частые вопросы</h3>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Как пополнить счет?<span>▾</span></div>
+                    <div class="faq-a">Перейдите в раздел «Пополнить», выберите валюту, введите сумму и переведите средства на указанный кошелек. Зачисление происходит после подтверждения администратором.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Как вывести средства?<span>▾</span></div>
+                    <div class="faq-a">Перейдите в «Вывести», выберите валюту, введите сумму и адрес кошелька. Заявка обрабатывается в течение 24 часов.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Что такое верификация?<span>▾</span></div>
+                    <div class="faq-a">Верификация подтверждает вашу личность и открывает доступ к повышенным лимитам и возможности оставлять отзывы.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Как работает торговля?<span>▾</span></div>
+                    <div class="faq-a">Выберите актив, сумму и направление (вверх/вниз). Если прогноз верный, вы получаете прибыль. Сделка закрывается автоматически или досрочно.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="index.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span><span class="nav-label">Главная</span></a>
+    <a href="trading.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></span><span class="nav-label">Рынки</span></a>
+    <a href="exchange.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg></span><span class="nav-label">Обмен</span></a>
+    <a href="wallet.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></span><span class="nav-label">Кошелек</span></a>
+    <a href="profile.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span><span class="nav-label">Профиль</span></a>
+</nav>
+
+<script>
+var pollInterval = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!Auth.requireAuth()) return;
+    var user = Auth.getUser();
+    if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
+    loadMessages();
+    pollInterval = setInterval(loadMessages, 10000);
+
+    document.getElementById('msgInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+});
+
+async function loadMessages() {
+    try {
+        var res = await Auth.apiFetch('/api/profile/support/messages');
+        if (!res.ok) return;
+        var d = await res.json(); var msgs = d.data || [];
+        var c = document.getElementById('chatMessages');
+        if (!msgs.length) {
+            c.innerHTML = '<div class="msg-system">Напишите ваш вопрос, и оператор ответит в ближайшее время</div>';
+            return;
+        }
+        var wasAtBottom = c.scrollTop + c.clientHeight >= c.scrollHeight - 30;
+        c.innerHTML = msgs.map(function(m) {
+            var isAdmin = m.is_admin;
+            var dt = new Date(m.created_at);
+            var time = String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+            return '<div class="msg '+(isAdmin?'msg-admin':'msg-user')+'">'+escapeHtml(m.message)+'<div class="msg-time">'+time+'</div></div>';
+        }).join('');
+        if (wasAtBottom) c.scrollTop = c.scrollHeight;
+    } catch(e) {}
+}
+
+function escapeHtml(t) {
+    var d = document.createElement('div');
+    d.textContent = t;
+    return d.innerHTML;
+}
+
+async function sendMessage() {
+    var input = document.getElementById('msgInput');
+    var msg = input.value.trim();
+    if (!msg) return;
+    if (msg.length > 2000) return alert('Сообщение слишком длинное (макс. 2000 символов)');
+    var btn = document.getElementById('sendBtn');
+    btn.disabled = true; input.disabled = true;
+    try {
+        var res = await Auth.apiFetch('/api/profile/support/send', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({message: msg})
+        });
+        var d = await res.json();
+        if (!res.ok) { alert(d.error || 'Ошибка'); return; }
+        input.value = '';
+        await loadMessages();
+        var c = document.getElementById('chatMessages');
+        c.scrollTop = c.scrollHeight;
+    } catch(e) { alert('Ошибка сети'); }
+    finally { btn.disabled = false; input.disabled = false; input.focus(); }
+}
+</script>
+</body>
+</html>

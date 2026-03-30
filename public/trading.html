@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustEx — Торговля</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://api.binance.com">
+    <script src="js/auth.js" defer></script>
+    <script src="js/balance.js" defer></script>
+    <link rel="stylesheet" href="css/nav.css?v=2">
+    <script src="js/nav.js?v=2" defer></script>
+    <style>
+        body{overflow-x:hidden}
+
+        /* LAYOUT */
+        .t-wrap{display:flex;flex-direction:column;height:calc(100vh - 56px)}
+
+        /* PAIR BAR */
+        .pair-bar{background:var(--card);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:16px;height:48px;overflow-x:auto;scrollbar-width:none}
+        .pair-bar::-webkit-scrollbar{display:none}
+        .pair-bar-item{display:flex;align-items:center;gap:8px;white-space:nowrap;cursor:pointer;padding:6px 12px;border-radius:4px;font-size:13px;font-weight:500;color:var(--text2);transition:all .1s;flex-shrink:0}
+        .pair-bar-item:hover{background:var(--hover);color:var(--text)}
+        .pair-bar-item.act{background:var(--hover);color:var(--text)}
+        .pair-bar-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:8px;color:#fff;flex-shrink:0}
+        .pair-bar-price{font-variant-numeric:tabular-nums}
+        .pair-bar-ch{font-size:11px;font-weight:500}
+
+        /* CHART HEADER */
+        .ch-info{background:var(--card);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+        .ch-pair{font-size:20px;font-weight:700}
+        .ch-price{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+        .ch-change{font-size:13px;font-weight:600;padding:2px 8px;border-radius:4px}
+        .ch-change.up{color:var(--green);background:rgba(14,203,129,.1)}
+        .ch-change.down{color:var(--red);background:rgba(246,70,93,.1)}
+        .ch-stats{display:flex;gap:20px;margin-left:auto;font-size:12px;color:var(--text3)}
+        .ch-stat-v{color:var(--text);font-weight:600;margin-left:4px}
+
+        /* CHART FRAME */
+        .chart-frame{width:100%;border:none;display:block;background:var(--bg)}
+
+        /* MAIN GRID */
+        .t-main{flex:1;display:flex;overflow:hidden}
+        .t-left{flex:1;min-width:0;display:flex;flex-direction:column}
+        .t-right{width:320px;flex-shrink:0;border-left:1px solid var(--border);display:none;flex-direction:column;overflow-y:auto}
+
+        /* PAIRS PANEL */
+        .pairs-wrap{padding:10px;display:flex;flex-direction:column;gap:6px}
+        .pairs-search{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:7px 10px 7px 30px;color:var(--text);font-size:12px;font-family:inherit;transition:border-color .1s}
+        .pairs-search:focus{outline:none;border-color:var(--yellow)}
+        .pairs-search::placeholder{color:var(--text3)}
+        .pairs-search-wrap{position:relative}.pairs-search-wrap svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:14px;height:14px;fill:var(--text3);pointer-events:none}
+        .pairs-tabs{display:flex;gap:2px;background:var(--bg);border-radius:4px;padding:2px}
+        .pairs-tab{flex:1;text-align:center;padding:5px 0;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;border-radius:3px;transition:all .1s;border:none;background:none;font-family:inherit}
+        .pairs-tab:hover{color:var(--text2)}.pairs-tab.active{background:var(--hover);color:var(--yellow)}
+        .pairs-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+        .pairs-list::-webkit-scrollbar{width:3px}.pairs-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+        .pair-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;transition:all .1s}
+        .pair-row:hover{background:var(--hover)}.pair-row.active{background:var(--hover)}
+        .pair-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9px;flex-shrink:0;color:#fff}
+        .pair-info{flex:1;min-width:0}.pair-name{font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px}
+        .pair-name .badge{font-size:8px;padding:1px 4px;border-radius:2px;font-weight:700}
+        .badge-hot{background:rgba(246,70,93,.15);color:var(--red)}.badge-new{background:rgba(14,203,129,.15);color:var(--green)}
+        .pair-full{font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .pair-price-col{text-align:right;flex-shrink:0}.pair-price{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}.pair-change{font-size:10px;font-weight:500}
+        .pair-price.flash-up{animation:flashG .5s}.pair-price.flash-down{animation:flashR .5s}
+        @keyframes flashG{0%{color:var(--green)}100%{color:var(--text)}}
+        @keyframes flashR{0%{color:var(--red)}100%{color:var(--text)}}
+        .text-up{color:var(--green)}.text-down{color:var(--red)}
+
+        /* ORDER SECTION */
+        .order-section{padding:12px;border-top:1px solid var(--border)}
+        .order-title{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+        .order-title span{color:var(--yellow)}
+        .form-group{margin-bottom:10px}
+        .form-label{display:block;font-size:11px;color:var(--text2);margin-bottom:4px;font-weight:500}
+        .form-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:9px 12px;color:var(--text);font-size:14px;font-family:inherit;transition:border-color .1s}
+        .form-input:focus{outline:none;border-color:var(--yellow)}.form-input::placeholder{color:var(--text3)}
+        .quick-amounts{display:flex;gap:4px;margin-top:4px}
+        .quick-amt{background:var(--bg);border:1px solid var(--border);color:var(--text3);padding:4px 8px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;transition:all .1s;font-family:inherit}
+        .quick-amt:hover{border-color:var(--yellow);color:var(--text)}
+        .duration-btns{display:flex;gap:4px;flex-wrap:wrap}
+        .dur-btn{background:var(--bg);border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer;transition:all .1s;font-family:inherit}
+        .dur-btn:hover{border-color:var(--yellow);color:var(--text)}.dur-btn.active{background:var(--yellow);border-color:var(--yellow);color:#000}
+        .direction-btns{display:flex;gap:8px;margin-top:12px}
+        .dir-btn{flex:1;padding:11px;border-radius:4px;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+        .dir-btn svg{width:16px;height:16px;fill:currentColor}
+        .dir-btn.up{background:var(--green);color:#fff}.dir-btn.up:hover{opacity:.85}
+        .dir-btn.down{background:var(--red);color:#fff}.dir-btn.down:hover{opacity:.85}
+        .dir-btn:disabled{opacity:.4;cursor:not-allowed}
+        .bal-row{display:flex;justify-content:space-between;margin-bottom:8px;padding:6px 10px;background:var(--bg);border-radius:4px;font-size:12px}
+        .bal-row-l{color:var(--text2)}.bal-row-v{font-weight:600}
+
+        /* ACTIVE TRADE */
+        .active-trade{margin:0 12px 12px;background:var(--bg);border:1px solid var(--green);border-radius:4px;padding:12px;display:none}
+        .active-trade.show{display:block;animation:fadeIn .3s}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+        .at-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+        .at-badge{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600}
+        .at-badge.up{background:rgba(14,203,129,.15);color:var(--green)}.at-badge.down{background:rgba(246,70,93,.15);color:var(--red)}
+        .at-row{display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px}.at-label{color:var(--text2)}.at-value{font-weight:600}
+        .at-timer{text-align:center;font-size:26px;font-weight:700;color:var(--green);margin:8px 0;font-variant-numeric:tabular-nums}
+        .btn-close-trade{width:100%;padding:9px;border-radius:4px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:6px;transition:opacity .1s}
+        .btn-close-trade:hover{opacity:.85}
+
+        /* STATS */
+        .stats-section{padding:12px;border-top:1px solid var(--border)}
+        .stats-title{font-size:13px;font-weight:600;margin-bottom:8px}
+        .stat-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(43,47,54,.4);font-size:12px}.stat-row:last-child{border-bottom:none}
+        .stat-label{color:var(--text2)}.stat-value{font-weight:600}
+
+        /* HISTORY */
+        .hist-section{padding:12px;border-top:1px solid var(--border);flex:1;overflow-y:auto}
+        .hist-title{font-size:13px;font-weight:600;margin-bottom:8px}
+        .hist-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(43,47,54,.3);font-size:12px}.hist-item:last-child{border-bottom:none}
+        .hist-left{min-width:0}.hist-symbol{font-weight:600}.hist-date{font-size:10px;color:var(--text3);margin-top:1px}
+        .hist-right{text-align:right;flex-shrink:0}.hist-result{font-weight:600}.hist-amount{font-size:10px;color:var(--text3);margin-top:1px}
+        .text-success{color:var(--green)}.text-danger{color:var(--red)}
+        .empty-text{text-align:center;color:var(--text3);font-size:12px;padding:16px 0}
+
+        /* RESULT OVERLAY */
+        .msg-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
+        .msg-overlay.show{display:flex}
+        .msg-box{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:24px;max-width:340px;width:100%;text-align:center}
+        .msg-icon{font-size:40px;margin-bottom:12px}.msg-title{font-size:16px;font-weight:700;margin-bottom:8px}.msg-text{font-size:13px;color:var(--text2);margin-bottom:16px}
+        .msg-btn{width:100%;padding:11px;border-radius:4px;border:none;background:var(--yellow);color:#000;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+
+        /* MOBILE ORDER TOGGLE */
+        .mob-order-toggle{display:none;position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:998;background:var(--yellow);color:#000;border:none;padding:10px 28px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(240,185,11,.3)}
+        .mob-order-panel{display:none;position:fixed;bottom:0;left:0;right:0;z-index:1000;background:var(--card);border-top:1px solid var(--border);border-radius:12px 12px 0 0;padding:16px;max-height:70vh;overflow-y:auto;transform:translateY(100%);transition:transform .25s}
+        .mob-order-panel.show{transform:translateY(0)}
+        .mob-order-close{display:flex;justify-content:center;margin-bottom:10px;cursor:pointer;color:var(--text3)}.mob-order-close div{width:40px;height:4px;background:var(--text3);border-radius:2px}
+
+        /* RESPONSIVE */
+        @media(min-width:768px){
+            .t-right{display:flex}
+            .mob-order-toggle,.mob-order-panel{display:none!important}
+            .chart-frame{height:calc(100vh - 56px - 48px - 62px)}
+        }
+        @media(min-width:1200px){
+            .t-right{width:360px}
+        }
+        @media(max-width:768px){
+            .t-wrap{height:auto;min-height:calc(100vh - 56px)}
+            .t-main{flex-direction:column}
+            .t-left{min-height:auto}
+            .chart-frame{height:360px}
+            .pair-bar{padding:0 12px}
+            .ch-info{padding:8px 12px;gap:12px}
+            .ch-pair{font-size:16px}.ch-price{font-size:18px}
+            .ch-stats{display:none}
+            .mob-order-toggle{display:block}
+            .mob-order-panel{display:block}
+            .t-right{display:none!important}
+        }
+    </style>
+</head>
+<body>
+
+<header class="header"></header>
+
+<div class="t-wrap">
+    <!-- PAIR BAR (horizontal strip, scrollable) -->
+    <div class="pair-bar" id="pairBar"></div>
+
+    <!-- CHART INFO -->
+    <div class="ch-info">
+        <span class="ch-pair" id="chartPairName">BTC/USDT</span>
+        <span class="ch-price" id="chartPrice">$0.00</span>
+        <span class="ch-change up" id="chartChange">+0.00%</span>
+        <div class="ch-stats">
+            <span>24h High<span class="ch-stat-v" id="stat24hHigh">—</span></span>
+            <span>24h Low<span class="ch-stat-v" id="stat24hLow">—</span></span>
+            <span>24h Vol<span class="ch-stat-v" id="stat24hVol">—</span></span>
+        </div>
+    </div>
+
+    <div class="t-main">
+        <!-- LEFT: CHART -->
+        <div class="t-left">
+            <div id="tradingview_widget" style="flex:1;min-height:0">
+                <iframe id="tvChart" class="chart-frame" src="" allowtransparency="true" frameborder="0" scrolling="no" style="height:100%;min-height:360px"></iframe>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Order + Stats + History -->
+        <div class="t-right">
+            <!-- Active trade -->
+            <div class="active-trade" id="activeTrade">
+                <div class="at-header"><span style="font-weight:700;font-size:13px">Активная сделка</span><span class="at-badge" id="atDirection">UP</span></div>
+                <div class="at-row"><span class="at-label">Пара</span><span class="at-value" id="atSymbol">BTC</span></div>
+                <div class="at-row"><span class="at-label">Сумма</span><span class="at-value" id="atAmount">0 USDT</span></div>
+                <div class="at-timer" id="atTimer">00:00</div>
+                <button class="btn-close-trade" id="btnCloseTrade">Закрыть досрочно</button>
+            </div>
+
+            <!-- ORDER FORM -->
+            <div class="order-section">
+                <div class="order-title">Открыть сделку — <span id="orderPairLabel">BTC/USDT</span></div>
+                <div class="bal-row"><span class="bal-row-l">Баланс USDT</span><span class="bal-row-v" id="tradeBalance">0.00</span></div>
+                <div class="form-group">
+                    <label class="form-label">Сумма (USDT)</label>
+                    <input type="number" class="form-input" id="tradeAmount" placeholder="Введите сумму" min="1" step="any">
+                    <div class="quick-amounts">
+                        <button class="quick-amt" data-amt="10">$10</button>
+                        <button class="quick-amt" data-amt="25">$25</button>
+                        <button class="quick-amt" data-amt="50">$50</button>
+                        <button class="quick-amt" data-amt="100">$100</button>
+                        <button class="quick-amt" data-amt="all">Всё</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Длительность</label>
+                    <div class="duration-btns" id="durationBtns">
+                        <button class="dur-btn" data-dur="30">30с</button>
+                        <button class="dur-btn" data-dur="60">1м</button>
+                        <button class="dur-btn active" data-dur="120">2м</button>
+                        <button class="dur-btn" data-dur="300">5м</button>
+                        <button class="dur-btn" data-dur="600">10м</button>
+                    </div>
+                </div>
+                <div class="direction-btns">
+                    <button class="dir-btn up" id="btnUp"><svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/></svg> ВВЕРХ</button>
+                    <button class="dir-btn down" id="btnDown"><svg viewBox="0 0 24 24"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></svg> ВНИЗ</button>
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div class="stats-section">
+                <div class="stats-title">Статистика</div>
+                <div class="stat-row"><span class="stat-label">Баланс</span><span class="stat-value" id="sideBalance">$0.00</span></div>
+                <div class="stat-row"><span class="stat-label">Всего сделок</span><span class="stat-value" id="sTotalTrades">0</span></div>
+                <div class="stat-row"><span class="stat-label">Побед</span><span class="stat-value text-success" id="sWins">0</span></div>
+                <div class="stat-row"><span class="stat-label">Поражений</span><span class="stat-value text-danger" id="sLosses">0</span></div>
+                <div class="stat-row"><span class="stat-label">Win Rate</span><span class="stat-value" id="sWinRate">0%</span></div>
+                <div class="stat-row"><span class="stat-label">Профит</span><span class="stat-value" id="sTotalProfit">$0.00</span></div>
+            </div>
+
+            <!-- HISTORY -->
+            <div class="hist-section">
+                <div class="hist-title">История сделок</div>
+                <div id="historyList"><div class="empty-text">Загрузка...</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MOBILE ORDER BUTTON + PANEL -->
+<button class="mob-order-toggle" id="mobOrderBtn" onclick="toggleMobOrder()">Открыть сделку</button>
+<div class="mob-order-panel" id="mobOrderPanel">
+    <div class="mob-order-close" onclick="toggleMobOrder()"><div></div></div>
+    <div id="mobOrderContent"></div>
+</div>
+
+<!-- Result overlay -->
+<div class="msg-overlay" id="resultOverlay">
+    <div class="msg-box">
+        <div class="msg-icon" id="resIcon">🎉</div>
+        <div class="msg-title" id="resTitle">Победа!</div>
+        <div class="msg-text" id="resText">+10.00 USDT</div>
+        <button class="msg-btn" onclick="closeResult()">OK</button>
+    </div>
+</div>
+
+<nav class="mobnav"></nav>
+
+<script>
+var PAIRS = [
+  {sym:'BTC',name:'Bitcoin',color:'#f7931a',tag:'hot'},
+  {sym:'ETH',name:'Ethereum',color:'#627eea',tag:'hot'},
+  {sym:'SOL',name:'Solana',color:'#9945ff',tag:'hot'},
+  {sym:'XRP',name:'Ripple',color:'#23292f',tag:'hot'},
+  {sym:'DOGE',name:'Dogecoin',color:'#c3a634',tag:'hot'},
+  {sym:'PEPE',name:'Pepe',color:'#3d9a3f',tag:'hot'},
+  {sym:'SHIB',name:'Shiba Inu',color:'#e42d04',tag:'hot'},
+  {sym:'TON',name:'Toncoin',color:'#0098ea',tag:'new'},
+  {sym:'SUI',name:'Sui',color:'#4da2ff',tag:'new'},
+  {sym:'APT',name:'Aptos',color:'#2dd4bf',tag:'new'},
+  {sym:'BNB',name:'BNB',color:'#f3ba2f'},
+  {sym:'ADA',name:'Cardano',color:'#0033ad'},
+  {sym:'TRX',name:'TRON',color:'#eb0029'},
+  {sym:'LINK',name:'Chainlink',color:'#2a5ada'},
+  {sym:'NEAR',name:'NEAR Protocol',color:'#00c08b'},
+  {sym:'AVAX',name:'Avalanche',color:'#e84142'},
+  {sym:'DOT',name:'Polkadot',color:'#e6007a'},
+  {sym:'MATIC',name:'Polygon',color:'#7b3fe4'}
+];
+
+var selectedSymbol = 'BTC', selectedDuration = 120, activeTrade = null, timerInterval = null;
+var prices = {}, pairFilter = 'all', favorites = JSON.parse(localStorage.getItem('trustex_fav_pairs') || '[]');
+var ws = null;
+
+var fmt = function(n,d) { d=d||2; return parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); };
+var fmtPrice = function(p) {
+    p = parseFloat(p);
+    if (p >= 1000) return p.toLocaleString('en-US',{maximumFractionDigits:2});
+    if (p >= 1) return p.toFixed(4);
+    if (p >= 0.001) return p.toFixed(6);
+    return p.toFixed(8);
+};
+
+/* ── Pair Bar (horizontal) ── */
+function renderPairBar() {
+    var bar = document.getElementById('pairBar');
+    bar.innerHTML = PAIRS.map(function(p) {
+        var pr = prices[p.sym] || {};
+        var ch = pr.change || 0;
+        var isUp = ch >= 0;
+        return '<div class="pair-bar-item' + (p.sym === selectedSymbol ? ' act' : '') + '" data-sym="' + p.sym + '">' +
+            '<div class="pair-bar-icon" style="background:' + p.color + '">' + p.sym.substring(0,2) + '</div>' +
+            '<span>' + p.sym + '/USDT</span> ' +
+            '<span class="pair-bar-price" id="pb_' + p.sym + '">' + (pr.price ? fmtPrice(pr.price) : '—') + '</span> ' +
+            '<span class="pair-bar-ch ' + (isUp ? 'text-up' : 'text-down') + '">' + (isUp ? '+' : '') + ch.toFixed(2) + '%</span>' +
+            '</div>';
+    }).join('');
+    bar.querySelectorAll('.pair-bar-item').forEach(function(el) {
+        el.addEventListener('click', function() { selectPair(el.dataset.sym); });
+    });
+}
+
+/* ── Hidden pairs search (for keeping compatibility) ── */
+var pairsSearch = null;
+
+/* ── Mobile order panel ── */
+function toggleMobOrder() {
+    var panel = document.getElementById('mobOrderPanel');
+    var isOpen = panel.classList.contains('show');
+    if (isOpen) { panel.classList.remove('show'); return; }
+    // Clone order + active trade into mobile panel
+    var src = document.querySelector('.t-right');
+    var mc = document.getElementById('mobOrderContent');
+    mc.innerHTML = '';
+    var at = document.getElementById('activeTrade');
+    if (at.classList.contains('show')) {
+        mc.innerHTML += at.outerHTML.replace('id="activeTrade"','id="mobActiveTrade"');
+    }
+    mc.innerHTML += document.querySelector('.order-section').outerHTML;
+    // Rebind mobile events
+    mc.querySelectorAll('.quick-amt').forEach(function(b) {
+        b.addEventListener('click', function() {
+            var mainInput = document.getElementById('tradeAmount');
+            if (b.dataset.amt === 'all') {
+                mainInput.value = parseFloat(document.getElementById('tradeBalance').textContent.replace(/,/g,'')) || 0;
+            } else { mainInput.value = b.dataset.amt; }
+        });
+    });
+    mc.querySelectorAll('.dur-btn').forEach(function(b) {
+        b.addEventListener('click', function() {
+            mc.querySelectorAll('.dur-btn').forEach(function(x){x.classList.remove('active');});
+            b.classList.add('active'); selectedDuration = parseInt(b.dataset.dur);
+            // Sync main panel
+            document.querySelectorAll('#durationBtns .dur-btn').forEach(function(x){x.classList.remove('active');});
+            var mainBtn = document.querySelector('#durationBtns .dur-btn[data-dur="'+b.dataset.dur+'"]');
+            if(mainBtn) mainBtn.classList.add('active');
+        });
+    });
+    var upBtn = mc.querySelector('.dir-btn.up');
+    var downBtn = mc.querySelector('.dir-btn.down');
+    if(upBtn) upBtn.addEventListener('click', function(){ openTrade('up'); panel.classList.remove('show'); });
+    if(downBtn) downBtn.addEventListener('click', function(){ openTrade('down'); panel.classList.remove('show'); });
+    panel.classList.add('show');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!Auth.requireAuth()) return;
+    var user = Auth.getUser();
+    if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
+
+    renderPairBar();
+    fetchAllPrices();
+    connectWebSocket();
+    loadChart(selectedSymbol);
+    loadBalance();
+    loadStats();
+    loadHistory();
+    checkActiveTrade();
+    setInterval(checkActiveTrade, 5000);
+
+    // Duration buttons
+    document.querySelectorAll('.dur-btn').forEach(function(b) {
+        b.addEventListener('click', function() {
+            document.querySelectorAll('.dur-btn').forEach(function(x){x.classList.remove('active');});
+            b.classList.add('active'); selectedDuration = parseInt(b.dataset.dur);
+        });
+    });
+
+    // Quick amounts
+    document.querySelectorAll('.quick-amt').forEach(function(b) {
+        b.addEventListener('click', function() {
+            if (b.dataset.amt === 'all') {
+                var bal = document.getElementById('tradeBalance').textContent.replace(/,/g,'');
+                document.getElementById('tradeAmount').value = parseFloat(bal) || 0;
+            } else {
+                document.getElementById('tradeAmount').value = b.dataset.amt;
+            }
+        });
+    });
+
+    // Direction buttons
+    document.getElementById('btnUp').addEventListener('click', function() { openTrade('up'); });
+    document.getElementById('btnDown').addEventListener('click', function() { openTrade('down'); });
+    document.getElementById('btnCloseTrade').addEventListener('click', closeTrade);
+});
+
+function selectPair(sym) {
+    selectedSymbol = sym;
+    document.querySelectorAll('.pair-bar-item').forEach(function(r) {
+        r.classList.toggle('act', r.dataset.sym === sym);
+    });
+    loadChart(sym);
+    updateChartHeader();
+    document.getElementById('orderPairLabel').textContent = sym + '/USDT';
+}
+
+function toggleFav(sym) {
+    var idx = favorites.indexOf(sym);
+    if (idx === -1) favorites.push(sym); else favorites.splice(idx, 1);
+    localStorage.setItem('trustex_fav_pairs', JSON.stringify(favorites));
+}
+
+async function fetchAllPrices() {
+    try {
+        var symbols = PAIRS.map(function(p) {
+            return (p.sym === 'SHIB' ? 'SHIBUSDT' : p.sym + 'USDT');
+        });
+        var url = 'https://api.binance.com/api/v3/ticker/24hr?symbols=' + encodeURIComponent(JSON.stringify(symbols));
+        var res = await fetch(url);
+        var data = await res.json();
+        data.forEach(function(d) {
+            var sym = d.symbol.replace('USDT', '');
+            if (sym === 'SHIB') sym = 'SHIB';
+            prices[sym] = {
+                price: parseFloat(d.lastPrice),
+                change: parseFloat(d.priceChangePercent),
+                high: parseFloat(d.highPrice),
+                low: parseFloat(d.lowPrice),
+                volume: parseFloat(d.quoteVolume)
+            };
+        });
+        renderPairBar();
+        updateChartHeader();
+    } catch(e) { console.warn('Price fetch failed:', e); }
+}
+
+function connectWebSocket() {
+    if (ws) { try { ws.close(); } catch(e) {} }
+    var streams = PAIRS.map(function(p) {
+        return (p.sym === 'SHIB' ? 'shibusdt' : p.sym.toLowerCase() + 'usdt') + '@miniTicker';
+    }).join('/');
+    ws = new WebSocket('wss://stream.binance.com:9443/stream?streams=' + streams);
+    ws.onmessage = function(event) {
+        try {
+            var msg = JSON.parse(event.data);
+            var d = msg.data;
+            if (!d || !d.s) return;
+            var sym = d.s.replace('USDT', '');
+            var newPrice = parseFloat(d.c);
+            var oldPrice = prices[sym] ? prices[sym].price : newPrice;
+            prices[sym] = prices[sym] || {};
+            prices[sym].price = newPrice;
+            prices[sym].change = ((newPrice - parseFloat(d.o)) / parseFloat(d.o) * 100);
+            prices[sym].high = parseFloat(d.h);
+            prices[sym].low = parseFloat(d.l);
+            prices[sym].volume = parseFloat(d.q);
+
+            // Update pair bar price inline
+            var pbEl = document.getElementById('pb_' + sym);
+            if (pbEl) {
+                pbEl.textContent = fmtPrice(newPrice);
+                var chEl = pbEl.parentElement.querySelector('.pair-bar-ch');
+                if (chEl) {
+                    var ch = prices[sym].change;
+                    chEl.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%';
+                    chEl.className = 'pair-bar-ch ' + (ch >= 0 ? 'text-up' : 'text-down');
+                }
+            }
+
+            if (sym === selectedSymbol) updateChartHeader();
+        } catch(e) {}
+    };
+    ws.onclose = function() { setTimeout(connectWebSocket, 3000); };
+    ws.onerror = function() { ws.close(); };
+}
+
+function updateChartHeader() {
+    var pr = prices[selectedSymbol];
+    if (!pr) return;
+    document.getElementById('chartPairName').textContent = selectedSymbol + '/USDT';
+    document.getElementById('chartPrice').textContent = '$' + fmtPrice(pr.price);
+    var ce = document.getElementById('chartChange');
+    var ch = pr.change || 0;
+    ce.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%';
+    ce.className = 'ch-change ' + (ch >= 0 ? 'up' : 'down');
+    if (pr.high) document.getElementById('stat24hHigh').textContent = '$' + fmtPrice(pr.high);
+    if (pr.low) document.getElementById('stat24hLow').textContent = '$' + fmtPrice(pr.low);
+    if (pr.volume) {
+        document.getElementById('stat24hVol').textContent = pr.volume >= 1e9 ? (pr.volume/1e9).toFixed(2) + 'B' : pr.volume >= 1e6 ? (pr.volume/1e6).toFixed(1) + 'M' : fmt(pr.volume, 0);
+    }
+}
+
+function loadChart(sym) {
+    var pair = (sym === 'SHIB' ? 'SHIB' : sym) + 'USDT';
+    var iframe = document.getElementById('tvChart');
+    iframe.src = 'https://s.tradingview.com/widgetembed/?hideIdeas=1&hideSideToolbar=0&symbol=BINANCE%3A' + pair +
+        '&interval=5&hidevolume=0&hidetoptoolbar=0&hideLegend=0&saveimage=0&toolbarBg=0b0e11' +
+        '&studies=[]&theme=dark&style=1&timezone=Europe%2FMoscow&studies_overrides=%7B%7D' +
+        '&overrides=%7B%7D&enabled_features=[]&disabled_features=[]&locale=ru&utm_source=trustex' +
+        '&utm_medium=widget&utm_campaign=chart';
+}
+
+async function loadBalance() {
+    try {
+        var res = await Auth.apiFetch('/api/profile');
+        if (!res.ok) return;
+        var d = await res.json(); var u = d.data;
+        var bal = parseFloat(u.usdt) || 0;
+        document.getElementById('tradeBalance').textContent = fmt(bal);
+        document.getElementById('sideBalance').textContent = '$' + fmt(bal);
+    } catch(e) {}
+}
+
+async function loadStats() {
+    try {
+        var res = await Auth.apiFetch('/api/trades/stats');
+        if (!res.ok) return;
+        var d = await res.json(); var s = d.data || {};
+        var t = parseInt(s.total_trades) || 0, w = parseInt(s.wins) || 0, l = parseInt(s.losses) || 0;
+        var tp = parseFloat(s.total_profit) || 0, tl = parseFloat(s.total_loss) || 0;
+        document.getElementById('sTotalTrades').textContent = t;
+        document.getElementById('sWins').textContent = w;
+        document.getElementById('sLosses').textContent = l;
+        document.getElementById('sWinRate').textContent = t > 0 ? ((w / t) * 100).toFixed(1) + '%' : '0%';
+        var net = tp - tl;
+        var profitEl = document.getElementById('sTotalProfit');
+        profitEl.textContent = (net >= 0 ? '+' : '') + '$' + fmt(Math.abs(net));
+        profitEl.className = 'stat-value ' + (net >= 0 ? 'text-success' : 'text-danger');
+    } catch(e) {}
+}
+
+async function loadHistory() {
+    try {
+        var res = await Auth.apiFetch('/api/trades/history?limit=15');
+        if (!res.ok) return;
+        var d = await res.json(); var items = d.data || [];
+        var c = document.getElementById('historyList');
+        if (!items.length) { c.innerHTML = '<div class="empty-text">Нет сделок</div>'; return; }
+        c.innerHTML = items.filter(function(t){return t.status==='closed';}).slice(0,10).map(function(t) {
+            var isWin = t.result === 'win';
+            var dt = new Date(t.closed_at || t.created_at);
+            var ds = String(dt.getDate()).padStart(2,'0') + '.' + String(dt.getMonth()+1).padStart(2,'0') + ' ' + String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0');
+            return '<div class="hist-item"><div class="hist-left"><div class="hist-symbol">' + (t.symbol||'BTC') + '/USDT ' + (t.direction==='up'?'↑':'↓') + '</div><div class="hist-date">' + ds + '</div></div><div class="hist-right"><div class="hist-result ' + (isWin?'text-success':'text-danger') + '">' + (isWin ? '+' + fmt(t.profit) : '-' + fmt(t.amount)) + ' USDT</div><div class="hist-amount">Ставка: ' + fmt(t.amount) + ' USDT</div></div></div>';
+        }).join('') || '<div class="empty-text">Нет закрытых сделок</div>';
+    } catch(e) {}
+}
+
+async function checkActiveTrade() {
+    try {
+        var res = await Auth.apiFetch('/api/trades/active');
+        if (!res.ok) return;
+        var d = await res.json(); var trade = d.data;
+        var el = document.getElementById('activeTrade');
+        if (!trade) { el.classList.remove('show'); activeTrade = null; clearInterval(timerInterval); return; }
+        activeTrade = trade;
+        el.classList.add('show');
+        document.getElementById('atSymbol').textContent = (trade.symbol || 'BTC') + '/USDT';
+        document.getElementById('atAmount').textContent = fmt(trade.amount) + ' USDT';
+        var badge = document.getElementById('atDirection');
+        badge.textContent = trade.direction === 'up' ? 'UP ↑' : 'DOWN ↓';
+        badge.className = 'at-badge ' + trade.direction;
+        startTimer(trade.expires_at);
+    } catch(e) {}
+}
+
+function startTimer(expiresAt) {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(function() {
+        var left = Math.max(0, new Date(expiresAt).getTime() - Date.now());
+        if (left <= 0) { clearInterval(timerInterval); checkActiveTrade(); loadBalance(); loadStats(); loadHistory(); return; }
+        var m = Math.floor(left / 60000), s = Math.floor((left % 60000) / 1000);
+        document.getElementById('atTimer').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }, 500);
+}
+
+async function openTrade(direction) {
+    var amount = parseFloat(document.getElementById('tradeAmount').value);
+    if (!amount || amount <= 0) return alert('Введите сумму');
+    document.getElementById('btnUp').disabled = true;
+    document.getElementById('btnDown').disabled = true;
+    try {
+        var res = await Auth.apiFetch('/api/trades/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({amount: amount, direction: direction, duration: selectedDuration, symbol: selectedSymbol})
+        });
+        var d = await res.json();
+        if (!res.ok) { alert(d.error || 'Ошибка'); return; }
+        document.getElementById('tradeAmount').value = '';
+        checkActiveTrade(); loadBalance();
+    } catch(e) { alert('Ошибка сети'); }
+    finally { document.getElementById('btnUp').disabled = false; document.getElementById('btnDown').disabled = false; }
+}
+
+async function closeTrade() {
+    if (!activeTrade) return;
+    document.getElementById('btnCloseTrade').disabled = true;
+    try {
+        var res = await Auth.apiFetch('/api/trades/close/' + activeTrade.id, {method: 'POST'});
+        var d = await res.json();
+        if (!res.ok) { alert(d.error || 'Ошибка'); return; }
+        showResult(d.data);
+        activeTrade = null;
+        document.getElementById('activeTrade').classList.remove('show');
+        clearInterval(timerInterval);
+        loadBalance(); loadStats(); loadHistory();
+    } catch(e) { alert('Ошибка сети'); }
+    finally { document.getElementById('btnCloseTrade').disabled = false; }
+}
+
+function showResult(data) {
+    document.getElementById('resIcon').textContent = data.result === 'win' ? '🎉' : '😞';
+    document.getElementById('resTitle').textContent = data.result === 'win' ? 'Победа!' : 'Проигрыш';
+    document.getElementById('resTitle').style.color = data.result === 'win' ? 'var(--green)' : 'var(--red)';
+    document.getElementById('resText').textContent = data.result === 'win' ? '+' + fmt(data.profit) + ' USDT' : 'Ставка потеряна';
+    document.getElementById('resultOverlay').classList.add('show');
+}
+
+function closeResult() { document.getElementById('resultOverlay').classList.remove('show'); }
+</script>
+</body>
+</html>

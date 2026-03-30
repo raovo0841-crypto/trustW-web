@@ -1,0 +1,279 @@
+/* responsive.css — Desktop + Tablet + Mobile layout for TrustEx Web */
+
+/* ===== Base: allow selection on web ===== */
+* {
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+
+/* ===== Viewport: allow zoom on web ===== */
+html {
+  touch-action: manipulation;
+}
+
+/* ===== Page wrapper: centered content with breathing room ===== */
+.page-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ===== Desktop: wider containers, multi-column layouts ===== */
+@media (min-width: 768px) {
+  /* Override narrow mobile containers */
+  .app-container {
+    max-width: 720px !important;
+    padding: 0 24px !important;
+  }
+
+  .wallet-container {
+    max-width: 720px !important;
+  }
+
+  /* Exchange card: center on big screen */
+  .exchange-card {
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Rate banner */
+  .rate-banner {
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 24px;
+  }
+
+  /* Balance card wider */
+  .balance-card {
+    padding: 32px;
+  }
+
+  .balance {
+    font-size: 42px !important;
+  }
+
+  /* Assets: 2-column grid on desktop */
+  .assets-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .assets-grid .asset-item {
+    margin-bottom: 0;
+  }
+
+  /* Section cards side by side */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .dashboard-grid .section-card {
+    margin-bottom: 0;
+  }
+
+  /* Analytics stats: 2-col grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .stats-grid .stat-box {
+    margin-bottom: 0;
+  }
+
+  /* Period stats: 3-col */
+  .periods-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .periods-grid .stat-period-box {
+    margin-bottom: 0;
+  }
+
+  /* Quick info: wider grid */
+  .quick-info {
+    grid-template-columns: 1fr 1fr 1fr !important;
+  }
+
+  /* Wallet action row */
+  .action-row {
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Header spacing */
+  .app-header {
+    padding: 20px 0 !important;
+  }
+
+  .wallet-header {
+    padding: 20px 24px 28px !important;
+  }
+
+  /* Ticker full width */
+  .price-ticker {
+    margin: 0 -24px 20px -24px !important;
+    padding: 12px 0 !important;
+  }
+
+  /* History section */
+  .history-section {
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Support FAB: bigger on desktop */
+  .support-fab {
+    bottom: 96px;
+    right: 32px;
+    width: 56px;
+    height: 56px;
+  }
+
+  /* Chart bigger on desktop */
+  .chart-container {
+    width: 240px !important;
+    height: 240px !important;
+  }
+}
+
+/* ===== Large Desktop: even wider ===== */
+@media (min-width: 1024px) {
+  .app-container {
+    max-width: 900px !important;
+  }
+
+  .wallet-container {
+    max-width: 900px !important;
+  }
+
+  .balance {
+    font-size: 48px !important;
+  }
+
+  .balance-card {
+    padding: 36px 40px;
+  }
+
+  /* Action buttons bigger */
+  .action-box {
+    height: 56px !important;
+    border-radius: 14px !important;
+    font-size: 20px !important;
+  }
+
+  /* Nav stays centered */
+  .bottom-nav {
+    max-width: 700px;
+    left: 50% !important;
+    transform: translateX(-50%);
+    border-radius: 20px 20px 0 0;
+    border-left: 1px solid var(--nav-border, rgba(48,54,61,0.8));
+    border-right: 1px solid var(--nav-border, rgba(48,54,61,0.8));
+  }
+
+  /* Exchange form wider */
+  .exchange-card {
+    max-width: 620px;
+    padding: 32px;
+  }
+
+  .rate-banner {
+    max-width: 620px;
+  }
+
+  .history-section {
+    max-width: 620px;
+  }
+
+  /* 3-column assets */
+  .assets-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* ===== Extra-large Desktop ===== */
+@media (min-width: 1400px) {
+  .app-container {
+    max-width: 1000px !important;
+  }
+
+  .wallet-container {
+    max-width: 1000px !important;
+  }
+}
+
+/* ===== Small Mobile (< 380px) ===== */
+@media (max-width: 380px) {
+  .app-container {
+    padding: 0 12px !important;
+  }
+
+  .balance {
+    font-size: 28px !important;
+  }
+
+  .action-box {
+    height: 46px !important;
+    font-size: 16px !important;
+  }
+
+  .action-wrapper {
+    gap: 8px !important;
+  }
+
+  .action-item .label {
+    font-size: 11px !important;
+  }
+
+  .exchange-card {
+    padding: 16px;
+  }
+
+  .currency-icon {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .amount-input {
+    font-size: 22px !important;
+  }
+}
+
+/* ===== Auth pages (login/register): centered card on desktop ===== */
+@media (min-width: 768px) {
+  .auth-container {
+    max-width: 440px !important;
+  }
+
+  .auth-card {
+    padding: 36px 32px !important;
+  }
+}
+
+/* ===== Page header: desktop tweaks ===== */
+@media (min-width: 768px) {
+  .page-header {
+    margin-bottom: 24px;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-header {
+    max-width: 620px;
+  }
+}

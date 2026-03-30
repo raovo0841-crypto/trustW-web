@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TrustEx — Обмен</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/nav.css?v=2">
+<script src="js/nav.js?v=2" defer></script>
+<style>
+
+/* ── Alert ── */
+#topAlert{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px 20px;display:flex;align-items:center;gap:10px;z-index:500;opacity:0;transition:transform .3s,opacity .3s;font-size:14px;min-width:280px;max-width:480px}
+#topAlert.show{transform:translateX(-50%) translateY(0);opacity:1}
+#topAlert.success{border-color:var(--green)}
+#topAlert.success .notif-icon svg{fill:var(--green)}
+#topAlert.error{border-color:var(--red)}
+#topAlert.error .notif-icon svg{fill:var(--red)}
+.notif-icon{width:22px;height:22px;flex-shrink:0}
+.notif-icon svg{width:22px;height:22px;fill:var(--text2)}
+.notif-text{color:var(--text);font-size:14px}
+
+/* ── Dropdown overlay ── */
+.dropdown-overlay{position:fixed;inset:0;z-index:49;display:none}
+.dropdown-overlay.visible{display:block}
+
+/* ── Content grid ── */
+.content{max-width:1200px;margin:0 auto;padding:20px 20px 80px}
+.ex-grid{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+@media(max-width:960px){.ex-grid{grid-template-columns:1fr}}
+
+/* ── Exchange card ── */
+.ex-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px}
+.rate-banner{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:13px;color:var(--text2)}
+.rate-banner .rate-val{color:var(--green);font-weight:600}
+.pair-title{font-size:20px;font-weight:700;margin-bottom:16px}
+
+/* ── Currency block ── */
+.cur-block{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:4px;position:relative}
+.cur-block-label{font-size:12px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.cur-row{display:flex;align-items:center;gap:12px}
+.currency-selector{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 8px;border-radius:4px;transition:background .15s;flex-shrink:0;position:relative}
+.currency-selector:hover,.currency-selector.open{background:var(--bg3)}
+.currency-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.icon-usdt{background:#26a17b;color:#fff}
+.icon-btc{background:#f7931a;color:#fff}
+.icon-eth{background:#627eea;color:#fff}
+.icon-ton{background:#0098ea;color:#fff}
+.icon-rub{background:#5b7ee5;color:#fff}
+.icon-eur{background:#2e86de;color:#fff}
+.icon-byn{background:#e74c3c;color:#fff}
+.currency-name{font-size:14px;font-weight:600;white-space:nowrap}
+.dropdown-arrow{font-size:10px;color:var(--text3);margin-left:2px}
+.cur-balance{font-size:12px;color:var(--text3);margin-top:2px}
+.cur-input{flex:1;min-width:0}
+.cur-input input{width:100%;background:none;border:none;outline:none;color:var(--text);font-size:22px;font-weight:600;font-family:'Inter',sans-serif;text-align:right}
+.cur-input input::placeholder{color:var(--text3)}
+
+/* ── Dropdowns ── */
+.currency-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:4px;z-index:50;display:none;max-height:280px;overflow-y:auto;margin-top:4px;min-width:240px}
+.currency-dropdown.visible{display:block}
+.dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .12s}
+.dropdown-item:hover{background:var(--hover)}
+.dropdown-item.active{background:var(--bg3)}
+.dropdown-item.disabled{opacity:.35;pointer-events:none}
+.dropdown-item-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.dropdown-item-info{display:flex;flex-direction:column;gap:1px}
+.dropdown-item-name{font-size:14px;font-weight:600;color:var(--text)}
+.dropdown-item-balance{font-size:12px;color:var(--text3)}
+
+/* ── Quick amount ── */
+.quick-row{display:flex;gap:6px;margin:10px 0 4px}
+.quick-amt-btn{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:4px;color:var(--text2);font-size:12px;font-weight:600;padding:6px 0;cursor:pointer;text-align:center;font-family:inherit;transition:background .15s,color .15s,border-color .15s}
+.quick-amt-btn:hover{background:var(--bg3);color:var(--text);border-color:var(--text3)}
+
+/* ── Swap button ── */
+.swap-wrap{display:flex;justify-content:center;margin:4px 0}
+.swap-btn{width:36px;height:36px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.swap-btn:hover{background:var(--bg3);color:var(--yellow)}
+.swap-btn svg{width:20px;height:20px;fill:currentColor}
+
+/* ── Details ── */
+.ex-details{margin:16px 0;display:flex;flex-direction:column;gap:6px}
+.ex-detail-row{display:flex;justify-content:space-between;font-size:13px}
+.ex-detail-row .label{color:var(--text3)}
+.ex-detail-row .value{color:var(--text)}
+.result-highlight{font-size:15px;font-weight:700;color:var(--green)}
+
+/* ── Exchange button ── */
+.ex-submit{width:100%;padding:14px;background:var(--yellow);border:none;border-radius:4px;font-size:15px;font-weight:700;color:#000;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s}
+.ex-submit:hover{opacity:.9}
+.ex-submit:disabled{opacity:.5;cursor:not-allowed}
+.ex-submit svg{flex-shrink:0}
+
+/* ── Quick pairs ── */
+.qp-section{margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+.qp-label{font-size:12px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.qp-row{display:flex;flex-wrap:wrap;gap:6px}
+.qp-btn{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;font-family:inherit;transition:background .15s,color .15s}
+.qp-btn:hover{background:var(--bg3);color:var(--text)}
+
+/* ── Sidebar panels ── */
+.ex-side{display:flex;flex-direction:column;gap:12px}
+.side-panel{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px}
+.side-panel-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.side-panel-title .cnt{font-size:12px;color:var(--text3);font-weight:400}
+
+/* ── Balance list ── */
+.bal-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.bal-item:last-child{border-bottom:none}
+.bal-item-l{display:flex;align-items:center;gap:8px}
+.bal-item-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.bal-item-cur{font-size:13px;font-weight:600}
+.bal-item-val{font-size:13px;color:var(--text2)}
+
+/* ── Market rates ── */
+.mrate-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.mrate-row:last-child{border-bottom:none}
+.mrate-pair{color:var(--text2)}
+.mrate-price{color:var(--text);font-weight:500}
+
+/* ── History ── */
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.hist-item:last-child{border-bottom:none}
+.hist-left{flex:1;min-width:0}
+.hist-desc{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-date{font-size:11px;color:var(--text3);margin-top:2px}
+.hist-right{flex-shrink:0;margin-left:12px}
+.hist-amt{font-size:13px;font-weight:600;color:var(--green)}
+.empty-text{font-size:13px;color:var(--text3);text-align:center;padding:16px 0}
+
+/* ── Mobile history ── */
+.mobile-history-section{display:none;margin-top:12px}
+@media(max-width:960px){
+    .ex-side .hist-panel-desktop{display:none}
+    .mobile-history-section{display:block}
+}
+@media(min-width:961px){
+    .mobile-history-section{display:none!important}
+}
+
+/* ── Spinner keyframe ── */
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@media(max-width:768px){.content{padding:16px 12px 100px}}
+</style>
+</head>
+<body>
+
+<div id="topAlert"></div>
+<div id="dropdownOverlay" class="dropdown-overlay" onclick="closeAllDropdowns()"></div>
+
+<header class="header"></header>
+
+<div class="content">
+    <div class="ex-grid">
+        <div class="ex-card">
+            <div class="rate-banner">
+                <span id="exchangePair">RUB → USDT</span>
+                <span class="rate-val" id="liveRate">1 RUB = 0.0120 USDT</span>
+            </div>
+            <div class="pair-title">Обмен валюты</div>
+
+            <!-- FROM -->
+            <div class="cur-block" id="fromBlock">
+                <div class="cur-block-label">Отдаёте</div>
+                <div class="cur-row">
+                    <div class="currency-selector" id="fromSelector" onclick="toggleDropdown('from')">
+                        <div class="currency-icon icon-rub" id="fromIcon">₽</div>
+                        <div>
+                            <div class="currency-name" id="fromName">Российский рубль <span class="dropdown-arrow">▼</span></div>
+                            <div class="cur-balance">Баланс: <span id="fromBalanceValue">0.00 RUB</span></div>
+                        </div>
+                    </div>
+                    <div class="cur-input">
+                        <input type="number" id="amountInput" placeholder="0.00" step="any" min="0">
+                    </div>
+                    <div class="currency-dropdown" id="fromDropdown"></div>
+                </div>
+            </div>
+
+            <div class="quick-row">
+                <button class="quick-amt-btn" onclick="setPercent(25)">25%</button>
+                <button class="quick-amt-btn" onclick="setPercent(50)">50%</button>
+                <button class="quick-amt-btn" onclick="setPercent(75)">75%</button>
+                <button class="quick-amt-btn" onclick="selectAll()">MAX</button>
+            </div>
+
+            <!-- Swap -->
+            <div class="swap-wrap">
+                <button class="swap-btn" id="swapBtn" title="Поменять местами">
+                    <svg viewBox="0 0 24 24"><path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z"/></svg>
+                </button>
+            </div>
+
+            <!-- TO -->
+            <div class="cur-block" id="toBlock">
+                <div class="cur-block-label">Получаете</div>
+                <div class="cur-row">
+                    <div class="currency-selector" id="toSelector" onclick="toggleDropdown('to')">
+                        <div class="currency-icon icon-usdt" id="toIcon">₮</div>
+                        <div>
+                            <div class="currency-name" id="toName">Tether USDT <span class="dropdown-arrow">▼</span></div>
+                            <div class="cur-balance">Баланс: <span id="toBalanceValue">0.00 USDT</span></div>
+                        </div>
+                    </div>
+                    <div class="cur-input">
+                        <div id="resultAmount" style="font-size:22px;font-weight:600;text-align:right;color:var(--text2)">0.00</div>
+                    </div>
+                    <div class="currency-dropdown" id="toDropdown"></div>
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="ex-details">
+                <div class="ex-detail-row"><span class="label">Комиссия</span><span class="value">0%</span></div>
+                <div class="ex-detail-row"><span class="label">Время</span><span class="value">Мгновенно</span></div>
+                <div class="ex-detail-row"><span class="label">Вы получите</span><span class="value result-highlight" id="resultPreview">0.00 USDT</span></div>
+            </div>
+
+            <!-- Submit -->
+            <button class="ex-submit" id="exchangeBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:6px;"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>Обменять
+            </button>
+
+            <!-- Quick pairs -->
+            <div class="qp-section">
+                <div class="qp-label">Популярные пары</div>
+                <div class="qp-row">
+                    <button class="qp-btn" onclick="quickPair('RUB','USDT')">RUB → USDT</button>
+                    <button class="qp-btn" onclick="quickPair('USDT','RUB')">USDT → RUB</button>
+                    <button class="qp-btn" onclick="quickPair('EUR','USDT')">EUR → USDT</button>
+                    <button class="qp-btn" onclick="quickPair('BYN','USDT')">BYN → USDT</button>
+                    <button class="qp-btn" onclick="quickPair('USDT','BTC')">USDT → BTC</button>
+                    <button class="qp-btn" onclick="quickPair('USDT','ETH')">USDT → ETH</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="ex-side">
+            <div class="side-panel">
+                <div class="side-panel-title">Балансы</div>
+                <div id="balancesList"></div>
+            </div>
+
+            <div class="side-panel">
+                <div class="side-panel-title">Курсы</div>
+                <div id="marketRatesList"></div>
+            </div>
+
+            <div class="side-panel hist-panel-desktop">
+                <div class="side-panel-title">История обменов <span class="cnt" id="historyCount"></span></div>
+                <div id="historyList"><div class="empty-text">История обменов пуста</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile history -->
+    <div class="mobile-history-section" id="mobileHistorySection">
+        <div class="side-panel">
+            <div class="side-panel-title">История обменов <span class="cnt" id="historyCount2"></span></div>
+            <div id="historyList2"><div class="empty-text">История обменов пуста</div></div>
+        </div>
+    </div>
+</div>
+
+<nav class="mobnav"></nav>
+
+<script src="js/auth.js" defer></script>
+<script src="js/balance.js" defer></script>
+<script>
+Auth.requireAuth();
+
+const user = Auth.getUser();
+if (user?.email) {
+    const navEmail = document.getElementById('navUserEmail');
+    if (navEmail) navEmail.textContent = user.email;
+}
+
+const amountInput = document.getElementById('amountInput');
+const resultAmount = document.getElementById('resultAmount');
+const resultPreview = document.getElementById('resultPreview');
+const exchangePair = document.getElementById('exchangePair');
+const liveRate = document.getElementById('liveRate');
+const swapBtn = document.getElementById('swapBtn');
+const exchangeBtn = document.getElementById('exchangeBtn');
+const refreshBtn = document.getElementById('refreshBtn');
+const topAlert = document.getElementById('topAlert');
+
+const fromIcon = document.getElementById('fromIcon');
+const fromName = document.getElementById('fromName');
+const fromBalanceValue = document.getElementById('fromBalanceValue');
+const toIcon = document.getElementById('toIcon');
+const toName = document.getElementById('toName');
+const toBalanceValue = document.getElementById('toBalanceValue');
+
+const CUR_META = {
+    USDT: { symbol: '₮', name: 'Tether USDT',       icon: 'icon-usdt', char: '₮', decimals: 2 },
+    BTC:  { symbol: '₿', name: 'Bitcoin',            icon: 'icon-btc',  char: '₿', decimals: 8 },
+    ETH:  { symbol: 'Ξ', name: 'Ethereum',           icon: 'icon-eth',  char: 'Ξ', decimals: 8 },
+    TON:  { symbol: '💎', name: 'Toncoin',           icon: 'icon-ton',  char: '💎', decimals: 4 },
+    RUB:  { symbol: '₽', name: 'Российский рубль',   icon: 'icon-rub',  char: '₽', decimals: 2 },
+    EUR:  { symbol: '€', name: 'Euro',                icon: 'icon-eur',  char: '€', decimals: 2 },
+    BYN:  { symbol: 'Br', name: 'Белорусский рубль', icon: 'icon-byn',  char: 'Br', decimals: 2 }
+};
+
+let balances = { USDT: 0, BTC: 0, ETH: 0, TON: 0, RUB: 0, EUR: 0, BYN: 0 };
+let rates = { USDT: 1, BTC: 60000, ETH: 3000, TON: 5, RUB: 0.012, EUR: 1.089, BYN: 0.3058 };
+let selectedFrom = 'RUB';
+let selectedTo = 'USDT';
+
+function quickPair(from, to) {
+    selectedFrom = from;
+    selectedTo = to;
+    amountInput.value = '';
+    updateDisplay();
+}
+
+function setFromCurrency(cur) { if (cur === selectedTo) return; selectedFrom = cur; amountInput.value = ''; updateDisplay(); }
+function setToCurrency(cur) { if (cur === selectedFrom) return; selectedTo = cur; amountInput.value = ''; updateDisplay(); }
+
+function buildDropdownItems(type) {
+    const dropdown = document.getElementById(type + 'Dropdown');
+    const activeCur = type === 'from' ? selectedFrom : selectedTo;
+    const disabledCur = type === 'from' ? selectedTo : selectedFrom;
+    let html = '';
+    for (const cur of Object.keys(CUR_META)) {
+        const m = CUR_META[cur];
+        const bal = (balances[cur] || 0).toFixed(m.decimals);
+        let cls = 'dropdown-item';
+        if (cur === activeCur) cls += ' active';
+        if (cur === disabledCur) cls += ' disabled';
+        html += '<div class="' + cls + '" onclick="event.stopPropagation(); selectDropdownCurrency(\'' + type + '\', \'' + cur + '\')">' +
+            '<div class="dropdown-item-icon ' + m.icon + '">' + m.char + '</div>' +
+            '<div class="dropdown-item-info">' +
+                '<div class="dropdown-item-name">' + cur + '</div>' +
+                '<div class="dropdown-item-balance">' + bal + ' ' + cur + '</div>' +
+            '</div></div>';
+    }
+    dropdown.innerHTML = html;
+}
+
+function toggleDropdown(type) {
+    const selector = document.getElementById(type + 'Selector');
+    const dropdown = document.getElementById(type + 'Dropdown');
+    const overlay = document.getElementById('dropdownOverlay');
+    const otherType = type === 'from' ? 'to' : 'from';
+    document.getElementById(otherType + 'Dropdown').classList.remove('visible');
+    document.getElementById(otherType + 'Selector').classList.remove('open');
+
+    const isOpen = dropdown.classList.contains('visible');
+    if (isOpen) {
+        dropdown.classList.remove('visible');
+        selector.classList.remove('open');
+        overlay.classList.remove('visible');
+    } else {
+        buildDropdownItems(type);
+        dropdown.classList.add('visible');
+        selector.classList.add('open');
+        overlay.classList.add('visible');
+    }
+}
+
+function selectDropdownCurrency(type, cur) {
+    if (type === 'from') setFromCurrency(cur); else setToCurrency(cur);
+    closeAllDropdowns();
+}
+
+function closeAllDropdowns() {
+    ['from','to'].forEach(function(t) {
+        document.getElementById(t + 'Dropdown').classList.remove('visible');
+        document.getElementById(t + 'Selector').classList.remove('open');
+    });
+    document.getElementById('dropdownOverlay').classList.remove('visible');
+}
+
+function setPercent(pct) {
+    const bal = balances[selectedFrom] || 0;
+    const val = bal * pct / 100;
+    amountInput.value = val > 0 ? parseFloat(val.toFixed(CUR_META[selectedFrom].decimals)) : '';
+    updateDisplay();
+}
+
+function selectAll() {
+    amountInput.value = balances[selectedFrom] || 0;
+    updateDisplay();
+}
+
+function showAlert(msg, success) {
+    var icons = {
+        success: '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>',
+        error: '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>'
+    };
+    topAlert.innerHTML = '<div class="notif-icon">' + (success ? icons.success : icons.error) + '</div><div class="notif-text">' + msg + '</div>';
+    topAlert.className = success ? 'success' : 'error';
+    topAlert.classList.add('show');
+    clearTimeout(topAlert._timeout);
+    topAlert._timeout = setTimeout(function() { topAlert.classList.remove('show'); }, 3000);
+}
+
+function updateDisplay() {
+    const val = parseFloat(amountInput.value) || 0;
+    const fm = CUR_META[selectedFrom];
+    const tm = CUR_META[selectedTo];
+
+    const fromUsdt = rates[selectedFrom] || 1;
+    const toUsdt = rates[selectedTo] || 1;
+    const pairRate = fromUsdt / toUsdt;
+    const result = val * pairRate;
+
+    exchangePair.innerText = selectedFrom + ' → ' + selectedTo;
+
+    const ratePrecision = pairRate >= 1000 ? 2 : pairRate >= 1 ? 4 : pairRate >= 0.001 ? 6 : 8;
+    liveRate.innerText = '1 ' + selectedFrom + ' = ' + pairRate.toFixed(ratePrecision) + ' ' + selectedTo;
+
+    resultAmount.innerText = result.toFixed(tm.decimals);
+    resultPreview.innerText = result.toFixed(tm.decimals) + ' ' + selectedTo;
+
+    fromIcon.className = 'currency-icon ' + fm.icon;
+    fromIcon.innerText = fm.char;
+    fromName.innerHTML = fm.name + ' <span class="dropdown-arrow">▼</span>';
+    fromBalanceValue.innerText = (balances[selectedFrom] || 0).toFixed(fm.decimals) + ' ' + selectedFrom;
+
+    toIcon.className = 'currency-icon ' + tm.icon;
+    toIcon.innerText = tm.char;
+    toName.innerHTML = tm.name + ' <span class="dropdown-arrow">▼</span>';
+    toBalanceValue.innerText = (balances[selectedTo] || 0).toFixed(tm.decimals) + ' ' + selectedTo;
+
+    renderBalancesSidebar();
+    renderMarketRates();
+}
+
+function renderBalancesSidebar() {
+    const container = document.getElementById('balancesList');
+    if (!container) return;
+    let html = '';
+    for (const cur of Object.keys(CUR_META)) {
+        const m = CUR_META[cur];
+        const bal = (balances[cur] || 0).toFixed(m.decimals);
+        html += '<div class="bal-item">' +
+            '<div class="bal-item-l">' +
+                '<div class="bal-item-icon ' + m.icon + '">' + m.char + '</div>' +
+                '<span class="bal-item-cur">' + cur + '</span>' +
+            '</div>' +
+            '<span class="bal-item-val">' + bal + '</span>' +
+        '</div>';
+    }
+    container.innerHTML = html;
+}
+
+function renderMarketRates() {
+    const container = document.getElementById('marketRatesList');
+    if (!container) return;
+    const pairs = [
+        ['RUB', 'USDT'], ['EUR', 'USDT'], ['BYN', 'USDT'],
+        ['BTC', 'USDT'], ['ETH', 'USDT'], ['TON', 'USDT'],
+        ['USDT', 'RUB'], ['USDT', 'EUR']
+    ];
+    let html = '';
+    for (const p of pairs) {
+        const fromUsdt = rates[p[0]] || 1;
+        const toUsdt = rates[p[1]] || 1;
+        const rate = fromUsdt / toUsdt;
+        const precision = rate >= 1000 ? 2 : rate >= 1 ? 4 : rate >= 0.001 ? 6 : 8;
+        html += '<div class="mrate-row">' +
+            '<span class="mrate-pair">' + p[0] + '/' + p[1] + '</span>' +
+            '<span class="mrate-price">' + rate.toFixed(precision) + '</span>' +
+        '</div>';
+    }
+    container.innerHTML = html;
+}
+
+swapBtn.addEventListener('click', function() {
+    const tmp = selectedFrom;
+    selectedFrom = selectedTo;
+    selectedTo = tmp;
+    closeAllDropdowns();
+    amountInput.value = '';
+    updateDisplay();
+});
+
+amountInput.addEventListener('input', updateDisplay);
+
+async function loadData() {
+    try {
+        const response = await Auth.apiFetch('/api/profile');
+        const payload = await response.json();
+        const data = payload?.data || {};
+        if (!payload.error) {
+            balances.RUB  = parseFloat(data.rub)  || 0;
+            balances.EUR  = parseFloat(data.eur)  || 0;
+            balances.BYN  = parseFloat(data.byn)  || 0;
+            balances.USDT = parseFloat(data.usdt) || 0;
+            balances.BTC  = parseFloat(data.btc)  || 0;
+            balances.ETH  = parseFloat(data.eth)  || 0;
+            balances.TON  = parseFloat(data.ton)  || 0;
+        }
+    } catch (e) { /* silent */ }
+    finally {
+        updateDisplay();
+    }
+}
+
+exchangeBtn.onclick = async function() {
+    const amount = parseFloat(amountInput.value) || 0;
+    if (amount <= 0) return showAlert('Введите сумму для обмена');
+    if (selectedFrom === selectedTo) return showAlert('Выберите разные валюты');
+    if (amount > (balances[selectedFrom] || 0)) return showAlert('Недостаточно средств');
+
+    try {
+        exchangeBtn.disabled = true;
+        exchangeBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="animation:spin 1s linear infinite"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg> Обработка...';
+
+        const response = await Auth.apiFetch('/api/exchange', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount, from: selectedFrom, to: selectedTo })
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+            showAlert('Обмен выполнен успешно!', true);
+            amountInput.value = '';
+            if (result.data?.newBalances) {
+                const nb = result.data.newBalances;
+                balances.RUB  = nb.rub  ?? balances.RUB;
+                balances.EUR  = nb.eur  ?? balances.EUR;
+                balances.BYN  = nb.byn  ?? balances.BYN;
+                balances.USDT = nb.usdt ?? balances.USDT;
+                balances.BTC  = nb.btc  ?? balances.BTC;
+                balances.ETH  = nb.eth  ?? balances.ETH;
+                balances.TON  = nb.ton  ?? balances.TON;
+            }
+            if (typeof BalanceManager !== 'undefined') await BalanceManager.refresh();
+            updateDisplay();
+            loadExchangeHistory();
+        } else {
+            showAlert(result.error || 'Ошибка обмена');
+        }
+    } catch (err) { showAlert('Ошибка соединения с сервером'); }
+    finally {
+        exchangeBtn.disabled = false;
+        exchangeBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:6px;"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>Обменять';
+    }
+};
+
+async function loadExchangeHistory() {
+    try {
+        const response = await Auth.apiFetch('/api/exchange/history');
+        const payload = await response.json();
+        const list = payload?.data || [];
+
+        var historyList = document.getElementById('historyList');
+        var historyList2 = document.getElementById('historyList2');
+        var historyCount = document.getElementById('historyCount');
+        var historyCount2 = document.getElementById('historyCount2');
+
+        if (list.length === 0) {
+            var emptyHtml = '<div class="empty-text">История обменов пуста</div>';
+            if (historyList) historyList.innerHTML = emptyHtml;
+            if (historyList2) historyList2.innerHTML = emptyHtml;
+            return;
+        }
+
+        if (historyCount) historyCount.textContent = list.length;
+        if (historyCount2) historyCount2.textContent = list.length;
+
+        var html = list.slice(0, 20).map(function(order) {
+            var fromCur = (order.from_currency || '?').toUpperCase();
+            var toCur = (order.to_currency || '?').toUpperCase();
+            var amount = parseFloat(order.amount) || 0;
+            var result = parseFloat(order.result_amount || order.received) || 0;
+            var date = new Date(order.created_at);
+            var dateStr = date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            var dec = (CUR_META[toCur] && CUR_META[toCur].decimals) || 2;
+            return '<div class="hist-item">' +
+                '<div class="hist-left"><div class="hist-desc">' + amount.toFixed(2) + ' ' + fromCur + ' → ' + result.toFixed(dec) + ' ' + toCur + '</div>' +
+                '<div class="hist-date">' + dateStr + '</div></div>' +
+                '<div class="hist-right hist-amt">+' + result.toFixed(dec) + ' ' + toCur + '</div>' +
+            '</div>';
+        }).join('');
+
+        if (historyList) historyList.innerHTML = html;
+        if (historyList2) historyList2.innerHTML = html;
+    } catch (err) { /* silent */ }
+}
+
+async function loadRates() {
+    try {
+        const response = await Auth.apiFetch('/api/exchange/rate');
+        const payload = await response.json();
+        if (payload.data) {
+            var d = payload.data;
+            rates.RUB = d.rub_to_usdt || 0.012;
+            rates.EUR = d.eur_to_usdt || 1.089;
+            rates.BYN = d.byn_to_usdt || 0.3058;
+            if (d.rates) {
+                rates.BTC = d.rates.BTC || 60000;
+                rates.ETH = d.rates.ETH || 3000;
+                rates.TON = d.rates.TON || 5;
+            }
+        }
+    } catch (e) { /* silent */ }
+    updateDisplay();
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+    await Promise.all([loadData(), loadRates()]);
+    loadExchangeHistory();
+    setInterval(loadRates, 30000);
+});
+</script>
+</body>
+</html>
