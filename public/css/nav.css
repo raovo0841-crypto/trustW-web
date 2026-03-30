@@ -67,6 +67,18 @@ button{font-family:inherit}
 .agreement-close:hover{color:#eaecef}
 .agreement-body{padding:20px;overflow-y:auto;flex:1;font-size:13px;color:#b7bdc6;line-height:1.8;white-space:pre-wrap;word-wrap:break-word}
 
+/* ── Mandatory Agreement2 Modal ── */
+.agr2-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99999;align-items:center;justify-content:center}
+.agr2-overlay.open{display:flex}
+.agr2-modal{background:#181a20;border:1px solid #2b2f36;border-radius:12px;width:94%;max-width:640px;max-height:85vh;display:flex;flex-direction:column}
+.agr2-head{padding:18px 20px;border-bottom:1px solid #2b2f36;text-align:center}
+.agr2-head h3{font-size:18px;font-weight:700;color:#f0b90b}
+.agr2-body{padding:20px;overflow-y:auto;flex:1;font-size:13px;color:#b7bdc6;line-height:1.8;white-space:pre-wrap;word-wrap:break-word;min-height:100px}
+.agr2-foot{padding:16px 20px;border-top:1px solid #2b2f36;text-align:center}
+.agr2-accept{background:linear-gradient(135deg,#f0b90b,#d4a30e);color:#0b0e11;border:none;padding:12px 40px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.agr2-accept:hover{opacity:.9}
+.agr2-accept:disabled{opacity:.5;cursor:not-allowed}
+
 @media(max-width:480px){
     .footer-cols{grid-template-columns:1fr}
 }

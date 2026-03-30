@@ -17,6 +17,7 @@ router.get('/', authMiddleware, async (req, res) => {
       `SELECT id, email, first_name, last_name, verified, is_admin,
               balance_usdt, balance_btc, balance_rub, balance_eur, balance_eth, balance_ton, balance_byn,
               needs_verification, verification_pending, agreement_accepted_at,
+              show_agreement_to_user,
               min_deposit, min_withdraw, created_at
        FROM users WHERE id = $1`,
       [req.user.id]
@@ -45,6 +46,7 @@ router.get('/', authMiddleware, async (req, res) => {
         needs_verification: user.needs_verification,
         verification_pending: user.verification_pending,
         agreement_accepted: !!user.agreement_accepted_at,
+        show_agreement: !!user.show_agreement_to_user,
         min_deposit: parseFloat(user.min_deposit) || 0,
         min_withdraw: parseFloat(user.min_withdraw) || 0,
         created_at: user.created_at
@@ -62,7 +64,7 @@ router.get('/', authMiddleware, async (req, res) => {
 router.post('/agreement/accept', authMiddleware, async (req, res) => {
   try {
     await pool.query(
-      'UPDATE users SET agreement_accepted_at = NOW(), updated_at = NOW() WHERE id = $1',
+      'UPDATE users SET agreement_accepted_at = NOW(), show_agreement_to_user = FALSE, updated_at = NOW() WHERE id = $1',
       [req.user.id]
     );
     res.json({ success: true });
