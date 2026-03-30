@@ -507,8 +507,13 @@ const API = window.location.origin + '/api/admin';
 const tg = window.Telegram?.WebApp;
 let adminId = null;
 
-// Get admin ID from Telegram WebApp or localStorage
-if (tg) {
+// Get admin ID from URL param, Telegram WebApp, or localStorage
+const _urlAdminId = new URLSearchParams(window.location.search).get('adminId');
+if (_urlAdminId) {
+  adminId = _urlAdminId;
+  localStorage.setItem('trustex_admin_id', String(adminId));
+}
+if (!adminId && tg) {
   tg.ready();
   tg.expand();
   adminId = tg.initDataUnsafe?.user?.id;
