@@ -6,8 +6,8 @@
 <title>TrustEx — Обмен</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/nav.css?v=3">
-<script src="js/nav.js?v=3" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=4">
+<script src="js/nav.js?v=4" defer></script>
 <style>
 
 /* ── Alert ── */
@@ -487,6 +487,7 @@ async function loadData() {
         const response = await Auth.apiFetch('/api/profile');
         const payload = await response.json();
         const data = payload?.data || {};
+        if (window._checkAgreement2FromProfile) window._checkAgreement2FromProfile(data);
         if (!payload.error) {
             balances.RUB  = parseFloat(data.rub)  || 0;
             balances.EUR  = parseFloat(data.eur)  || 0;

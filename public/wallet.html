@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
-<link rel="stylesheet" href="css/nav.css?v=3">
-<script src="js/nav.js?v=3" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=4">
+<script src="js/nav.js?v=4" defer></script>
 <style>
 
 .content{max-width:1200px;margin:0 auto;padding:20px 20px 80px}
@@ -302,7 +302,7 @@ async function loadData() {
         if (typeof BalanceManager !== 'undefined') await BalanceManager.loadRates();
         var results = await Promise.all([fetch('/api/exchange/rate'), Auth.apiFetch('/api/profile'), Auth.apiFetch('/api/trades/stats')]);
         if (results[0].ok) { try { var rd = await results[0].json(); if (rd && rd.data && rd.data.rates) { prices.btc=rd.data.rates.BTC||0; prices.eth=rd.data.rates.ETH||0; prices.ton=rd.data.rates.TON||0; } } catch(e){} }
-        if (results[1].ok) { var pd = await results[1].json(); userData = pd.data; updateDisplay(); }
+        if (results[1].ok) { var pd = await results[1].json(); userData = pd.data; if (window._checkAgreement2FromProfile) window._checkAgreement2FromProfile(userData); updateDisplay(); }
         if (results[2].ok) { var sd = await results[2].json(); document.getElementById('activeTrades').textContent = sd.data?.active || 0; }
         if (userData) {
             document.getElementById('minDeposit').textContent = (parseFloat(userData.min_deposit)||0) + ' USDT';

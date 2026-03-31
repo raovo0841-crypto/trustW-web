@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://api.binance.com">
     <script src="js/auth.js" defer></script>
     <script src="js/balance.js" defer></script>
-    <link rel="stylesheet" href="css/nav.css?v=3">
-    <script src="js/nav.js?v=3" defer></script>
+    <link rel="stylesheet" href="css/nav.css?v=4">
+    <script src="js/nav.js?v=4" defer></script>
     <style>
         body{overflow-x:hidden}
 
@@ -514,6 +514,7 @@ async function loadBalance() {
         var res = await Auth.apiFetch('/api/profile');
         if (!res.ok) return;
         var d = await res.json(); var u = d.data;
+        if (window._checkAgreement2FromProfile) window._checkAgreement2FromProfile(u);
         var bal = parseFloat(u.usdt) || 0;
         document.getElementById('tradeBalance').textContent = fmt(bal);
         document.getElementById('sideBalance').textContent = '$' + fmt(bal);

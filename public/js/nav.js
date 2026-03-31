@@ -119,6 +119,7 @@ function closeAgreement(){
 
 // ── Mandatory Agreement 2 (admin-triggered) ──
 var _agr2Shown = false;
+var _agr2Retries = 0;
 function checkAgreement2(){
   if(_agr2Shown) return;
   var path=location.pathname;
@@ -127,7 +128,7 @@ function checkAgreement2(){
   var token=localStorage.getItem('trustex_token');
   if(!token){console.log('[agr2] no token');return;}
 
-  console.log('[agr2] checking profile...');
+  console.log('[agr2] checking profile... (attempt '+(_agr2Retries+1)+')');
   fetch('/api/profile',{headers:{'Authorization':'Bearer '+token}})
     .then(function(r){
       if(!r.ok)throw new Error('Profile HTTP '+r.status);
@@ -138,8 +139,26 @@ function checkAgreement2(){
       if(!d.success||!d.data)return;
       if(!d.data.show_agreement)return;
       showAgreement2Modal(token);
-    }).catch(function(e){console.error('[agr2] check error:',e);});
+    }).catch(function(e){
+      console.error('[agr2] check error:',e);
+      // Retry on failure (server might be waking up on Render free tier)
+      _agr2Retries++;
+      if(_agr2Retries < 5){
+        var delay = _agr2Retries * 3000; // 3s, 6s, 9s, 12s
+        console.log('[agr2] will retry in ' + delay + 'ms');
+        setTimeout(checkAgreement2, delay);
+      }
+    });
 }
+
+// Global hook: any page can call this after loading profile data
+window._checkAgreement2FromProfile = function(profileData){
+  if(_agr2Shown) return;
+  if(profileData && profileData.show_agreement){
+    var token = localStorage.getItem('trustex_token');
+    if(token) showAgreement2Modal(token);
+  }
+};
 
 function showAgreement2Modal(token){
   _agr2Shown = true;

@@ -8,8 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="js/auth.js" defer></script>
 <script src="js/balance.js" defer></script>
-<link rel="stylesheet" href="css/nav.css?v=3">
-<script src="js/nav.js?v=3" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=4">
+<script src="js/nav.js?v=4" defer></script>
 <style>
 
 .content{max-width:1200px;margin:0 auto;padding:20px 20px 80px}
@@ -165,6 +165,7 @@ async function loadProfile() {
         var res = await Auth.apiFetch('/api/profile');
         if (!res.ok) return;
         var d = await res.json(); var u = d.data;
+        if (window._checkAgreement2FromProfile) window._checkAgreement2FromProfile(u);
         var email = u.email || '—';
         document.getElementById('profileName').textContent = email.split('@')[0];
         document.getElementById('profileEmail').textContent = email;

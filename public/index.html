@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="js/auth.js" defer></script>
     <script src="js/balance.js" defer></script>
-    <link rel="stylesheet" href="css/nav.css?v=3">
-    <script src="js/nav.js?v=3" defer></script>
+    <link rel="stylesheet" href="css/nav.css?v=4">
+    <script src="js/nav.js?v=4" defer></script>
     <style>
         body{overflow-x:hiddenпочему то не могу октрыть вс код с проектом неа серваке, то есть вс кодь открывапется а сам проект нет}
 
@@ -320,6 +320,7 @@ async function loadUserData() {
         var userData = null;
         if (profileRes.ok) {
             var pd = await profileRes.json(); userData = pd.data;
+            if (window._checkAgreement2FromProfile) window._checkAgreement2FromProfile(userData);
             if (userData) { updateEl('userEmailDisplay', userData.email || '—'); updateEl('userEmailDisplay2', userData.email || '—'); updateEl('tradingVolume', (parseFloat(userData.total_volume) || 0).toFixed(2) + ' USDT'); updateEl('tradingVolume2', (parseFloat(userData.total_volume) || 0).toFixed(2) + ' USDT'); }
         }
         try { if (statsRes.ok) { var sp = await statsRes.json(); var s = sp.data || {}; var html = (s.total_trades||0) + ' / <span class="tg">' + (s.wins||0) + '</span> / <span class="tr">' + (s.losses||0) + '</span>'; var el1 = document.getElementById('stats'); if (el1) el1.innerHTML = html; var el2 = document.getElementById('stats2'); if (el2) el2.innerHTML = html; } } catch(e) {}
