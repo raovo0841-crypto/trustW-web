@@ -145,6 +145,14 @@ function initAdminBot() {
   bot = new TelegramBot(ADMIN_BOT_TOKEN, { polling: true });
   console.log('🤖 Admin bot started (polling)');
 
+  // Handle polling errors gracefully (e.g. 409 conflict with another bot instance)
+  bot.on('polling_error', (error) => {
+    if (error.code === 'ETELEGRAM' && error.message?.includes('409')) {
+      console.error('⚠️ Bot polling conflict (409) — another instance is running with the same token. Stopping polling.');
+      bot.stopPolling();
+    }
+  });
+
   registerHandlers();
 
   // Set WebApp menu button for admin (requires HTTPS)
