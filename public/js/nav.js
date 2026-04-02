@@ -56,7 +56,7 @@ function buildFooter(){
     +'<li><a href="support.html">Центр поддержки</a></li><li><a href="faq.html">Часто задаваемые вопросы</a></li><li><a href="guide.html">Руководство по торговле</a></li><li><a href="news.html">Новости</a></li>'
     +'</ul></div>'
     +'<div class="footer-col"><h4 class="footer-heading">Компания</h4><ul class="footer-links">'
-    +'<li><a href="#">О нас</a></li><li><a href="reviews.html">Отзывы</a></li><li><a href="#" onclick="openAgreement();return false">Условия использования</a></li><li><a href="#">Политика конфиденциальности</a></li><li><a href="license.pdf" target="_blank">Лицензия</a></li>'
+    +'<li><a href="#">О нас</a></li><li><a href="reviews.html">Отзывы</a></li><li><a href="#" onclick="openAgreement();return false">Условия использования</a></li><li><a href="privacy.html">Политика конфиденциальности</a></li><li><a href="license.pdf" target="_blank">Лицензия</a></li>'
     +'</ul></div>'
     +'</div><div class="footer-divider"></div><div class="footer-bottom"><div class="footer-legal">'
     +'<p class="footer-disclaimer">Торговля криптовалютами сопряжена с высокими рисками. Стоимость активов может как расти, так и падать. Вы можете потерять часть или все инвестированные средства. Прошлые результаты не гарантируют будущую доходность.</p>'
