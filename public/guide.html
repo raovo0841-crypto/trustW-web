@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Руководство по торговле — TrustEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="js/auth.js?v=3" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=5">
+<script src="js/nav.js?v=5" defer></script>
+<style>
+:root{--bg:#0b0e11;--card:#181a20;--border:#2b2f36;--text:#eaecef;--text2:#848e9c;--yellow:#f0b90b;--green:#0ecb81;--red:#f6465d}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.content{max-width:900px;margin:0 auto;padding:30px 20px 100px}
+h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.subtitle{color:var(--text2);font-size:14px;margin-bottom:32px}
+.section{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:16px}
+.section h2{font-size:17px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section h2 .icon{font-size:22px}
+.section p,.section li{font-size:14px;color:var(--text2);line-height:1.75}
+.section ul{padding-left:20px;margin-top:8px}
+.section li{margin-bottom:6px}
+.section li strong{color:var(--text)}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--yellow);color:#0b0e11;font-size:13px;font-weight:700;margin-right:8px;flex-shrink:0}
+.steps{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.step{display:flex;align-items:flex-start;gap:12px}
+.step-text{font-size:14px;color:var(--text2);line-height:1.7}
+.step-text strong{color:var(--text)}
+.highlight{background:rgba(240,185,11,.08);border:1px solid rgba(240,185,11,.2);border-radius:6px;padding:16px;margin-top:14px}
+.highlight p{color:var(--yellow);font-size:13px;font-weight:500}
+.tip{background:rgba(14,203,129,.08);border:1px solid rgba(14,203,129,.2);border-radius:6px;padding:14px;margin-top:14px}
+.tip p{color:var(--green);font-size:13px}
+.warn{background:rgba(246,70,93,.08);border:1px solid rgba(246,70,93,.2);border-radius:6px;padding:14px;margin-top:14px}
+.warn p{color:var(--red);font-size:13px}
+.table-wrap{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;background:var(--bg);color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2)}
+@media(max-width:600px){.content{padding:16px 12px 100px}h1{font-size:20px}.section{padding:18px 16px}}
+</style>
+</head>
+<body>
+<header class="header"></header>
+
+<div class="content">
+<h1>📖 Руководство по торговле</h1>
+<p class="subtitle">Всё, что нужно знать для начала торговли на TrustEx</p>
+
+<!-- 1. Начало работы -->
+<div class="section">
+  <h2><span class="icon">🚀</span> 1. Начало работы</h2>
+  <p>Для начала торговли на TrustEx выполните несколько простых шагов:</p>
+  <div class="steps">
+    <div class="step"><span class="step-num">1</span><div class="step-text"><strong>Регистрация</strong> — создайте аккаунт, указав email и пароль. Используйте надёжный пароль длиной не менее 8 символов.</div></div>
+    <div class="step"><span class="step-num">2</span><div class="step-text"><strong>Верификация</strong> — пройдите процедуру верификации личности для получения полного доступа к функциям платформы.</div></div>
+    <div class="step"><span class="step-num">3</span><div class="step-text"><strong>Пополнение</strong> — внесите средства на свой счёт через раздел «Депозит». Поддерживаются USDT, BTC, ETH и другие активы.</div></div>
+    <div class="step"><span class="step-num">4</span><div class="step-text"><strong>Торговля</strong> — перейдите в раздел «Торговля», выберите торговую пару и откройте свою первую сделку.</div></div>
+  </div>
+</div>
+
+<!-- 2. Типы ордеров -->
+<div class="section">
+  <h2><span class="icon">📊</span> 2. Типы торговых операций</h2>
+  <p>На платформе доступны следующие виды операций:</p>
+  <ul>
+    <li><strong>Покупка (Long)</strong> — вы зарабатываете, когда цена актива растёт. Откройте позицию, если ожидаете рост.</li>
+    <li><strong>Продажа (Short)</strong> — вы зарабатываете, когда цена актива падает. Откройте позицию, если ожидаете снижение.</li>
+    <li><strong>Обмен</strong> — мгновенный обмен одного актива на другой по текущему рыночному курсу.</li>
+  </ul>
+  <div class="tip"><p>💡 Совет: начинайте с небольших сумм, чтобы освоиться с интерфейсом и механикой торговли.</p></div>
+</div>
+
+<!-- 3. Торговый терминал -->
+<div class="section">
+  <h2><span class="icon">🖥️</span> 3. Торговый терминал</h2>
+  <p>Торговый терминал TrustEx включает:</p>
+  <ul>
+    <li><strong>График цены</strong> — отображает динамику курса выбранной пары в реальном времени.</li>
+    <li><strong>Панель ордеров</strong> — позволяет открывать позиции Long/Short с указанием суммы и времени.</li>
+    <li><strong>История сделок</strong> — все ваши завершённые и активные сделки с результатами.</li>
+    <li><strong>Баланс</strong> — текущее состояние ваших активов.</li>
+  </ul>
+  <div class="highlight"><p>⚡ Графики обновляются в реальном времени на основе данных с ведущих мировых бирж.</p></div>
+</div>
+
+<!-- 4. Обмен валют -->
+<div class="section">
+  <h2><span class="icon">🔄</span> 4. Обмен валют</h2>
+  <p>Раздел «Обмен» позволяет конвертировать активы мгновенно:</p>
+  <div class="steps">
+    <div class="step"><span class="step-num">1</span><div class="step-text">Выберите валюту, которую хотите <strong>отдать</strong> (например, USDT).</div></div>
+    <div class="step"><span class="step-num">2</span><div class="step-text">Выберите валюту, которую хотите <strong>получить</strong> (например, BTC).</div></div>
+    <div class="step"><span class="step-num">3</span><div class="step-text">Укажите сумму и нажмите <strong>«Обменять»</strong>. Операция выполняется мгновенно по рыночному курсу.</div></div>
+  </div>
+</div>
+
+<!-- 5. Пополнение и вывод -->
+<div class="section">
+  <h2><span class="icon">💰</span> 5. Пополнение и вывод средств</h2>
+  <p><strong>Пополнение:</strong></p>
+  <ul>
+    <li>Перейдите в раздел «Депозит».</li>
+    <li>Выберите валюту и сеть для пополнения.</li>
+    <li>Скопируйте адрес кошелька и отправьте средства.</li>
+    <li>Средства поступят после подтверждения в сети блокчейна.</li>
+  </ul>
+  <p style="margin-top:14px"><strong>Вывод:</strong></p>
+  <ul>
+    <li>Перейдите в раздел «Вывод».</li>
+    <li>Укажите сумму, адрес кошелька и сеть.</li>
+    <li>Подтвердите операцию. Обработка занимает от нескольких минут до 24 часов.</li>
+  </ul>
+</div>
+
+<!-- 6. Комиссии -->
+<div class="section">
+  <h2><span class="icon">📋</span> 6. Комиссии</h2>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Операция</th><th>Комиссия</th></tr>
+      <tr><td>Торговля (открытие/закрытие)</td><td>0.1%</td></tr>
+      <tr><td>Обмен валют</td><td>0.15%</td></tr>
+      <tr><td>Пополнение</td><td>Бесплатно</td></tr>
+      <tr><td>Вывод</td><td>Зависит от сети</td></tr>
+    </table>
+  </div>
+  <div class="tip"><p>💡 Комиссии могут отличаться в зависимости от уровня аккаунта и объёма торгов.</p></div>
+</div>
+
+<!-- 7. Управление рисками -->
+<div class="section">
+  <h2><span class="icon">🛡️</span> 7. Управление рисками</h2>
+  <p>Рекомендации для безопасной торговли:</p>
+  <ul>
+    <li><strong>Не инвестируйте больше, чем готовы потерять</strong> — криптовалютный рынок крайне волатилен.</li>
+    <li><strong>Диверсифицируйте</strong> — не вкладывайте все средства в один актив.</li>
+    <li><strong>Следите за новостями</strong> — важные события могут резко повлиять на курсы.</li>
+    <li><strong>Устанавливайте лимиты</strong> — определите для себя максимальный убыток на день/неделю.</li>
+    <li><strong>Используйте разумные суммы</strong> — начинайте с малого и увеличивайте объёмы по мере получения опыта.</li>
+  </ul>
+  <div class="warn"><p>⚠️ Торговля криптовалютами сопряжена с высокими рисками. Стоимость активов может как расти, так и снижаться. Вы можете потерять часть или все инвестированные средства.</p></div>
+</div>
+
+<!-- 8. Безопасность -->
+<div class="section">
+  <h2><span class="icon">🔒</span> 8. Безопасность аккаунта</h2>
+  <p>Для защиты вашего аккаунта рекомендуем:</p>
+  <ul>
+    <li>Используйте <strong>уникальный сложный пароль</strong>, который не используется на других сайтах.</li>
+    <li>Включите <strong>PIN-код</strong> в настройках профиля для дополнительной защиты.</li>
+    <li><strong>Не сообщайте</strong> свои учётные данные третьим лицам.</li>
+    <li>При подозрении на несанкционированный доступ — немедленно <strong>смените пароль</strong> и обратитесь в поддержку.</li>
+  </ul>
+</div>
+
+<!-- 9. FAQ -->
+<div class="section">
+  <h2><span class="icon">❓</span> 9. Часто задаваемые вопросы</h2>
+  <ul>
+    <li><strong>Какой минимальный депозит?</strong> — Минимальная сумма пополнения зависит от валюты и определяется администрацией.</li>
+    <li><strong>Сколько времени занимает вывод?</strong> — От нескольких минут до 24 часов в зависимости от нагрузки сети.</li>
+    <li><strong>Можно ли отменить сделку?</strong> — Нет, после открытия позиция может быть только закрыта.</li>
+    <li><strong>Что делать, если средства не поступили?</strong> — Проверьте статус транзакции в блокчейне и обратитесь в поддержку с хешем транзакции.</li>
+    <li><strong>Как связаться с поддержкой?</strong> — Через раздел «Поддержка» на сайте или в Telegram.</li>
+  </ul>
+</div>
+
+</div>
+
+<nav class="mobnav"></nav>
+</body>
+</html>
