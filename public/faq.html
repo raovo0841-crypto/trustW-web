@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Часто задаваемые вопросы — TrustEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="js/auth.js?v=3" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=5">
+<script src="js/nav.js?v=7" defer></script>
+<style>
+:root{--bg:#0b0e11;--card:#181a20;--border:#2b2f36;--text:#eaecef;--text2:#848e9c;--yellow:#f0b90b;--green:#0ecb81;--red:#f6465d}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.content{max-width:900px;margin:0 auto;padding:30px 20px 100px}
+h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.subtitle{color:var(--text2);font-size:14px;margin-bottom:32px}
+
+/* Accordion */
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
+.faq-item:hover{border-color:rgba(240,185,11,.3)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;cursor:pointer;user-select:none;gap:12px}
+.faq-q h3{font-size:15px;font-weight:600;margin:0;flex:1}
+.faq-q .faq-icon{width:20px;height:20px;flex-shrink:0;transition:transform .25s;color:var(--text2)}
+.faq-item.open .faq-icon{transform:rotate(180deg);color:var(--yellow)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.faq-item.open .faq-a{max-height:500px}
+.faq-a-inner{padding:0 20px 18px;font-size:14px;color:var(--text2);line-height:1.75}
+.faq-a-inner a{color:var(--yellow);text-decoration:none}
+.faq-a-inner a:hover{text-decoration:underline}
+.faq-a-inner ul{margin:8px 0 0 18px}
+.faq-a-inner li{margin-bottom:4px}
+
+.faq-cat{font-size:13px;font-weight:600;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;margin:28px 0 12px;padding-left:4px}
+.faq-cat:first-of-type{margin-top:0}
+
+@media(max-width:600px){.content{padding:16px 12px 100px}h1{font-size:20px}.faq-q{padding:14px 16px}.faq-a-inner{padding:0 16px 14px}}
+</style>
+</head>
+<body>
+<header class="header"></header>
+
+<div class="content">
+<h1>❓ Часто задаваемые вопросы</h1>
+<p class="subtitle">Ответы на самые популярные вопросы о платформе TrustEx</p>
+
+<!-- Общие вопросы -->
+<div class="faq-cat">Общие вопросы</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Что такое TrustEx?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">TrustEx — это надёжная платформа для торговли криптовалютами, предоставляющая мгновенные сделки, низкие комиссии и профессиональные инструменты для трейдинга. Платформа поддерживает торговлю основными активами: USDT, BTC, ETH, BNB, SOL, XRP и другими.</div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Как зарегистрироваться на платформе?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Для регистрации перейдите на главную страницу и нажмите «Регистрация». Укажите ваш email и создайте надёжный пароль длиной не менее 8 символов. После регистрации вы получите доступ к основным функциям платформы.</div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Нужна ли верификация для начала торговли?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Да, для полноценного использования платформы необходимо пройти верификацию личности. Это стандартная процедура, которая обеспечивает безопасность всех пользователей и соответствие нормативным требованиям. Перейдите в раздел <a href="verify.html">Верификация</a> для прохождения процедуры.</div></div>
+</div>
+
+<!-- Пополнение и вывод -->
+<div class="faq-cat">Пополнение и вывод</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Как пополнить счёт?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Перейдите в раздел <a href="deposit.html">Депозит</a>, выберите валюту и сеть для пополнения. Скопируйте адрес кошелька и отправьте средства с вашего внешнего кошелька или биржи. Средства будут зачислены после подтверждения транзакции в блокчейне.</div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Какой минимальный депозит?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Минимальная сумма пополнения зависит от выбранной валюты и устанавливается администрацией платформы. Актуальные лимиты отображаются при оформлении депозита.</div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Сколько времени занимает вывод средств?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Обработка заявки на вывод занимает от нескольких минут до 24 часов в зависимости от загруженности сети и внутренней проверки. После одобрения время зачисления зависит от скорости подтверждений в выбранной сети блокчейна.</div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Какие комиссии за пополнение и вывод?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Пополнение счёта — бесплатно. Комиссия за вывод зависит от выбранной сети блокчейна и покрывает сетевые сборы (gas fee). Точная сумма комиссии отображается при оформлении вывода.</div></div>
+</div>
+
+<!-- Торговля -->
+<div class="faq-cat">Торговля</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Какие торговые пары доступны?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">На платформе доступны основные криптовалютные пары: BTC/USDT, ETH/USDT, BNB/USDT, SOL/USDT, XRP/USDT и другие. Полный список доступен в разделе <a href="trading.html">Торговля</a>.</div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Какие типы сделок можно открывать?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Доступны два типа позиций:
+    <ul>
+      <li><strong>Long (Покупка)</strong> — вы зарабатываете при росте цены актива.</li>
+      <li><strong>Short (Продажа)</strong> — вы зарабатываете при падении цены актива.</li>
+    </ul>
+    Также доступен мгновенный обмен одного актива на другой в разделе <a href="exchange.html">Обмен</a>.
+  </div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Какая комиссия за торговлю?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Комиссия за открытие и закрытие торговой позиции составляет 0.1%. Комиссия за обмен валют — 0.15%. Комиссии могут отличаться в зависимости от уровня аккаунта и объёма торгов.</div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Можно ли отменить открытую сделку?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Нет, после открытия позиции отменить её нельзя. Позиция может быть только закрыта — вручную или автоматически по истечении установленного времени. Перед открытием сделки внимательно проверяйте все параметры.</div></div>
+</div>
+
+<!-- Безопасность -->
+<div class="faq-cat">Безопасность</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Как обеспечивается безопасность средств?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Платформа использует SSL-шифрование для защиты данных, безопасное хранение паролей с использованием современных алгоритмов хеширования, а также систему PIN-кодов для дополнительной защиты операций. Все транзакции проходят многоуровневую проверку.</div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Как защитить свой аккаунт?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Рекомендуем:
+    <ul>
+      <li>Использовать уникальный сложный пароль</li>
+      <li>Установить PIN-код в настройках профиля</li>
+      <li>Не сообщать учётные данные третьим лицам</li>
+      <li>При подозрении на несанкционированный доступ — немедленно сменить пароль</li>
+    </ul>
+  </div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Что делать, если я забыл пароль?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Обратитесь в службу поддержки через раздел <a href="support.html">Поддержка</a>. Укажите email, привязанный к аккаунту. После проверки данных вам будет предоставлена возможность установить новый пароль.</div></div>
+</div>
+
+<!-- Прочее -->
+<div class="faq-cat">Прочее</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Средства не поступили на счёт. Что делать?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Проверьте статус транзакции в блокчейне (используя hash транзакции). Убедитесь, что вы отправили средства на правильный адрес и в правильной сети. Если транзакция подтверждена в блокчейне, но средства не отображаются — обратитесь в <a href="support.html">поддержку</a> с хешем транзакции.</div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Как связаться со службой поддержки?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Связаться с поддержкой можно через раздел <a href="support.html">Поддержка</a> на сайте — сообщения обрабатываются в чате в реальном времени. Также доступна связь через Telegram.</div></div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q"><h3>Есть ли реферальная программа?</h3><svg class="faq-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></div>
+  <div class="faq-a"><div class="faq-a-inner">Да, TrustEx предлагает реферальную программу. Пригласите друзей и получайте бонусы с их торговых операций. Подробности и вашу реферальную ссылку можно найти в разделе <a href="profile.html">Профиль</a>.</div></div>
+</div>
+
+</div>
+
+<nav class="mobnav"></nav>
+
+<script>
+document.querySelectorAll('.faq-q').forEach(function(q){
+  q.addEventListener('click',function(){
+    var item = q.parentElement;
+    var wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(function(el){el.classList.remove('open');});
+    if(!wasOpen) item.classList.add('open');
+  });
+});
+</script>
+</body>
+</html>
