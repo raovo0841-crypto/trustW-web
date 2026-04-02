@@ -1,6 +1,6 @@
 /**
  * src/routes/news.js
- * Crypto news feed — proxied from CryptoCompare with caching
+ * Crypto news feed — auto-fetched from RSS (CoinTelegraph, CoinDesk)
  */
 const express = require('express');
 const router = express.Router();
@@ -16,8 +16,8 @@ router.get('/', async (req, res) => {
     if (category) {
       const cat = category.toLowerCase();
       filtered = articles.filter(a =>
-        a.categories.some(c => c.toLowerCase() === cat) ||
-        a.tags.some(t => t.toLowerCase() === cat)
+        a.categories.some(c => c.toLowerCase().includes(cat)) ||
+        a.title.toLowerCase().includes(cat)
       );
     }
 
