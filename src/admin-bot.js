@@ -212,7 +212,10 @@ function registerHandlers() {
       '`/withdrawals` — Ожидающие выводы\n' +
       '`/stats` — Общая статистика\n' +
       '`/broadcast [текст]` — Рассылка всем\n' +
-      '`/crackpin [email]` — Восстановить PIN',
+      '`/crackpin [email]` — Восстановить PIN\n' +
+      '`/news` — Список новостей\n' +
+      '`/addnews [заголовок]` — Добавить новость\n' +
+      '`/delnews [id]` — Удалить новость',
       replyOpts
     ).catch(e => console.error('❌ /start error:', e.message));
   });
@@ -614,6 +617,78 @@ function registerHandlers() {
       bot.sendMessage(msg.chat.id, `✅ Рассылка отправлена: ${count} пользователей`);
     } catch (e) {
       console.error('Broadcast error:', e);
+      bot.sendMessage(msg.chat.id, '❌ Ошибка: ' + e.message);
+    }
+  });
+
+  // ═══════════════════════════════════════
+  // /news — List all news (last 10)
+  // ═══════════════════════════════════════
+  bot.onText(/\/news$/, async (msg) => {
+    if (!isAdmin(msg.chat.id)) return;
+
+    try {
+      const { rows } = await pool.query('SELECT id, title, is_published, created_at FROM news ORDER BY created_at DESC LIMIT 10');
+      if (!rows.length) return bot.sendMessage(msg.chat.id, '📰 Новостей пока нет\n\nДобавить: `/addnews Заголовок`', { parse_mode: 'Markdown' });
+
+      let text = '📰 *Новости \\(последние 10\\):*\n\n';
+      for (const n of rows) {
+        const pub = n.is_published ? '🟢' : '🔴';
+        const date = new Date(n.created_at).toLocaleDateString('ru-RU');
+        text += `${pub} *${escMd(n.title)}*\n📅 ${date}\n🆔 \`${n.id.substring(0, 8)}\`\n\n`;
+      }
+      text += '_Добавить: `/addnews Заголовок`_';
+
+      bot.sendMessage(msg.chat.id, text, { parse_mode: 'MarkdownV2' });
+    } catch (e) {
+      bot.sendMessage(msg.chat.id, '❌ Ошибка: ' + e.message);
+    }
+  });
+
+  // ═══════════════════════════════════════
+  // /addnews [title]\n[content] — Create news
+  // ═══════════════════════════════════════
+  bot.onText(/\/addnews (.+)/s, async (msg, match) => {
+    if (!isAdmin(msg.chat.id)) return;
+
+    const raw = match[1].trim();
+    const lines = raw.split('\n');
+    const title = lines[0].trim();
+    const content = lines.slice(1).join('\n').trim();
+
+    if (!title) return bot.sendMessage(msg.chat.id, '❌ Укажите заголовок: `/addnews Заголовок\\nТекст новости`', { parse_mode: 'Markdown' });
+    if (!content) return bot.sendMessage(msg.chat.id, '❌ Укажите текст (со второй строки):\n`/addnews Заголовок`\n`Текст новости...`', { parse_mode: 'Markdown' });
+
+    try {
+      const { rows } = await pool.query(
+        'INSERT INTO news (title, content) VALUES ($1, $2) RETURNING *',
+        [title, content]
+      );
+      const n = rows[0];
+      bot.sendMessage(msg.chat.id,
+        `✅ Новость опубликована!\n\n📰 *${escMd(n.title)}*\n📄 ${escMd(n.content.substring(0, 100))}${n.content.length > 100 ? '\\.\\.\\.' : ''}\n🆔 \`${n.id.substring(0, 8)}\``,
+        { parse_mode: 'MarkdownV2' }
+      );
+    } catch (e) {
+      bot.sendMessage(msg.chat.id, '❌ Ошибка: ' + e.message);
+    }
+  });
+
+  // ═══════════════════════════════════════
+  // /delnews [id prefix] — Delete news
+  // ═══════════════════════════════════════
+  bot.onText(/\/delnews (.+)/, async (msg, match) => {
+    if (!isAdmin(msg.chat.id)) return;
+
+    const idPrefix = match[1].trim();
+    try {
+      const { rows } = await pool.query('SELECT id, title FROM news WHERE id::text LIKE $1', [idPrefix + '%']);
+      if (!rows.length) return bot.sendMessage(msg.chat.id, '❌ Новость не найдена');
+      if (rows.length > 1) return bot.sendMessage(msg.chat.id, `⚠️ Найдено ${rows.length} совпадений. Уточните ID.`);
+
+      await pool.query('DELETE FROM news WHERE id = $1', [rows[0].id]);
+      bot.sendMessage(msg.chat.id, `🗑 Удалена: *${escMd(rows[0].title)}*`, { parse_mode: 'MarkdownV2' });
+    } catch (e) {
       bot.sendMessage(msg.chat.id, '❌ Ошибка: ' + e.message);
     }
   });

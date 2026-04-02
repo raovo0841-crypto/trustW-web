@@ -52,7 +52,7 @@ function buildFooter(){
     +'<li><a href="exchange.html">Обмен валют</a></li><li><a href="trading.html">Торговля</a></li><li><a href="wallet.html">Кошелёк</a></li><li><a href="deposit.html">Пополнение</a></li><li><a href="withdraw.html">Вывод средств</a></li>'
     +'</ul></div>'
     +'<div class="footer-col"><h4 class="footer-heading">Поддержка</h4><ul class="footer-links">'
-    +'<li><a href="support.html">Центр поддержки</a></li><li><a href="#">Часто задаваемые вопросы</a></li><li><a href="guide.html">Руководство по торговле</a></li><li><a href="#">API документация</a></li>'
+    +'<li><a href="support.html">Центр поддержки</a></li><li><a href="#">Часто задаваемые вопросы</a></li><li><a href="guide.html">Руководство по торговле</a></li><li><a href="news.html">Новости</a></li><li><a href="#">API документация</a></li>'
     +'</ul></div>'
     +'<div class="footer-col"><h4 class="footer-heading">Компания</h4><ul class="footer-links">'
     +'<li><a href="#">О нас</a></li><li><a href="reviews.html">Отзывы</a></li><li><a href="#" onclick="openAgreement();return false">Условия использования</a></li><li><a href="#">Политика конфиденциальности</a></li>'

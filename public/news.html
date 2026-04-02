@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Новости — TrustEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="js/auth.js?v=3" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=5">
+<script src="js/nav.js?v=5" defer></script>
+<style>
+
+.content{max-width:900px;margin:0 auto;padding:20px 20px 80px}
+
+.page-head{margin-bottom:24px}
+.page-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.page-desc{font-size:13px;color:var(--text3)}
+
+.news-filters{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.nf-btn{padding:6px 16px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit}
+.nf-btn:hover{border-color:var(--text3);color:var(--text)}
+.nf-btn.active{background:rgba(240,185,11,.1);border-color:var(--yellow);color:var(--yellow)}
+
+.news-list{display:flex;flex-direction:column;gap:12px}
+
+.news-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px;transition:border-color .15s;cursor:pointer}
+.news-card:hover{border-color:var(--text3)}
+.nc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.nc-title{font-size:16px;font-weight:600;line-height:1.4}
+.nc-cat{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:3px 10px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+.nc-cat-general{background:rgba(240,185,11,.1);color:var(--yellow)}
+.nc-cat-update{background:rgba(14,203,129,.1);color:var(--green)}
+.nc-cat-alert{background:rgba(246,70,93,.1);color:var(--red)}
+.nc-cat-promo{background:rgba(113,128,150,.1);color:var(--text2)}
+.nc-text{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.nc-footer{display:flex;align-items:center;gap:12px}
+.nc-date{font-size:11px;color:var(--text3)}
+
+.news-empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.news-empty svg{width:48px;height:48px;fill:var(--text3);margin-bottom:12px;opacity:.5}
+.news-empty p{font-size:14px}
+
+.load-more{width:100%;padding:12px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;margin-top:12px}
+.load-more:hover{border-color:var(--yellow);color:var(--text)}
+
+/* Expanded news modal */
+.news-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
+.news-overlay.open{display:flex}
+.news-modal{background:var(--card);border:1px solid var(--border);border-radius:8px;max-width:700px;width:100%;max-height:80vh;display:flex;flex-direction:column}
+.nm-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
+.nm-title{font-size:17px;font-weight:600}
+.nm-close{background:none;border:none;color:var(--text3);font-size:24px;cursor:pointer;padding:0 4px;line-height:1}
+.nm-close:hover{color:var(--text)}
+.nm-body{padding:20px;overflow-y:auto;font-size:14px;color:var(--text2);line-height:1.7;white-space:pre-wrap}
+.nm-footer{padding:12px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--text3)}
+
+@media(max-width:768px){
+  .content{padding:16px 12px 100px}
+  .nc-title{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<header class="header"></header>
+<nav class="mobnav"></nav>
+
+<div class="content">
+  <div class="page-head">
+    <div class="page-title">Новости</div>
+    <div class="page-desc">Актуальные обновления и события платформы TrustEx</div>
+  </div>
+
+  <div class="news-filters" id="newsFilters">
+    <button class="nf-btn active" data-cat="">Все</button>
+    <button class="nf-btn" data-cat="general">Общие</button>
+    <button class="nf-btn" data-cat="update">Обновления</button>
+    <button class="nf-btn" data-cat="alert">Важное</button>
+    <button class="nf-btn" data-cat="promo">Акции</button>
+  </div>
+
+  <div class="news-list" id="newsList"></div>
+  <button class="load-more" id="loadMore" style="display:none">Загрузить ещё</button>
+</div>
+
+<!-- Modal for full news -->
+<div class="news-overlay" id="newsOverlay">
+  <div class="news-modal">
+    <div class="nm-head">
+      <div class="nm-title" id="nmTitle"></div>
+      <button class="nm-close" onclick="closeNews()">&times;</button>
+    </div>
+    <div class="nm-body" id="nmBody"></div>
+    <div class="nm-footer" id="nmFooter"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var list = document.getElementById('newsList');
+  var loadBtn = document.getElementById('loadMore');
+  var currentCat = '';
+  var offset = 0;
+  var LIMIT = 20;
+  var total = 0;
+
+  var catLabels = {general:'Общие',update:'Обновление',alert:'Важное',promo:'Акция'};
+
+  function formatDate(d){
+    var dt = new Date(d);
+    return dt.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+  }
+
+  function renderCard(n){
+    var cat = n.category || 'general';
+    var catClass = 'nc-cat-' + cat;
+    var catLabel = catLabels[cat] || cat;
+    var text = n.content.length > 200 ? n.content.substring(0,200) + '...' : n.content;
+
+    var div = document.createElement('div');
+    div.className = 'news-card';
+    div.setAttribute('data-id', n.id);
+    div.innerHTML =
+      '<div class="nc-head"><div class="nc-title">' + escHtml(n.title) + '</div>' +
+      '<span class="nc-cat ' + catClass + '">' + escHtml(catLabel) + '</span></div>' +
+      '<div class="nc-text">' + escHtml(text) + '</div>' +
+      '<div class="nc-footer"><span class="nc-date">' + formatDate(n.created_at) + '</span></div>';
+    div.onclick = function(){ openNews(n); };
+    return div;
+  }
+
+  function escHtml(s){
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function load(reset){
+    if(reset){ offset = 0; list.innerHTML = ''; }
+    var url = '/api/news?limit=' + LIMIT + '&offset=' + offset;
+    if(currentCat) url += '&category=' + encodeURIComponent(currentCat);
+
+    fetch(url).then(function(r){ return r.json(); }).then(function(data){
+      if(!data.success) return;
+      total = data.total;
+      if(!data.news.length && offset === 0){
+        list.innerHTML = '<div class="news-empty"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/></svg><p>Пока нет новостей</p></div>';
+        loadBtn.style.display = 'none';
+        return;
+      }
+      for(var i = 0; i < data.news.length; i++){
+        list.appendChild(renderCard(data.news[i]));
+      }
+      offset += data.news.length;
+      loadBtn.style.display = offset < total ? '' : 'none';
+    }).catch(function(e){
+      console.error('News load error:', e);
+      if(offset === 0) list.innerHTML = '<div class="news-empty"><p>Ошибка загрузки</p></div>';
+    });
+  }
+
+  // Filters
+  document.getElementById('newsFilters').addEventListener('click', function(e){
+    var btn = e.target.closest('.nf-btn');
+    if(!btn) return;
+    document.querySelectorAll('.nf-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentCat = btn.getAttribute('data-cat') || '';
+    load(true);
+  });
+
+  loadBtn.addEventListener('click', function(){ load(false); });
+
+  load(true);
+})();
+
+function openNews(n){
+  document.getElementById('nmTitle').textContent = n.title;
+  document.getElementById('nmBody').textContent = n.content;
+  document.getElementById('nmFooter').textContent = new Date(n.created_at).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  var ov = document.getElementById('newsOverlay');
+  ov.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  ov.onclick = function(e){ if(e.target === ov) closeNews(); };
+}
+
+function closeNews(){
+  document.getElementById('newsOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+</script>
+
+</body>
+</html>

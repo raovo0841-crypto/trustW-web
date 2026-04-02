@@ -140,6 +140,16 @@ async function initDatabase() {
         created_at TIMESTAMP DEFAULT NOW()
       );
 
+      CREATE TABLE IF NOT EXISTS news (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        title VARCHAR(500) NOT NULL,
+        content TEXT NOT NULL,
+        category VARCHAR(50) DEFAULT 'general',
+        is_published BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+
       -- Indexes
       CREATE INDEX IF NOT EXISTS idx_email_verifications_user ON email_verifications(user_id);
       CREATE INDEX IF NOT EXISTS idx_email_verifications_code ON email_verifications(email, code);

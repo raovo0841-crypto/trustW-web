@@ -16,6 +16,7 @@ const tradesRoutes = require('./routes/trades');
 const reviewsRoutes = require('./routes/reviews');
 const securityRoutes = require('./routes/security');
 const adminRoutes = require('./routes/admin');
+const newsRoutes = require('./routes/news');
 
 const app = express();
 
@@ -59,6 +60,7 @@ app.use('/api/trades', tradesRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/security', securityRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/news', newsRoutes);
 
 // SPA catch-all — serve index.html for non-API routes
 app.get('/{*splat}', (req, res) => {

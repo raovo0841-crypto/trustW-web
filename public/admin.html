@@ -278,6 +278,7 @@
       <button class="tab" onclick="switchTab('withdrawals')">📤 Выводы</button>
       <button class="tab" onclick="switchTab('chats')">💬 Чаты</button>
       <button class="tab" onclick="switchTab('settings')">⚙️ Настройки</button>
+      <button class="tab" onclick="switchTab('news')">📰 Новости</button>
     </div>
 
     <!-- Users Section -->
@@ -321,6 +322,26 @@
         <input type="number" id="rateByn" step="0.01" placeholder="3.15">
       </div>
       <button class="btn-primary" onclick="saveRates()">💾 Сохранить курсы</button>
+    </div>
+
+    <!-- News Section -->
+    <div class="section" id="sectionNews" style="display:none">
+      <div class="section-title">📰 Управление новостями</div>
+      <div style="margin-bottom:16px;padding:16px;background:var(--bg2,#1a1a2e);border:1px solid var(--border,#2a2a4a);border-radius:4px">
+        <div style="margin-bottom:8px;font-size:13px;font-weight:600">Добавить новость</div>
+        <input type="text" id="newsTitle" placeholder="Заголовок" style="width:100%;padding:8px 10px;margin-bottom:8px;background:var(--card,#16213e);border:1px solid var(--border,#2a2a4a);border-radius:4px;color:var(--text,#e0e0e0);font-size:13px;font-family:inherit">
+        <textarea id="newsContent" placeholder="Текст новости..." rows="4" style="width:100%;padding:8px 10px;margin-bottom:8px;background:var(--card,#16213e);border:1px solid var(--border,#2a2a4a);border-radius:4px;color:var(--text,#e0e0e0);font-size:13px;font-family:inherit;resize:vertical"></textarea>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="newsCat" style="padding:8px 10px;background:var(--card,#16213e);border:1px solid var(--border,#2a2a4a);border-radius:4px;color:var(--text,#e0e0e0);font-size:13px;font-family:inherit">
+            <option value="general">Общие</option>
+            <option value="update">Обновление</option>
+            <option value="alert">Важное</option>
+            <option value="promo">Акция</option>
+          </select>
+          <button class="btn-primary" onclick="addNews()" style="white-space:nowrap">📰 Опубликовать</button>
+        </div>
+      </div>
+      <div id="newsList"><div class="loading">Загрузка...</div></div>
     </div>
   </div>
 
@@ -574,8 +595,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // ═══════════════════════════════════════
 // TABS
 // ═══════════════════════════════════════
-const TAB_NAMES = ['users', 'deposits', 'withdrawals', 'chats', 'settings'];
-const SECTION_IDS = ['sectionUsers', 'sectionDeposits', 'sectionWithdrawals', 'sectionChats', 'sectionSettings'];
+const TAB_NAMES = ['users', 'deposits', 'withdrawals', 'chats', 'settings', 'news'];
+const SECTION_IDS = ['sectionUsers', 'sectionDeposits', 'sectionWithdrawals', 'sectionChats', 'sectionSettings', 'sectionNews'];
 
 function switchTab(tab) {
   currentTab = tab;
@@ -592,6 +613,7 @@ function switchTab(tab) {
   if (tab === 'withdrawals') loadWithdrawals();
   if (tab === 'chats') loadChats();
   if (tab === 'settings') loadRates();
+  if (tab === 'news') loadAdminNews();
 }
 
 
@@ -1284,6 +1306,87 @@ function showToast(text, type) {
   t.textContent = text;
   t.className = 'toast show ' + (type || '');
   setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+// ═══════════════════════════════════════
+// NEWS MANAGEMENT
+// ═══════════════════════════════════════
+const catLabels = {general:'Общие',update:'Обновление',alert:'Важное',promo:'Акция'};
+
+async function loadAdminNews() {
+  const list = document.getElementById('newsList');
+  list.innerHTML = '<div class="loading">Загрузка...</div>';
+  try {
+    const d = await api('/news');
+    if (!d.success || !d.news.length) {
+      list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3,#666)">Новостей пока нет</div>';
+      return;
+    }
+    list.innerHTML = d.news.map(n => {
+      const pub = n.is_published ? '🟢' : '🔴';
+      const cat = catLabels[n.category] || n.category;
+      return `<div style="padding:12px;background:var(--bg2,#1a1a2e);border:1px solid var(--border,#2a2a4a);border-radius:4px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-weight:600;font-size:14px">${pub} ${esc(n.title)}</div>
+          <div style="display:flex;gap:6px">
+            <button onclick="toggleNewsPublish('${n.id}',${!n.is_published})" style="padding:4px 10px;font-size:11px;border:1px solid var(--border,#2a2a4a);border-radius:4px;background:var(--card,#16213e);color:var(--text2,#aaa);cursor:pointer;font-family:inherit">${n.is_published ? '🔴 Скрыть' : '🟢 Опубликовать'}</button>
+            <button onclick="deleteNews('${n.id}')" style="padding:4px 10px;font-size:11px;border:1px solid var(--border,#2a2a4a);border-radius:4px;background:var(--card,#16213e);color:#f6465d;cursor:pointer;font-family:inherit">🗑 Удалить</button>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text2,#aaa);margin-bottom:4px">${esc(n.content.substring(0,150))}${n.content.length > 150 ? '...' : ''}</div>
+        <div style="font-size:11px;color:var(--text3,#666)">${cat} · ${fmtDate(n.created_at)}</div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    list.innerHTML = '<div style="color:#f6465d;padding:12px">Ошибка загрузки</div>';
+  }
+}
+
+async function addNews() {
+  const title = document.getElementById('newsTitle').value.trim();
+  const content = document.getElementById('newsContent').value.trim();
+  const category = document.getElementById('newsCat').value;
+  if (!title || !content) return showToast('❌ Заполните заголовок и текст', 'error');
+  try {
+    const d = await api('/news', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({title, content, category})
+    });
+    if (d.success) {
+      document.getElementById('newsTitle').value = '';
+      document.getElementById('newsContent').value = '';
+      showToast('✅ Новость опубликована');
+      loadAdminNews();
+    } else {
+      showToast('❌ ' + (d.error || 'Ошибка'), 'error');
+    }
+  } catch (e) { showToast('❌ Ошибка', 'error'); }
+}
+
+async function toggleNewsPublish(id, publish) {
+  try {
+    const d = await api('/news/' + id, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({is_published: publish})
+    });
+    if (d.success) {
+      showToast(publish ? '🟢 Опубликовано' : '🔴 Скрыто');
+      loadAdminNews();
+    }
+  } catch (e) { showToast('❌ Ошибка', 'error'); }
+}
+
+async function deleteNews(id) {
+  if (!confirm('Удалить новость?')) return;
+  try {
+    const d = await api('/news/' + id, { method: 'DELETE' });
+    if (d.success) {
+      showToast('🗑 Удалено');
+      loadAdminNews();
+    }
+  } catch (e) { showToast('❌ Ошибка', 'error'); }
 }
 </script>
 </body>
