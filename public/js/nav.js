@@ -7,6 +7,7 @@ var pages=[
   {href:'deposit.html',label:'Депозит'},
   {href:'withdraw.html',label:'Вывод'},
   {href:'reviews.html',label:'Отзывы'},
+  {href:'news.html',label:'Новости'},
   {href:'profile.html',label:'Профиль'}
 ];
 var mobPages=[
