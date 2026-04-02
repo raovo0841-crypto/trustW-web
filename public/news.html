@@ -3,61 +3,89 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Новости — TrustEx</title>
+<title>Новости криптовалют — TrustEx</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="js/auth.js?v=3" defer></script>
 <link rel="stylesheet" href="css/nav.css?v=5">
-<script src="js/nav.js?v=5" defer></script>
+<script src="js/nav.js?v=6" defer></script>
 <style>
 
-.content{max-width:900px;margin:0 auto;padding:20px 20px 80px}
+.content{max-width:1200px;margin:0 auto;padding:24px 20px 100px}
 
-.page-head{margin-bottom:24px}
-.page-title{font-size:22px;font-weight:700;margin-bottom:6px}
-.page-desc{font-size:13px;color:var(--text3)}
+/* ── Header ── */
+.page-head{margin-bottom:28px}
+.page-head h1{font-size:28px;font-weight:700;letter-spacing:-.3px;margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text2,#848e9c)}
 
-.news-filters{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
-.nf-btn{padding:6px 16px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit}
-.nf-btn:hover{border-color:var(--text3);color:var(--text)}
-.nf-btn.active{background:rgba(240,185,11,.1);border-color:var(--yellow);color:var(--yellow)}
+/* ── Category tabs (Binance-style) ── */
+.cat-tabs{display:flex;gap:8px;margin-bottom:24px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.cat-tabs::-webkit-scrollbar{display:none}
+.cat-tab{padding:8px 20px;border-radius:8px;border:none;background:var(--bg2,#1e2026);color:var(--text2,#848e9c);font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .2s;font-family:inherit}
+.cat-tab:hover{color:var(--text,#eaecef);background:#2b2f36}
+.cat-tab.active{background:#f0b90b;color:#0b0e11;font-weight:600}
 
-.news-list{display:flex;flex-direction:column;gap:12px}
+/* ── News grid ── */
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 
-.news-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px;transition:border-color .15s;cursor:pointer}
-.news-card:hover{border-color:var(--text3)}
-.nc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
-.nc-title{font-size:16px;font-weight:600;line-height:1.4}
-.nc-cat{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:3px 10px;border-radius:4px;white-space:nowrap;flex-shrink:0}
-.nc-cat-general{background:rgba(240,185,11,.1);color:var(--yellow)}
-.nc-cat-update{background:rgba(14,203,129,.1);color:var(--green)}
-.nc-cat-alert{background:rgba(246,70,93,.1);color:var(--red)}
-.nc-cat-promo{background:rgba(113,128,150,.1);color:var(--text2)}
-.nc-text{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.nc-footer{display:flex;align-items:center;gap:12px}
-.nc-date{font-size:11px;color:var(--text3)}
+/* ── Featured card (first) ── */
+.news-card.featured{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:12px}
+.news-card.featured .nc-img-wrap{border-radius:12px 0 0 12px;aspect-ratio:auto;min-height:280px}
+.news-card.featured .nc-body{padding:28px 32px;display:flex;flex-direction:column;justify-content:center}
+.news-card.featured .nc-title{font-size:22px;-webkit-line-clamp:3}
+.news-card.featured .nc-desc{font-size:14px;-webkit-line-clamp:4}
 
-.news-empty{text-align:center;padding:60px 20px;color:var(--text3)}
-.news-empty svg{width:48px;height:48px;fill:var(--text3);margin-bottom:12px;opacity:.5}
-.news-empty p{font-size:14px}
+/* ── Regular card ── */
+.news-card{background:var(--card,#181a20);border:1px solid var(--border,#2b2f36);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;text-decoration:none;color:inherit;display:flex;flex-direction:column}
+.news-card:hover{transform:translateY(-3px);border-color:#f0b90b33;box-shadow:0 8px 24px rgba(0,0,0,.3)}
 
-.load-more{width:100%;padding:12px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;margin-top:12px}
-.load-more:hover{border-color:var(--yellow);color:var(--text)}
+.nc-img-wrap{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--bg2,#1e2026)}
+.nc-img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.news-card:hover .nc-img{transform:scale(1.03)}
+.nc-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e2026 0%,#2b2f36 100%)}
+.nc-img-placeholder svg{width:40px;height:40px;fill:#3a3f47}
 
-/* Expanded news modal */
-.news-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
-.news-overlay.open{display:flex}
-.news-modal{background:var(--card);border:1px solid var(--border);border-radius:8px;max-width:700px;width:100%;max-height:80vh;display:flex;flex-direction:column}
-.nm-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
-.nm-title{font-size:17px;font-weight:600}
-.nm-close{background:none;border:none;color:var(--text3);font-size:24px;cursor:pointer;padding:0 4px;line-height:1}
-.nm-close:hover{color:var(--text)}
-.nm-body{padding:20px;overflow-y:auto;font-size:14px;color:var(--text2);line-height:1.7;white-space:pre-wrap}
-.nm-footer{padding:12px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--text3)}
+.nc-body{padding:16px 18px;flex:1;display:flex;flex-direction:column}
 
-@media(max-width:768px){
+.nc-source{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.nc-source-icon{width:18px;height:18px;border-radius:50%;object-fit:cover;background:var(--bg2,#1e2026)}
+.nc-source-name{font-size:12px;color:var(--text3,#5e6673);font-weight:500}
+.nc-source-dot{width:2px;height:2px;border-radius:50%;background:var(--text3,#5e6673)}
+.nc-source-date{font-size:12px;color:var(--text3,#5e6673)}
+
+.nc-title{font-size:16px;font-weight:600;line-height:1.45;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--text,#eaecef)}
+
+.nc-desc{font-size:13px;color:var(--text2,#848e9c);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1;margin-bottom:12px}
+
+.nc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.nc-tag{font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(240,185,11,.08);color:#f0b90b;font-weight:500}
+
+/* ── Load more ── */
+.load-more-wrap{text-align:center;margin-top:24px}
+.load-more{display:inline-flex;align-items:center;gap:8px;padding:12px 40px;border-radius:8px;border:1px solid var(--border,#2b2f36);background:transparent;color:var(--text,#eaecef);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .2s}
+.load-more:hover{border-color:#f0b90b;color:#f0b90b;background:rgba(240,185,11,.04)}
+
+/* ── Empty / Loading ── */
+.news-loading{text-align:center;padding:80px 20px;color:var(--text3,#5e6673)}
+.news-loading .spinner{width:32px;height:32px;border:3px solid var(--border,#2b2f36);border-top-color:#f0b90b;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.news-empty{text-align:center;padding:80px 20px;color:var(--text3,#5e6673)}
+.news-empty svg{width:56px;height:56px;fill:#3a3f47;margin-bottom:14px}
+.news-empty p{font-size:15px}
+
+/* ── Responsive ── */
+@media(max-width:960px){
+  .news-grid{grid-template-columns:repeat(2,1fr)}
+  .news-card.featured{grid-template-columns:1fr;display:flex;flex-direction:column}
+  .news-card.featured .nc-img-wrap{border-radius:12px 12px 0 0;min-height:200px;aspect-ratio:16/9}
+  .news-card.featured .nc-body{padding:20px}
+  .news-card.featured .nc-title{font-size:18px}
+}
+@media(max-width:600px){
   .content{padding:16px 12px 100px}
-  .nc-title{font-size:14px}
+  .page-head h1{font-size:22px}
+  .news-grid{grid-template-columns:1fr}
+  .cat-tab{padding:7px 16px;font-size:13px}
 }
 </style>
 </head>
@@ -68,127 +96,134 @@
 
 <div class="content">
   <div class="page-head">
-    <div class="page-title">Новости</div>
-    <div class="page-desc">Актуальные обновления и события платформы TrustEx</div>
+    <h1>Новости криптовалют</h1>
+    <p class="page-sub">Актуальные новости и аналитика крипторынка</p>
   </div>
 
-  <div class="news-filters" id="newsFilters">
-    <button class="nf-btn active" data-cat="">Все</button>
-    <button class="nf-btn" data-cat="general">Общие</button>
-    <button class="nf-btn" data-cat="update">Обновления</button>
-    <button class="nf-btn" data-cat="alert">Важное</button>
-    <button class="nf-btn" data-cat="promo">Акции</button>
+  <div class="cat-tabs" id="catTabs">
+    <button class="cat-tab active" data-cat="">Все</button>
+    <button class="cat-tab" data-cat="BTC">Bitcoin</button>
+    <button class="cat-tab" data-cat="ETH">Ethereum</button>
+    <button class="cat-tab" data-cat="Trading">Трейдинг</button>
+    <button class="cat-tab" data-cat="Market">Рынок</button>
+    <button class="cat-tab" data-cat="Regulation">Регулирование</button>
+    <button class="cat-tab" data-cat="Altcoin">Альткоины</button>
+    <button class="cat-tab" data-cat="Technology">Технологии</button>
   </div>
 
-  <div class="news-list" id="newsList"></div>
-  <button class="load-more" id="loadMore" style="display:none">Загрузить ещё</button>
-</div>
+  <div id="newsGrid" class="news-grid">
+    <div class="news-loading" style="grid-column:1/-1"><div class="spinner"></div><p>Загрузка новостей...</p></div>
+  </div>
 
-<!-- Modal for full news -->
-<div class="news-overlay" id="newsOverlay">
-  <div class="news-modal">
-    <div class="nm-head">
-      <div class="nm-title" id="nmTitle"></div>
-      <button class="nm-close" onclick="closeNews()">&times;</button>
-    </div>
-    <div class="nm-body" id="nmBody"></div>
-    <div class="nm-footer" id="nmFooter"></div>
+  <div class="load-more-wrap">
+    <button class="load-more" id="loadMore" style="display:none">
+      Загрузить ещё
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+    </button>
   </div>
 </div>
 
 <script>
 (function(){
-  var list = document.getElementById('newsList');
+  var grid = document.getElementById('newsGrid');
   var loadBtn = document.getElementById('loadMore');
   var currentCat = '';
   var offset = 0;
-  var LIMIT = 20;
+  var LIMIT = 21;
   var total = 0;
 
-  var catLabels = {general:'Общие',update:'Обновление',alert:'Важное',promo:'Акция'};
-
-  function formatDate(d){
-    var dt = new Date(d);
-    return dt.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
-  }
-
-  function renderCard(n){
-    var cat = n.category || 'general';
-    var catClass = 'nc-cat-' + cat;
-    var catLabel = catLabels[cat] || cat;
-    var text = n.content.length > 200 ? n.content.substring(0,200) + '...' : n.content;
-
-    var div = document.createElement('div');
-    div.className = 'news-card';
-    div.setAttribute('data-id', n.id);
-    div.innerHTML =
-      '<div class="nc-head"><div class="nc-title">' + escHtml(n.title) + '</div>' +
-      '<span class="nc-cat ' + catClass + '">' + escHtml(catLabel) + '</span></div>' +
-      '<div class="nc-text">' + escHtml(text) + '</div>' +
-      '<div class="nc-footer"><span class="nc-date">' + formatDate(n.created_at) + '</span></div>';
-    div.onclick = function(){ openNews(n); };
-    return div;
+  function timeAgo(ts){
+    var diff = Date.now() - ts;
+    var min = Math.floor(diff/60000);
+    if(min < 1) return 'только что';
+    if(min < 60) return min + ' мин назад';
+    var hrs = Math.floor(min/60);
+    if(hrs < 24) return hrs + ' ч назад';
+    var days = Math.floor(hrs/24);
+    if(days < 7) return days + ' дн назад';
+    return new Date(ts).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
   }
 
   function escHtml(s){
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
+    var d=document.createElement('div');d.textContent=s;return d.innerHTML;
+  }
+
+  function imgPlaceholder(){
+    return '<div class="nc-img-placeholder"><svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg></div>';
+  }
+
+  function renderCard(n, featured){
+    var a = document.createElement('a');
+    a.className = 'news-card' + (featured ? ' featured' : '');
+    a.href = n.url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+
+    var imgHtml = n.imageUrl
+      ? '<img class="nc-img" src="'+escHtml(n.imageUrl)+'" alt="" loading="'+(featured?'eager':'lazy')+'" onerror="this.parentNode.innerHTML=\''+imgPlaceholder().replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\'">'
+      : imgPlaceholder();
+
+    var tags = (n.categories||[]).slice(0,3).map(function(c){
+      return '<span class="nc-tag">'+escHtml(c)+'</span>';
+    }).join('');
+
+    a.innerHTML =
+      '<div class="nc-img-wrap">'+ imgHtml +'</div>'+
+      '<div class="nc-body">'+
+        '<div class="nc-source">'+
+          (n.sourceImg ? '<img class="nc-source-icon" src="'+escHtml(n.sourceImg)+'" alt="" onerror="this.style.display=\'none\'">' : '')+
+          '<span class="nc-source-name">'+escHtml(n.source)+'</span>'+
+          '<span class="nc-source-dot"></span>'+
+          '<span class="nc-source-date">'+timeAgo(n.publishedAt)+'</span>'+
+        '</div>'+
+        '<div class="nc-title">'+escHtml(n.title)+'</div>'+
+        '<div class="nc-desc">'+escHtml(n.body?n.body.substring(0,200):'')+'</div>'+
+        (tags ? '<div class="nc-tags">'+tags+'</div>' : '')+
+      '</div>';
+    return a;
   }
 
   function load(reset){
-    if(reset){ offset = 0; list.innerHTML = ''; }
-    var url = '/api/news?limit=' + LIMIT + '&offset=' + offset;
-    if(currentCat) url += '&category=' + encodeURIComponent(currentCat);
+    if(reset){ offset=0; grid.innerHTML='<div class="news-loading" style="grid-column:1/-1"><div class="spinner"></div><p>Загрузка новостей...</p></div>'; }
+    var url='/api/news?limit='+LIMIT+'&offset='+offset;
+    if(currentCat) url+='&category='+encodeURIComponent(currentCat);
 
-    fetch(url).then(function(r){ return r.json(); }).then(function(data){
+    fetch(url).then(function(r){return r.json();}).then(function(data){
       if(!data.success) return;
-      total = data.total;
-      if(!data.news.length && offset === 0){
-        list.innerHTML = '<div class="news-empty"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/></svg><p>Пока нет новостей</p></div>';
-        loadBtn.style.display = 'none';
+      total=data.total;
+
+      if(!data.news.length && offset===0){
+        grid.innerHTML='<div class="news-empty" style="grid-column:1/-1"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/></svg><p>Нет новостей по данной категории</p></div>';
+        loadBtn.style.display='none';
         return;
       }
-      for(var i = 0; i < data.news.length; i++){
-        list.appendChild(renderCard(data.news[i]));
+
+      if(reset) grid.innerHTML='';
+      for(var i=0;i<data.news.length;i++){
+        var isFeatured = offset===0 && i===0 && !currentCat;
+        grid.appendChild(renderCard(data.news[i], isFeatured));
       }
-      offset += data.news.length;
-      loadBtn.style.display = offset < total ? '' : 'none';
+      offset+=data.news.length;
+      loadBtn.style.display = offset<total ? '' : 'none';
     }).catch(function(e){
-      console.error('News load error:', e);
-      if(offset === 0) list.innerHTML = '<div class="news-empty"><p>Ошибка загрузки</p></div>';
+      console.error('News load error:',e);
+      if(offset===0) grid.innerHTML='<div class="news-empty" style="grid-column:1/-1"><p>Ошибка загрузки новостей. Попробуйте позже.</p></div>';
     });
   }
 
-  // Filters
-  document.getElementById('newsFilters').addEventListener('click', function(e){
-    var btn = e.target.closest('.nf-btn');
+  // Category tabs
+  document.getElementById('catTabs').addEventListener('click',function(e){
+    var btn=e.target.closest('.cat-tab');
     if(!btn) return;
-    document.querySelectorAll('.nf-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.cat-tab').forEach(function(b){b.classList.remove('active');});
     btn.classList.add('active');
-    currentCat = btn.getAttribute('data-cat') || '';
+    currentCat=btn.getAttribute('data-cat')||'';
     load(true);
   });
 
-  loadBtn.addEventListener('click', function(){ load(false); });
-
+  loadBtn.addEventListener('click',function(){load(false);});
   load(true);
 })();
-
-function openNews(n){
-  document.getElementById('nmTitle').textContent = n.title;
-  document.getElementById('nmBody').textContent = n.content;
-  document.getElementById('nmFooter').textContent = new Date(n.created_at).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  var ov = document.getElementById('newsOverlay');
-  ov.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  ov.onclick = function(e){ if(e.target === ov) closeNews(); };
-}
-
-function closeNews(){
-  document.getElementById('newsOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
 </script>
 
 </body>

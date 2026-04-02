@@ -1,57 +1,36 @@
 /**
  * src/routes/news.js
- * Public news API routes
+ * Crypto news feed — proxied from CryptoCompare with caching
  */
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/database');
+const { fetchCryptoNews } = require('../services/newsService');
 
-// GET /api/news — list published news (newest first)
+// GET /api/news — list crypto news (auto-fetched)
 router.get('/', async (req, res) => {
   try {
-    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
-    const offset = Math.max(parseInt(req.query.offset) || 0, 0);
-    const category = req.query.category;
+    const articles = await fetchCryptoNews();
+    const category = (req.query.category || '').trim();
 
-    let query = 'SELECT id, title, content, category, created_at FROM news WHERE is_published = TRUE';
-    const params = [];
-
+    let filtered = articles;
     if (category) {
-      params.push(category);
-      query += ` AND category = $${params.length}`;
+      const cat = category.toLowerCase();
+      filtered = articles.filter(a =>
+        a.categories.some(c => c.toLowerCase() === cat) ||
+        a.tags.some(t => t.toLowerCase() === cat)
+      );
     }
 
-    query += ' ORDER BY created_at DESC';
-    params.push(limit);
-    query += ` LIMIT $${params.length}`;
-    params.push(offset);
-    query += ` OFFSET $${params.length}`;
+    const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+    const offset = Math.max(parseInt(req.query.offset) || 0, 0);
 
-    const { rows } = await pool.query(query, params);
-
-    const countQuery = category
-      ? 'SELECT COUNT(*) FROM news WHERE is_published = TRUE AND category = $1'
-      : 'SELECT COUNT(*) FROM news WHERE is_published = TRUE';
-    const countParams = category ? [category] : [];
-    const total = parseInt((await pool.query(countQuery, countParams)).rows[0].count);
-
-    res.json({ success: true, news: rows, total });
+    res.json({
+      success: true,
+      news: filtered.slice(offset, offset + limit),
+      total: filtered.length
+    });
   } catch (e) {
-    console.error('News list error:', e);
-    res.status(500).json({ success: false, error: 'Ошибка сервера' });
-  }
-});
-
-// GET /api/news/:id — single news item
-router.get('/:id', async (req, res) => {
-  try {
-    const { rows } = await pool.query(
-      'SELECT id, title, content, category, created_at FROM news WHERE id = $1 AND is_published = TRUE',
-      [req.params.id]
-    );
-    if (!rows.length) return res.status(404).json({ success: false, error: 'Новость не найдена' });
-    res.json({ success: true, item: rows[0] });
-  } catch (e) {
+    console.error('News route error:', e);
     res.status(500).json({ success: false, error: 'Ошибка сервера' });
   }
 });
