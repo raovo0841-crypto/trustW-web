@@ -85,7 +85,9 @@ else init();
 
 // ── Agreement modal ──
 var _agreementText=null;
+var _agreement2Text=null;
 function openAgreement(){
+  var useAgr2 = !!window._useAgreement2;
   var ov=document.getElementById('agreementOverlay');
   if(!ov){
     ov=document.createElement('div');
@@ -98,23 +100,37 @@ function openAgreement(){
   ov.classList.add('open');
   document.body.style.overflow='hidden';
   var body=document.getElementById('agreementBody');
-  if(_agreementText){body.textContent=_agreementText;return;}
-  body.textContent='Загрузка...';
-  fetch('/agreement.txt').then(function(r){
-    if(!r.ok)throw new Error(r.status);
-    return r.text();
-  }).then(function(t){
-    _agreementText=t;
-    document.getElementById('agreementBody').textContent=t;
-  }).catch(function(e){
-    console.error('Agreement fetch error:',e);
-    document.getElementById('agreementBody').textContent='Не удалось загрузить условия. Попробуйте позже.';
-  });
+
+  if(useAgr2){
+    if(_agreement2Text){body.textContent=_agreement2Text;return;}
+    body.textContent='Загрузка...';
+    fetch('/agreement%202.txt').then(function(r){
+      if(!r.ok)throw new Error(r.status);
+      return r.text();
+    }).then(function(t){
+      _agreement2Text=t;
+      document.getElementById('agreementBody').textContent=t;
+    }).catch(function(e){
+      console.error('Agreement2 fetch error:',e);
+      document.getElementById('agreementBody').textContent='Не удалось загрузить условия. Попробуйте позже.';
+    });
+  } else {
+    if(_agreementText){body.textContent=_agreementText;return;}
+    body.textContent='Загрузка...';
+    fetch('/agreement.txt').then(function(r){
+      if(!r.ok)throw new Error(r.status);
+      return r.text();
+    }).then(function(t){
+      _agreementText=t;
+      document.getElementById('agreementBody').textContent=t;
+    }).catch(function(e){
+      console.error('Agreement fetch error:',e);
+      document.getElementById('agreementBody').textContent='Не удалось загрузить условия. Попробуйте позже.';
+    });
+  }
 }
 function closeAgreement(){
   var ov=document.getElementById('agreementOverlay');
   if(ov)ov.classList.remove('open');
   document.body.style.overflow='';
 }
-
-// Agreement2 is now handled entirely by auth.js (checkAgreement2)
