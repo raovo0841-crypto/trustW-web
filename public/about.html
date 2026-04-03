@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>О нас — TrustEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="js/auth.js?v=3" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=5">
+<script src="js/nav.js?v=7" defer></script>
+<style>
+:root{--bg:#0b0e11;--card:#181a20;--border:#2b2f36;--text:#eaecef;--text2:#848e9c;--yellow:#f0b90b;--green:#0ecb81;--red:#f6465d}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Hero */
+.hero{text-align:center;padding:60px 20px 50px}
+.hero h1{font-size:32px;font-weight:800;margin-bottom:12px}
+.hero h1 span{color:var(--yellow)}
+.hero p{color:var(--text2);font-size:16px;max-width:600px;margin:0 auto;line-height:1.7}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:900px;margin:0 auto 50px;padding:0 20px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;transition:border-color .2s}
+.stat:hover{border-color:rgba(240,185,11,.3)}
+.stat-num{font-size:28px;font-weight:800;color:var(--yellow);margin-bottom:6px}
+.stat-label{font-size:13px;color:var(--text2)}
+
+/* Content */
+.content{max-width:900px;margin:0 auto;padding:0 20px 100px}
+.section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:16px}
+.section h2{font-size:18px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section h2 .icon{font-size:22px}
+.section p{font-size:14px;color:var(--text2);line-height:1.75}
+.section p+p{margin-top:10px}
+
+/* Features grid */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+.feature{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;transition:all .2s}
+.feature:hover{border-color:rgba(240,185,11,.3);transform:translateY(-2px)}
+.feature-icon{font-size:32px;margin-bottom:12px}
+.feature h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.feature p{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* Timeline */
+.timeline{position:relative;padding-left:28px;margin-top:16px}
+.timeline::before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:20px}
+.tl-item:last-child{margin-bottom:0}
+.tl-item::before{content:'';position:absolute;left:-24px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--yellow);border:2px solid var(--bg)}
+.tl-year{font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:4px}
+.tl-text{font-size:14px;color:var(--text2);line-height:1.6}
+
+/* Tech badges */
+.tech-badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.tech-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text2)}
+.tech-badge svg{width:16px;height:16px;fill:var(--yellow)}
+
+/* CTA */
+.cta{text-align:center;padding:40px 20px;margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:12px}
+.cta h2{font-size:22px;font-weight:700;margin-bottom:10px}
+.cta p{color:var(--text2);font-size:14px;margin-bottom:20px}
+.cta-btn{display:inline-block;padding:14px 40px;background:var(--yellow);color:#0b0e11;font-size:15px;font-weight:700;border-radius:8px;text-decoration:none;transition:all .2s}
+.cta-btn:hover{background:#d4a20a;transform:translateY(-1px)}
+
+@media(max-width:768px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .features{grid-template-columns:1fr}
+  .hero h1{font-size:24px}
+  .stat-num{font-size:22px}
+}
+@media(max-width:480px){
+  .hero{padding:40px 16px 30px}
+  .content{padding:0 16px 100px}
+}
+</style>
+</head>
+<body>
+<header class="header"></header>
+
+<div class="hero">
+  <h1>Добро пожаловать в <span>TrustEx</span></h1>
+  <p>Мы создаём безопасную и доступную платформу для торговли криптовалютами, объединяя передовые технологии с простотой использования.</p>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">50K+</div><div class="stat-label">Пользователей</div></div>
+  <div class="stat"><div class="stat-num">$2.1B</div><div class="stat-label">Объём торгов</div></div>
+  <div class="stat"><div class="stat-num">15+</div><div class="stat-label">Торговых активов</div></div>
+  <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">Поддержка</div></div>
+</div>
+
+<div class="content">
+
+<!-- Миссия -->
+<div class="section">
+  <h2><span class="icon">🎯</span> Наша миссия</h2>
+  <p>TrustEx была основана с целью сделать криптовалютную торговлю доступной для каждого. Мы верим, что цифровые активы — это будущее финансов, и наша задача — предоставить надёжные инструменты для участия в этой экосистеме.</p>
+  <p>Мы стремимся к тому, чтобы каждый пользователь — от начинающего инвестора до профессионального трейдера — мог уверенно совершать операции с криптовалютами, зная, что его средства и данные находятся под надёжной защитой.</p>
+</div>
+
+<!-- Преимущества -->
+<div class="features">
+  <div class="feature">
+    <div class="feature-icon">⚡</div>
+    <h3>Мгновенные сделки</h3>
+    <p>Торговые операции исполняются за миллисекунды благодаря высокопроизводительной инфраструктуре.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">🔒</div>
+    <h3>Безопасность</h3>
+    <p>SSL-шифрование, защита от DDoS, безопасное хранение данных и многоуровневая верификация.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">💰</div>
+    <h3>Низкие комиссии</h3>
+    <p>Конкурентные торговые комиссии от 0.1%, бесплатное пополнение счёта.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">📊</div>
+    <h3>Профессиональные инструменты</h3>
+    <p>Графики в реальном времени, торговый терминал, аналитика и история сделок.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">🌍</div>
+    <h3>Глобальный доступ</h3>
+    <p>Платформа доступна из любой точки мира с поддержкой мультиязычного интерфейса.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">🤝</div>
+    <h3>Реферальная программа</h3>
+    <p>Приглашайте друзей и получайте бонусы с каждой их торговой операции.</p>
+  </div>
+</div>
+
+<!-- Команда -->
+<div class="section">
+  <h2><span class="icon">👥</span> Команда</h2>
+  <p>За TrustEx стоит команда специалистов с многолетним опытом в сфере финансовых технологий, блокчейн-разработки и информационной безопасности. Наши инженеры ранее работали в ведущих финтех-компаниях и криптовалютных проектах.</p>
+  <p>Мы объединены общей целью — создать платформу, которой можно доверять. Каждый член команды вносит свой вклад в развитие продукта: от архитектуры безопасности до пользовательского интерфейса.</p>
+</div>
+
+<!-- Технологии -->
+<div class="section">
+  <h2><span class="icon">🛠️</span> Технологии и безопасность</h2>
+  <p>Платформа построена с использованием современного технологического стека, обеспечивающего высокую производительность, отказоустойчивость и безопасность данных.</p>
+  <div class="tech-badges">
+    <span class="tech-badge"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg> SSL шифрование</span>
+    <span class="tech-badge"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2z"/></svg> Bcrypt хеширование</span>
+    <span class="tech-badge"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> KYC / AML</span>
+    <span class="tech-badge"><svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg> Облачная инфраструктура</span>
+    <span class="tech-badge"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> DDoS защита</span>
+    <span class="tech-badge"><svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg> Real-time данные</span>
+  </div>
+</div>
+
+<!-- История -->
+<div class="section">
+  <h2><span class="icon">📅</span> Наша история</h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-year">2024 — Основание</div>
+      <div class="tl-text">Команда энтузиастов запустила TrustEx с целью создать безопасную и интуитивную платформу для криптоторговли.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2024 — Запуск торговли</div>
+      <div class="tl-text">Открыты основные торговые пары BTC/USDT, ETH/USDT. Подключён торговый терминал с графиками в реальном времени.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2025 — Расширение</div>
+      <div class="tl-text">Добавлены новые активы: BNB, SOL, XRP, DOGE и другие. Запущена реферальная программа и система верификации.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2025 — 10 000 пользователей</div>
+      <div class="tl-text">Платформа преодолела отметку в 10 000 зарегистрированных пользователей. Улучшена система безопасности.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2026 — Новый этап</div>
+      <div class="tl-text">Обновлённый интерфейс, мгновенный обмен, раздел новостей и расширенная поддержка 24/7. Объём торгов превысил $2 млрд.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta">
+  <h2>Начните торговать с TrustEx</h2>
+  <p>Присоединяйтесь к тысячам трейдеров, которые уже доверяют нам</p>
+  <a href="/" class="cta-btn">Начать сейчас</a>
+</div>
+
+</div>
+
+<nav class="mobnav"></nav>
+</body>
+</html>
