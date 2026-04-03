@@ -320,13 +320,15 @@ async function loadHistory() {
         if (!items.length) { c.innerHTML = '<div class="tx-empty">Нет транзакций</div>'; return; }
         c.innerHTML = items.map(function(tx) {
             var icon='●', cls='trade';
-            if (tx.type==='deposit'||tx.type==='trade_win') { icon='↑'; cls='deposit'; }
-            else if (tx.type==='withdraw'||tx.type==='trade_loss') { icon='↓'; cls='withdraw'; }
+            var isWin = tx.type==='deposit'||tx.type==='trade_win'||(tx.type==='trade'&&tx.description&&tx.description.indexOf('Прибыль')!==-1);
+            var isLoss = tx.type==='withdraw'||tx.type==='trade_loss'||(tx.type==='trade'&&tx.description&&tx.description.indexOf('Убыток')!==-1);
+            if (isWin) { icon='↑'; cls='deposit'; }
+            else if (isLoss) { icon='↓'; cls='withdraw'; }
             else if (tx.type==='exchange') { icon='⇌'; cls='exchange'; }
             var d = new Date(tx.created_at);
             var dateStr = String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-            var amtCls = (tx.type==='deposit'||tx.type==='trade_win') ? 'text-success' : (tx.type==='withdraw'||tx.type==='trade_loss') ? 'text-danger' : '';
-            var sign = (tx.type==='deposit'||tx.type==='trade_win') ? '+' : '-';
+            var amtCls = isWin ? 'text-success' : isLoss ? 'text-danger' : '';
+            var sign = isWin ? '+' : '-';
             return '<div class="tx-item"><div class="tx-icon '+cls+'">'+icon+'</div><div class="tx-info"><div class="tx-desc">'+tx.description+'</div><div class="tx-date">'+dateStr+'</div></div><div class="tx-amount '+amtCls+'">'+sign+fmt(tx.amount)+' '+(tx.currency||'USDT')+'</div></div>';
         }).join('');
     } catch(e) {}

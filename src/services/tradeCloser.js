@@ -85,11 +85,15 @@ async function closeTrade(trade) {
     );
 
     // Create transaction record
-    const txAmount = Math.max(Math.abs(profit), 0.01);
+    const txType = result === 'win' ? 'trade_win' : 'trade_loss';
+    const txAmount = result === 'win' ? profit : amount;
+    const txDesc = result === 'win'
+      ? `Торговля: Прибыль +${profit.toFixed(2)} USDT`
+      : `Торговля: Убыток -${amount.toFixed(2)} USDT`;
     await client.query(
       `INSERT INTO transactions (user_id, amount, currency, type, description, created_at)
-       VALUES ($1, $2, 'USDT', 'trade', $3, NOW())`,
-      [lockedTrade.user_id, txAmount, `Торговля: ${result === 'win' ? 'Прибыль +' : 'Убыток -'}${Math.abs(profit).toFixed(2)} USDT`]
+       VALUES ($1, $2, 'USDT', $3, $4, NOW())`,
+      [lockedTrade.user_id, txAmount, txType, txDesc]
     );
 
     await client.query('COMMIT');
