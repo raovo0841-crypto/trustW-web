@@ -64,7 +64,7 @@
 <div>
     <div class="notice">
         <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
-        <span>Убедитесь, что адрес кошелька указан верно. Средства, отправленные на неверный адрес, не подлежат возврату.</span>
+        <span>Убедитесь, что номер карты указан верно. Средства, отправленные на неверный номер, не подлежат возврату.</span>
     </div>
 
     <div class="panel">
@@ -73,9 +73,6 @@
         <div class="form-group">
             <label class="form-label">Валюта</label>
             <select class="form-select" id="currency" onchange="updateMax()">
-                <option value="USDT">USDT (Tether TRC-20)</option>
-                <option value="BTC">BTC (Bitcoin)</option>
-                <option value="ETH">ETH (Ethereum)</option>
                 <option value="RUB">RUB (Рубли)</option>
                 <option value="EUR">EUR (Евро)</option>
             </select>
@@ -92,8 +89,8 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">Адрес кошелька</label>
-            <input type="text" class="form-input" id="wallet" placeholder="Введите адрес">
+            <label class="form-label">Номер карты</label>
+            <input type="text" class="form-input" id="wallet" placeholder="Введите номер карты" maxlength="19" inputmode="numeric">
         </div>
 
         <button class="submit-btn" id="submitBtn" onclick="submitWithdraw()">Вывести</button>
@@ -103,7 +100,6 @@
 <div class="side-panels">
     <div class="panel">
         <div class="panel-title">Баланс</div>
-        <div class="info-row"><span class="info-label">USDT</span><span class="info-value" id="sideUsdt">0.00</span></div>
         <div class="info-row"><span class="info-label">RUB</span><span class="info-value" id="sideRub">0.00</span></div>
         <div class="info-row"><span class="info-label">EUR</span><span class="info-value" id="sideEur">0.00</span></div>
     </div>
@@ -146,10 +142,9 @@ async function loadInfo() {
         balances.EUR = parseFloat(u.eur)||0;
         balances.BTC = parseFloat(u.btc)||0;
         balances.ETH = parseFloat(u.eth)||0;
-        document.getElementById('sideUsdt').textContent = balances.USDT.toFixed(2);
         document.getElementById('sideRub').textContent = balances.RUB.toFixed(2);
         document.getElementById('sideEur').textContent = balances.EUR.toFixed(2);
-        document.getElementById('sideMinWithdraw').textContent = (u.min_withdraw||10) + ' USDT';
+        document.getElementById('sideMinWithdraw').textContent = (u.min_withdraw||10) + ' RUB';
         document.getElementById('sideVerified').textContent = u.is_verified ? '✅ Да' : '❌ Нет';
         updateMax();
     } catch(e) {}
@@ -158,7 +153,7 @@ async function loadInfo() {
 function updateMax() {
     var cur = document.getElementById('currency').value;
     var bal = balances[cur] || 0;
-    document.getElementById('availBalance').textContent = bal.toFixed(cur==='BTC'?8:(cur==='ETH'?6:2));
+    document.getElementById('availBalance').textContent = bal.toFixed(2);
 }
 
 function setMax() {
@@ -171,7 +166,7 @@ async function submitWithdraw() {
     var currency = document.getElementById('currency').value;
     var wallet = document.getElementById('wallet').value.trim();
     if (!amount || amount <= 0) return alert('Введите сумму');
-    if (!wallet) return alert('Введите адрес кошелька');
+    if (!wallet) return alert('Введите номер карты');
     var btn = document.getElementById('submitBtn');
     btn.disabled = true; btn.textContent = 'Обработка...';
     try {

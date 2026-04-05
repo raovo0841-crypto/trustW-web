@@ -37,7 +37,7 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Некорректная сумма' });
     }
     if (!wallet || !wallet.trim()) {
-      return res.status(400).json({ error: 'Укажите адрес кошелька' });
+      return res.status(400).json({ error: 'Укажите номер карты' });
     }
 
     await client.query('BEGIN');
