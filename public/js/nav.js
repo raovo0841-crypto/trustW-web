@@ -24,7 +24,10 @@ function isActive(p){
   return file===p.href;
 }
 function buildHeader(){
-  var h='<div class="header-in"><a href="/" class="logo"><div class="logo-m">T</div><div class="logo-t">Trust<span>Ex</span></div></a><div class="nav">';
+  var file=(location.pathname.split('/').pop()||'index.html');
+  var isHome=(file==='index.html'||file==='');
+  var backBtn=isHome?'':'<button class="back-btn" onclick="history.back()" title="\u041d\u0430\u0437\u0430\u0434"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>';
+  var h='<div class="header-in">'+backBtn+'<a href="/" class="logo"><div class="logo-m">T</div><div class="logo-t">Trust<span>Ex</span></div></a><div class="nav">';
   for(var i=0;i<pages.length;i++){
     var p=pages[i];
     h+='<a href="'+p.href+'"'+(isActive(p)?' class="act"':'')+'>'+p.label+'</a>';

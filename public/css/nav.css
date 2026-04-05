@@ -7,6 +7,8 @@ button{font-family:inherit}
 
 .header{background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .header-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;padding:0 20px;height:56px}
+.back-btn{background:none;border:1px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:12px;transition:all .15s;flex-shrink:0}
+.back-btn:hover{color:var(--yellow);border-color:var(--yellow);background:rgba(240,185,11,.08)}
 .logo{display:flex;align-items:center;gap:8px;margin-right:32px;text-decoration:none}
 .logo-m{width:32px;height:32px;background:var(--yellow);color:#000;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;border-radius:4px}
 .logo-t{font-size:18px;font-weight:700;color:var(--text)}.logo-t span{color:var(--yellow)}
