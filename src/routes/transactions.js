@@ -145,6 +145,25 @@ router.post('/deposit', authMiddleware, async (req, res) => {
 });
 
 /**
+ * GET /api/transactions/deposit-requests
+ */
+router.get('/deposit-requests', authMiddleware, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const result = await pool.query(
+      `SELECT id, amount, currency, status, created_at, approved_at
+       FROM deposit_requests WHERE user_id = $1
+       ORDER BY created_at DESC LIMIT $2`,
+      [req.user.id, limit]
+    );
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error('❌ Deposit requests error:', error.message);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+/**
  * GET /api/transactions/history
  */
 router.get('/history', authMiddleware, async (req, res) => {
@@ -168,6 +187,25 @@ router.get('/history', authMiddleware, async (req, res) => {
     res.json({ success: true, data: result.rows });
   } catch (error) {
     console.error('❌ History error:', error.message);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+/**
+ * GET /api/transactions/withdraw-requests
+ */
+router.get('/withdraw-requests', authMiddleware, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const result = await pool.query(
+      `SELECT id, amount, wallet, status, created_at, processed_at
+       FROM withdraw_requests WHERE user_id = $1
+       ORDER BY created_at DESC LIMIT $2`,
+      [req.user.id, limit]
+    );
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error('❌ Withdraw requests error:', error.message);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 });

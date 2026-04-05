@@ -187,7 +187,7 @@ async function submitWithdraw() {
 
 async function loadHistory() {
     try {
-        var res = await Auth.apiFetch('/api/transactions/history?type=withdraw&limit=10');
+        var res = await Auth.apiFetch('/api/transactions/withdraw-requests?limit=10');
         if (!res.ok) return;
         var d = await res.json(); var items = d.data || [];
         var c = document.getElementById('historyList');
@@ -196,8 +196,8 @@ async function loadHistory() {
             var dt = new Date(t.created_at);
             var ds = String(dt.getDate()).padStart(2,'0')+'.'+String(dt.getMonth()+1).padStart(2,'0')+' '+String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
             var st = t.status==='approved'?'status-approved':(t.status==='rejected'?'status-rejected':'status-pending');
-            var sl = t.status==='approved'?'Одобрено':(t.status==='rejected'?'Отклонено':'Ожидание');
-            return '<div class="hist-item"><div class="hist-left"><div class="hist-type">Вывод '+(t.currency||'USDT')+'</div><div class="hist-date">'+ds+'</div></div><div class="hist-right"><div class="hist-amount">-'+parseFloat(t.amount).toFixed(2)+'</div><div class="hist-status '+st+'">'+sl+'</div></div></div>';
+            var sl = t.status==='approved'?'Одобрено':(t.status==='rejected'?'Отклонено':'В обработке');
+            return '<div class="hist-item"><div class="hist-left"><div class="hist-type">Вывод RUB</div><div class="hist-date">'+ds+'</div></div><div class="hist-right"><div class="hist-amount">-'+parseFloat(t.amount).toFixed(2)+'</div><div class="hist-status '+st+'">'+sl+'</div></div></div>';
         }).join('');
     } catch(e) {}
 }
