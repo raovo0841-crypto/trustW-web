@@ -30,13 +30,14 @@
 .info-row:last-child{border-bottom:none}
 .info-label{color:var(--text3)}.info-value{font-weight:600;color:var(--text)}
 
-.pin-status{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px}
-.dot-on{width:8px;height:8px;border-radius:50%;background:var(--green)}.dot-off{width:8px;height:8px;border-radius:50%;background:var(--red)}
-.pin-row{display:flex;gap:8px}
-.pin-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit;text-align:center;letter-spacing:6px}
-.pin-input:focus{outline:none;border-color:var(--yellow)}.pin-input::placeholder{color:var(--text3);letter-spacing:2px}
-.pin-btn{background:var(--yellow);border:none;color:#000;padding:10px 18px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s}
-.pin-btn:hover{opacity:.9}.pin-btn:disabled{opacity:.5;cursor:not-allowed}
+.pwd-form{display:flex;flex-direction:column;gap:10px}
+.pwd-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit}
+.pwd-input:focus{outline:none;border-color:var(--yellow)}.pwd-input::placeholder{color:var(--text3)}
+.pwd-btn{background:var(--yellow);border:none;color:#000;padding:10px 18px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;width:100%}
+.pwd-btn:hover{opacity:.9}.pwd-btn:disabled{opacity:.5;cursor:not-allowed}
+.pwd-msg{font-size:12px;margin-top:4px;display:none}
+.pwd-msg.ok{color:var(--green);display:block}
+.pwd-msg.err{color:var(--red);display:block}
 
 .nav-links{display:flex;flex-direction:column;gap:6px}
 .nav-link{display:flex;align-items:center;gap:12px;padding:12px;border-radius:4px;background:var(--bg2);border:1px solid var(--border);color:var(--text);transition:border-color .15s,background .15s}
@@ -88,16 +89,13 @@
     </div>
 
     <div class="panel" style="margin-bottom:16px">
-        <div class="panel-title">Безопасность</div>
-        <div class="pin-status">
-            <span id="pinDot" class="dot-off"></span>
-            <span id="pinLabel">PIN-код не установлен</span>
-        </div>
-        <div id="pinSection">
-            <div class="pin-row">
-                <input type="password" class="pin-input" id="pinInput" maxlength="6" placeholder="••••" inputmode="numeric">
-                <button class="pin-btn" id="pinBtn" onclick="handlePin()">Установить</button>
-            </div>
+        <div class="panel-title">Смена пароля</div>
+        <div class="pwd-form">
+            <input type="password" class="pwd-input" id="pwdCurrent" placeholder="Текущий пароль">
+            <input type="password" class="pwd-input" id="pwdNew" placeholder="Новый пароль (мин. 6 символов)">
+            <input type="password" class="pwd-input" id="pwdConfirm" placeholder="Подтвердите новый пароль">
+            <button class="pwd-btn" id="pwdBtn" onclick="changePassword()">Изменить пароль</button>
+            <div class="pwd-msg" id="pwdMsg"></div>
         </div>
     </div>
 
@@ -154,15 +152,12 @@
 </div>
 
 <script>
-var hasPin = false;
-
 document.addEventListener('DOMContentLoaded', function() {
     if (!Auth.requireAuth()) return;
     var user = Auth.getUser();
     if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
     loadProfile();
     loadStats();
-    loadSecurity();
 });
 
 async function loadProfile() {
@@ -212,44 +207,34 @@ async function loadStats() {
     } catch(e) {}
 }
 
-async function loadSecurity() {
-    try {
-        var res = await Auth.apiFetch('/api/security/status');
-        if (!res.ok) return;
-        var d = await res.json(); var s = d.data || {};
-        hasPin = !!s.has_pin;
-        document.getElementById('pinDot').className = hasPin ? 'dot-on' : 'dot-off';
-        document.getElementById('pinLabel').textContent = hasPin ? 'PIN-код установлен' : 'PIN-код не установлен';
-        document.getElementById('pinBtn').textContent = hasPin ? 'Отключить' : 'Установить';
-    } catch(e) {}
-}
+async function changePassword() {
+    var cur = document.getElementById('pwdCurrent').value;
+    var nw = document.getElementById('pwdNew').value;
+    var conf = document.getElementById('pwdConfirm').value;
+    var msg = document.getElementById('pwdMsg');
+    msg.className = 'pwd-msg'; msg.textContent = '';
 
-async function handlePin() {
-    var pin = document.getElementById('pinInput').value.trim();
-    if (!pin || pin.length < 4 || pin.length > 6 || !/^\d+$/.test(pin)) return alert('PIN должен содержать 4-6 цифр');
-    var btn = document.getElementById('pinBtn');
+    if (!cur) { msg.className = 'pwd-msg err'; msg.textContent = 'Введите текущий пароль'; return; }
+    if (nw.length < 6) { msg.className = 'pwd-msg err'; msg.textContent = 'Новый пароль минимум 6 символов'; return; }
+    if (nw !== conf) { msg.className = 'pwd-msg err'; msg.textContent = 'Пароли не совпадают'; return; }
+
+    var btn = document.getElementById('pwdBtn');
     btn.disabled = true;
     try {
-        if (hasPin) {
-            var res = await Auth.apiFetch('/api/security/disable', {
-                method: 'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({pin:pin})
-            });
-            var d = await res.json();
-            if (!res.ok) { alert(d.error || 'Неверный PIN'); return; }
-            alert('PIN-код отключен');
+        var res = await Auth.apiFetch('/api/auth/change-password', {
+            method: 'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ currentPassword: cur, newPassword: nw })
+        });
+        var d = await res.json();
+        if (res.ok && d.success) {
+            msg.className = 'pwd-msg ok'; msg.textContent = '✅ Пароль успешно изменён';
+            document.getElementById('pwdCurrent').value = '';
+            document.getElementById('pwdNew').value = '';
+            document.getElementById('pwdConfirm').value = '';
         } else {
-            var res = await Auth.apiFetch('/api/security/pin/setup', {
-                method: 'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({pin:pin})
-            });
-            var d = await res.json();
-            if (!res.ok) { alert(d.error || 'Ошибка'); return; }
-            alert('PIN-код установлен');
+            msg.className = 'pwd-msg err'; msg.textContent = d.error || 'Ошибка смены пароля';
         }
-        document.getElementById('pinInput').value = '';
-        loadSecurity();
-    } catch(e) { alert('Ошибка сети'); }
+    } catch(e) { msg.className = 'pwd-msg err'; msg.textContent = 'Ошибка сети'; }
     finally { btn.disabled = false; }
 }
 </script>

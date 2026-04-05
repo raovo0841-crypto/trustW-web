@@ -318,4 +318,45 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
+/**
+ * POST /api/auth/change-password
+ * Change password (requires current password)
+ */
+router.post('/change-password', authMiddleware, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Введите текущий и новый пароль' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'Новый пароль минимум 6 символов' });
+    }
+
+    const result = await pool.query(
+      'SELECT password_hash FROM users WHERE id = $1',
+      [req.user.id]
+    );
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+
+    const valid = await bcrypt.compare(currentPassword, result.rows[0].password_hash);
+    if (!valid) {
+      return res.status(400).json({ error: 'Неверный текущий пароль' });
+    }
+
+    const newHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await pool.query(
+      'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
+      [newHash, req.user.id]
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Change password error:', error.message);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
 module.exports = router;
