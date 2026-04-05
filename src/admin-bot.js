@@ -967,12 +967,12 @@ async function notifyKYCSubmission(userId, fullName, birthDate, address, passpor
     // Send passport photo
     await bot.sendPhoto(ADMIN_CHAT_ID, passportBuffer, {
       caption: `📋 Паспорт — ${name} (${user.email})`
-    }).catch(() => {});
+    }, { filename: 'passport.jpg', contentType: 'image/jpeg' }).catch(e => console.error('KYC passport send error:', e.message));
 
     // Send selfie photo
     await bot.sendPhoto(ADMIN_CHAT_ID, selfieBuffer, {
       caption: `🤳 Селфи — ${name} (${user.email})`
-    }).catch(() => {});
+    }, { filename: 'selfie.jpg', contentType: 'image/jpeg' }).catch(e => console.error('KYC selfie send error:', e.message));
 
   } catch (e) {
     console.error('Notify KYC error:', e);
