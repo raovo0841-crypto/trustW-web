@@ -8,8 +8,7 @@ const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
 let newsCache = { data: null, ts: 0 };
 
 const RSS_FEEDS = [
-  { url: 'https://cointelegraph.com/rss', source: 'Cointelegraph', sourceImg: 'https://cointelegraph.com/assets/img/CT_Logo_YG_tag.png' },
-  { url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', source: 'CoinDesk', sourceImg: '' }
+  { url: 'https://cointelegraph.com/rss', source: 'Cointelegraph', sourceImg: 'https://cointelegraph.com/assets/img/CT_Logo_YG_tag.png' }
 ];
 
 function httpGet(url) {
