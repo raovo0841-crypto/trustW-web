@@ -78,13 +78,18 @@
 
         <div class="form-group">
             <label class="form-label">Валюта</label>
-            <select class="form-select" id="currency" onchange="updateMinAmount()">
-                <option value="USDT">USDT (Tether TRC-20)</option>
+            <select class="form-select" id="currency" onchange="updateNetwork()">
+                <option value="USDT">USDT (Tether)</option>
                 <option value="BTC">BTC (Bitcoin)</option>
                 <option value="ETH">ETH (Ethereum)</option>
                 <option value="RUB">RUB (Рубли)</option>
                 <option value="EUR">EUR (Евро)</option>
             </select>
+        </div>
+
+        <div class="form-group" id="networkGroup">
+            <label class="form-label">Сеть</label>
+            <select class="form-select" id="network" onchange="updateWallet()"></select>
         </div>
 
         <div class="form-group">
@@ -140,10 +145,21 @@
 </div>
 
 <script>
-var wallets = {
-    USDT: 'TJeKfL1PqbnGZgpN3sxy8w8ApPSLj8dWgQ',
-    BTC: 'bc1qxyz123456789examplebtcwallet',
-    ETH: '0x742d35Cc6634C0532925a3b844example'
+var networks = {
+    USDT: [
+        {id:'TRC-20', label:'Tron (TRC-20)', addr:'TJeKfL1PqbnGZgpN3sxy8w8ApPSLj8dWgQ'},
+        {id:'ERC-20', label:'Ethereum (ERC-20)', addr:'0x742d35Cc6634C0532925a3b844Bc326eDb2A7E5c'},
+        {id:'BEP-20', label:'BNB Smart Chain (BEP-20)', addr:'0x742d35Cc6634C0532925a3b844Bc326eDb2A7E5c'}
+    ],
+    BTC: [
+        {id:'Bitcoin', label:'Bitcoin', addr:'bc1qxyz123456789examplebtcwallet'}
+    ],
+    ETH: [
+        {id:'ERC-20', label:'Ethereum (ERC-20)', addr:'0x742d35Cc6634C0532925a3b844Bc326eDb2A7E5c'},
+        {id:'BEP-20', label:'BNB Smart Chain (BEP-20)', addr:'0x742d35Cc6634C0532925a3b844Bc326eDb2A7E5c'}
+    ],
+    RUB: [],
+    EUR: []
 };
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -152,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
     loadInfo();
     loadHistory();
-    updateMinAmount();
+    updateNetwork();
 });
 
 async function loadInfo() {
@@ -167,12 +183,31 @@ async function loadInfo() {
     } catch(e) {}
 }
 
-function updateMinAmount() {
+function updateNetwork() {
     var cur = document.getElementById('currency').value;
+    var nets = networks[cur] || [];
+    var sel = document.getElementById('network');
+    var grp = document.getElementById('networkGroup');
+    if (!nets.length) {
+        grp.style.display = 'none';
+        sel.innerHTML = '';
+    } else {
+        grp.style.display = 'block';
+        sel.innerHTML = nets.map(function(n){ return '<option value="'+n.id+'">'+n.label+'</option>'; }).join('');
+    }
+    updateWallet();
+}
+
+function updateWallet() {
+    var cur = document.getElementById('currency').value;
+    var nets = networks[cur] || [];
     var sec = document.getElementById('walletSection');
-    if (wallets[cur]) {
+    if (!nets.length) { sec.style.display = 'none'; return; }
+    var netId = document.getElementById('network').value;
+    var net = nets.find(function(n){ return n.id === netId; });
+    if (net && net.addr) {
         sec.style.display = 'block';
-        document.getElementById('walletAddr').textContent = wallets[cur];
+        document.getElementById('walletAddr').textContent = net.addr;
     } else {
         sec.style.display = 'none';
     }
