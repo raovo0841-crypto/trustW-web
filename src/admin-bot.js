@@ -939,6 +939,46 @@ async function notifyNewSupportMessage(userId, message) {
 // Handled in callback_query handler above — we need to add it
 // (Will be picked up by the /user command pattern)
 
+// ── Notify admin about KYC verification submission ──
+async function notifyKYCSubmission(userId, fullName, birthDate, address, passportBuffer, selfieBuffer) {
+  if (!bot || !ADMIN_CHAT_ID) return;
+  try {
+    const user = (await pool.query('SELECT email, first_name FROM users WHERE id = $1', [userId])).rows[0];
+    if (!user) return;
+
+    const name = user.first_name || user.email;
+    // Send info message
+    await bot.sendMessage(ADMIN_CHAT_ID,
+      `🛡️ *Новая заявка на верификацию*\n\n` +
+      `👤 ${escMd(name)} \\(\`${escMd(user.email)}\`\\)\n` +
+      `📋 *ФИО:* ${escMd(fullName)}\n` +
+      `📅 *Дата рождения:* ${escMd(birthDate)}\n` +
+      `📍 *Адрес:* ${escMd(address)}`,
+      {
+        parse_mode: 'MarkdownV2',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '👤 Открыть карточку', callback_data: `open_user_${userId}` }]
+          ]
+        }
+      }
+    ).catch(() => {});
+
+    // Send passport photo
+    await bot.sendPhoto(ADMIN_CHAT_ID, passportBuffer, {
+      caption: `📋 Паспорт — ${name} (${user.email})`
+    }).catch(() => {});
+
+    // Send selfie photo
+    await bot.sendPhoto(ADMIN_CHAT_ID, selfieBuffer, {
+      caption: `🤳 Селфи — ${name} (${user.email})`
+    }).catch(() => {});
+
+  } catch (e) {
+    console.error('Notify KYC error:', e);
+  }
+}
+
 function stopAdminBot() {
   if (bot) {
     bot.stopPolling();
@@ -946,4 +986,4 @@ function stopAdminBot() {
   }
 }
 
-module.exports = { initAdminBot, stopAdminBot, notifyNewSupportMessage };
+module.exports = { initAdminBot, stopAdminBot, notifyNewSupportMessage, notifyKYCSubmission };

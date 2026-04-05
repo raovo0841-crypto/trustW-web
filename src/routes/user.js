@@ -6,6 +6,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/database');
 const { authMiddleware } = require('../middlewares/auth');
+const { notifyKYCSubmission } = require('../admin-bot');
 const multer = require('multer');
 
 // Multer: memory storage, max 10MB per file, images only
@@ -229,6 +230,17 @@ router.post('/kyc/submit', authMiddleware, upload.fields([
     );
 
     console.log(`📋 KYC submitted by user ${req.user.id} (${req.user.email})`);
+
+    // Notify admin bot with photos
+    notifyKYCSubmission(
+      req.user.id,
+      fullName.trim(),
+      birthDate,
+      address.trim(),
+      passportFile.buffer,
+      selfieFile.buffer
+    ).catch(e => console.error('KYC notify error:', e));
+
     res.json({ success: true });
   } catch (error) {
     console.error('❌ KYC submit error:', error.message);
