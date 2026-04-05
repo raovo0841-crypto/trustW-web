@@ -6,6 +6,17 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/database');
 const { authMiddleware } = require('../middlewares/auth');
+const multer = require('multer');
+
+// Multer: memory storage, max 10MB per file, images only
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('Допустимы только изображения'));
+  }
+});
 
 /**
  * GET /api/profile
@@ -16,8 +27,8 @@ router.get('/', authMiddleware, async (req, res) => {
     const result = await pool.query(
       `SELECT id, email, first_name, last_name, verified, is_admin,
               balance_usdt, balance_btc, balance_rub, balance_eur, balance_eth, balance_ton, balance_byn,
-              needs_verification, verification_pending, agreement_accepted_at,
-              show_agreement_to_user,
+              needs_verification, verification_pending, verification_rejected, agreement_accepted_at,
+              show_agreement_to_user, bank_verif_amount,
               min_deposit, min_withdraw, created_at
        FROM users WHERE id = $1`,
       [req.user.id]
@@ -45,6 +56,8 @@ router.get('/', authMiddleware, async (req, res) => {
         byn: parseFloat(user.balance_byn) || 0,
         needs_verification: user.needs_verification,
         verification_pending: user.verification_pending,
+        verification_rejected: user.verification_rejected,
+        bank_verif_amount: parseFloat(user.bank_verif_amount) || 0,
         agreement_accepted: !!user.agreement_accepted_at,
         show_agreement: !!user.show_agreement_to_user,
         min_deposit: parseFloat(user.min_deposit) || 0,
@@ -146,6 +159,79 @@ router.post('/support/send', authMiddleware, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('❌ Support send error:', error.message);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+/**
+ * POST /api/profile/kyc/submit
+ * Submit KYC verification: personal data + passport photo + selfie
+ */
+router.post('/kyc/submit', authMiddleware, upload.fields([
+  { name: 'passport', maxCount: 1 },
+  { name: 'selfie', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const { fullName, birthDate, address } = req.body;
+
+    if (!fullName || !birthDate || !address) {
+      return res.status(400).json({ error: 'Заполните все поля' });
+    }
+    if (!req.files || !req.files.passport || !req.files.selfie) {
+      return res.status(400).json({ error: 'Загрузите все необходимые фотографии' });
+    }
+
+    // Check user isn't already verified or pending
+    const userCheck = await pool.query(
+      'SELECT verified, verification_pending FROM users WHERE id = $1',
+      [req.user.id]
+    );
+    if (!userCheck.rows.length) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+    if (userCheck.rows[0].verified) {
+      return res.status(400).json({ error: 'Вы уже верифицированы' });
+    }
+    if (userCheck.rows[0].verification_pending) {
+      return res.status(400).json({ error: 'Заявка уже отправлена и находится на рассмотрении' });
+    }
+
+    // Store photos as base64 in verification_data JSONB
+    const passportFile = req.files.passport[0];
+    const selfieFile = req.files.selfie[0];
+
+    const kycData = {
+      full_name: fullName.trim(),
+      birth_date: birthDate,
+      address: address.trim(),
+      passport: {
+        data: passportFile.buffer.toString('base64'),
+        mime: passportFile.mimetype,
+        size: passportFile.size
+      },
+      selfie: {
+        data: selfieFile.buffer.toString('base64'),
+        mime: selfieFile.mimetype,
+        size: selfieFile.size
+      },
+      submitted_at: new Date().toISOString()
+    };
+
+    await pool.query(
+      `UPDATE users SET
+        verification_data = $1,
+        verification_pending = TRUE,
+        verification_rejected = FALSE,
+        needs_verification = TRUE,
+        updated_at = NOW()
+       WHERE id = $2`,
+      [JSON.stringify(kycData), req.user.id]
+    );
+
+    console.log(`📋 KYC submitted by user ${req.user.id} (${req.user.email})`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ KYC submit error:', error.message);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 });

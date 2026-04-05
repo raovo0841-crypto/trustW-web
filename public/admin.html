@@ -428,6 +428,12 @@
           </div>
         </div>
 
+        <!-- KYC Documents viewer -->
+        <div class="form-group" id="kycDocsSection" style="display:none;">
+          <label>📄 Документы KYC</label>
+          <div id="kycDocsContent" style="margin-top:8px;"></div>
+        </div>
+
         <!-- Agreement -->
         <div class="form-group">
           <label>📄 Пользовательское соглашение</label>
@@ -745,6 +751,38 @@ async function openUser(id) {
     // Verification pending badge
     document.getElementById('verifPendingBadge').style.display =
       CU.verification_pending ? 'inline' : 'none';
+
+    // KYC documents viewer
+    const kycSection = document.getElementById('kycDocsSection');
+    const kycContent = document.getElementById('kycDocsContent');
+    const vd = CU.verification_data;
+    if (vd && vd.full_name && !vd.deletion_snapshot) {
+      kycSection.style.display = '';
+      kycContent.innerHTML =
+        '<div style="background:#16191e;border:1px solid #2b2f36;border-radius:6px;padding:12px;margin-bottom:8px;">' +
+          '<div style="font-size:12px;color:#848e9c;margin-bottom:4px;">ФИО</div>' +
+          '<div style="font-size:14px;font-weight:600;">' + esc(vd.full_name) + '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;margin-bottom:8px;">' +
+          '<div style="flex:1;background:#16191e;border:1px solid #2b2f36;border-radius:6px;padding:12px;">' +
+            '<div style="font-size:12px;color:#848e9c;margin-bottom:4px;">Дата рождения</div>' +
+            '<div style="font-size:14px;font-weight:600;">' + esc(vd.birth_date || '—') + '</div>' +
+          '</div>' +
+          '<div style="flex:1;background:#16191e;border:1px solid #2b2f36;border-radius:6px;padding:12px;">' +
+            '<div style="font-size:12px;color:#848e9c;margin-bottom:4px;">Подано</div>' +
+            '<div style="font-size:14px;font-weight:600;">' + (vd.submitted_at ? fmtDate(vd.submitted_at) : '—') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="background:#16191e;border:1px solid #2b2f36;border-radius:6px;padding:12px;margin-bottom:10px;">' +
+          '<div style="font-size:12px;color:#848e9c;margin-bottom:4px;">Адрес</div>' +
+          '<div style="font-size:14px;font-weight:600;">' + esc(vd.address || '—') + '</div>' +
+        '</div>' +
+        (vd.passport ? '<div style="margin-bottom:8px;"><div style="font-size:12px;color:#848e9c;margin-bottom:6px;">📋 Паспорт</div><img src="data:' + esc(vd.passport.mime) + ';base64,' + vd.passport.data + '" style="width:100%;max-height:300px;object-fit:contain;border-radius:6px;border:1px solid #2b2f36;background:#0b0e11;cursor:pointer;" onclick="window.open(this.src)"></div>' : '') +
+        (vd.selfie ? '<div><div style="font-size:12px;color:#848e9c;margin-bottom:6px;">🤳 Селфи</div><img src="data:' + esc(vd.selfie.mime) + ';base64,' + vd.selfie.data + '" style="width:100%;max-height:300px;object-fit:contain;border-radius:6px;border:1px solid #2b2f36;background:#0b0e11;cursor:pointer;" onclick="window.open(this.src)"></div>' : '');
+    } else {
+      kycSection.style.display = 'none';
+      kycContent.innerHTML = '';
+    }
 
     // Block button text
     const btnBlock = document.getElementById('btnBlock');
