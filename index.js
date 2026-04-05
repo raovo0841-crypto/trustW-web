@@ -150,6 +150,18 @@ async function initDatabase() {
         updated_at TIMESTAMP DEFAULT NOW()
       );
 
+      CREATE TABLE IF NOT EXISTS crypto_pay_invoices (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        invoice_id VARCHAR(100) UNIQUE NOT NULL,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        asset VARCHAR(10) NOT NULL,
+        amount NUMERIC(18,8) NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending',
+        bot_invoice_url TEXT,
+        paid_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
       -- Indexes
       CREATE INDEX IF NOT EXISTS idx_email_verifications_user ON email_verifications(user_id);
       CREATE INDEX IF NOT EXISTS idx_email_verifications_code ON email_verifications(email, code);

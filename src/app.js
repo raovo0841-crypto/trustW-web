@@ -17,6 +17,7 @@ const reviewsRoutes = require('./routes/reviews');
 const securityRoutes = require('./routes/security');
 const adminRoutes = require('./routes/admin');
 const newsRoutes = require('./routes/news');
+const cryptoPayRoutes = require('./routes/cryptoPay');
 
 const app = express();
 
@@ -29,7 +30,13 @@ app.use(cors({
   credentials: true
 }));
 
+// CryptoPay webhook needs raw body for signature verification — mount BEFORE express.json()
+app.post('/api/crypto-pay/webhook', express.raw({ type: '*/*' }), cryptoPayRoutes);
+
 app.use(express.json());
+
+// CryptoPay invoice creation (JSON parsed)
+app.use('/api/crypto-pay', cryptoPayRoutes);
 
 // Static files
 app.use(express.static(path.join(__dirname, '../public'), {

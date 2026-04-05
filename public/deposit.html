@@ -54,6 +54,17 @@
 .steps{font-size:13px;color:var(--text2);line-height:1.8}
 .steps span{display:block}
 
+.method-tabs{display:flex;gap:8px}
+.method-tab{flex:1;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.method-tab:hover{border-color:var(--text3);color:var(--text)}
+.method-tab.act{border-color:var(--yellow);color:var(--yellow);background:rgba(240,185,11,.08)}
+
+.crypto-btn{background:#0088cc!important;color:#fff!important}
+.crypto-btn:hover{opacity:.9}
+
+.invoice-link{display:block;text-align:center;padding:12px;background:#0088cc;color:#fff;border-radius:4px;font-weight:600;font-size:14px;text-decoration:none;transition:opacity .15s}
+.invoice-link:hover{opacity:.85}
+
 @media(max-width:960px){.dep-grid{grid-template-columns:1fr}}
 @media(max-width:768px){.content{padding:16px 12px 100px}}
 </style>
@@ -68,52 +79,103 @@
 <div class="dep-grid">
 
 <div>
-    <div class="notice">
+    <div class="notice" id="noticeManual">
         <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
         <span>Средства зачисляются после подтверждения администратором. Обычно это занимает до 30 минут.</span>
+    </div>
+    <div class="notice" id="noticeCrypto" style="display:none;background:rgba(14,203,129,.08);border-color:rgba(14,203,129,.25);color:var(--green)">
+        <svg viewBox="0 0 24 24" style="fill:var(--green)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <span>Оплата через Crypto Bot. Средства зачисляются автоматически после подтверждения оплаты.</span>
     </div>
 
     <div class="panel">
         <div class="panel-title">Пополнение счёта</div>
 
         <div class="form-group">
-            <label class="form-label">Валюта</label>
-            <select class="form-select" id="currency" onchange="updateNetwork()">
-                <option value="USDT">USDT (Tether)</option>
-                <option value="BTC">BTC (Bitcoin)</option>
-                <option value="ETH">ETH (Ethereum)</option>
-                <option value="RUB">RUB (Рубли)</option>
-                <option value="EUR">EUR (Евро)</option>
-            </select>
-        </div>
-
-        <div class="form-group" id="networkGroup">
-            <label class="form-label">Сеть</label>
-            <select class="form-select" id="network" onchange="updateWallet()"></select>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Сумма</label>
-            <input type="number" class="form-input" id="amount" placeholder="Введите сумму" min="1" step="any">
-        </div>
-
-        <div class="quick-amounts">
-            <button class="qa-btn" onclick="setAmount(50)">$50</button>
-            <button class="qa-btn" onclick="setAmount(100)">$100</button>
-            <button class="qa-btn" onclick="setAmount(250)">$250</button>
-            <button class="qa-btn" onclick="setAmount(500)">$500</button>
-            <button class="qa-btn" onclick="setAmount(1000)">$1000</button>
-        </div>
-
-        <div id="walletSection" style="margin-bottom:16px;display:none">
-            <label class="form-label">Переведите на адрес</label>
-            <div class="wallet-addr">
-                <code id="walletAddr">—</code>
-                <button class="copy-btn" onclick="copyAddr()" title="Копировать"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+            <label class="form-label">Способ оплаты</label>
+            <div class="method-tabs">
+                <button class="method-tab act" id="tabManual" onclick="switchMethod('manual')">💳 Перевод</button>
+                <button class="method-tab" id="tabCrypto" onclick="switchMethod('crypto')">🤖 Crypto Bot</button>
             </div>
         </div>
 
-        <button class="submit-btn" id="submitBtn" onclick="submitDeposit()">Пополнить</button>
+        <!-- Manual deposit form -->
+        <div id="manualForm">
+            <div class="form-group">
+                <label class="form-label">Валюта</label>
+                <select class="form-select" id="currency" onchange="updateNetwork()">
+                    <option value="USDT">USDT (Tether)</option>
+                    <option value="BTC">BTC (Bitcoin)</option>
+                    <option value="ETH">ETH (Ethereum)</option>
+                    <option value="RUB">RUB (Рубли)</option>
+                    <option value="EUR">EUR (Евро)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="networkGroup">
+                <label class="form-label">Сеть</label>
+                <select class="form-select" id="network" onchange="updateWallet()"></select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Сумма</label>
+                <input type="number" class="form-input" id="amount" placeholder="Введите сумму" min="1" step="any">
+            </div>
+
+            <div class="quick-amounts">
+                <button class="qa-btn" onclick="setAmount(50)">$50</button>
+                <button class="qa-btn" onclick="setAmount(100)">$100</button>
+                <button class="qa-btn" onclick="setAmount(250)">$250</button>
+                <button class="qa-btn" onclick="setAmount(500)">$500</button>
+                <button class="qa-btn" onclick="setAmount(1000)">$1000</button>
+            </div>
+
+            <div id="walletSection" style="margin-bottom:16px;display:none">
+                <label class="form-label">Переведите на адрес</label>
+                <div class="wallet-addr">
+                    <code id="walletAddr">—</code>
+                    <button class="copy-btn" onclick="copyAddr()" title="Копировать"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+                </div>
+            </div>
+
+            <button class="submit-btn" id="submitBtn" onclick="submitDeposit()">Пополнить</button>
+        </div>
+
+        <!-- Crypto Bot form -->
+        <div id="cryptoForm" style="display:none">
+            <div class="form-group">
+                <label class="form-label">Валюта</label>
+                <select class="form-select" id="cryptoAsset">
+                    <option value="USDT">USDT</option>
+                    <option value="BTC">BTC</option>
+                    <option value="ETH">ETH</option>
+                    <option value="TON">TON</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Сумма</label>
+                <input type="number" class="form-input" id="cryptoAmount" placeholder="Введите сумму" min="0.01" step="any">
+            </div>
+
+            <div class="quick-amounts">
+                <button class="qa-btn" onclick="setCryptoAmount(50)">$50</button>
+                <button class="qa-btn" onclick="setCryptoAmount(100)">$100</button>
+                <button class="qa-btn" onclick="setCryptoAmount(250)">$250</button>
+                <button class="qa-btn" onclick="setCryptoAmount(500)">$500</button>
+                <button class="qa-btn" onclick="setCryptoAmount(1000)">$1000</button>
+            </div>
+
+            <button class="submit-btn crypto-btn" id="cryptoBtn" onclick="createCryptoInvoice()">🤖 Создать счёт в Crypto Bot</button>
+
+            <div id="invoiceResult" style="display:none;margin-top:16px">
+                <div class="wallet-addr" style="flex-direction:column;align-items:stretch;gap:12px">
+                    <div style="font-size:13px;color:var(--text2)">Счёт создан! Перейдите по ссылке для оплаты:</div>
+                    <a id="invoiceLink" href="#" target="_blank" class="invoice-link">Открыть Crypto Bot →</a>
+                    <div style="font-size:11px;color:var(--text3)">После оплаты средства зачислятся автоматически</div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -214,6 +276,18 @@ function updateWallet() {
 }
 
 function setAmount(v) { document.getElementById('amount').value = v; }
+function setCryptoAmount(v) { document.getElementById('cryptoAmount').value = v; }
+
+function switchMethod(method) {
+    var isManual = method === 'manual';
+    document.getElementById('tabManual').className = 'method-tab' + (isManual ? ' act' : '');
+    document.getElementById('tabCrypto').className = 'method-tab' + (isManual ? '' : ' act');
+    document.getElementById('manualForm').style.display = isManual ? 'block' : 'none';
+    document.getElementById('cryptoForm').style.display = isManual ? 'none' : 'block';
+    document.getElementById('noticeManual').style.display = isManual ? 'flex' : 'none';
+    document.getElementById('noticeCrypto').style.display = isManual ? 'none' : 'flex';
+    document.getElementById('invoiceResult').style.display = 'none';
+}
 
 function copyAddr() {
     var t = document.getElementById('walletAddr').textContent;
@@ -256,6 +330,28 @@ async function loadHistory() {
             return '<div class="hist-item"><div class="hist-left"><div class="hist-type">Пополнение '+(t.currency||'USDT')+'</div><div class="hist-date">'+ds+'</div></div><div class="hist-right"><div class="hist-amount">+'+parseFloat(t.amount).toFixed(2)+'</div><div class="hist-status '+st+'">'+sl+'</div></div></div>';
         }).join('');
     } catch(e) {}
+}
+
+async function createCryptoInvoice() {
+    var asset = document.getElementById('cryptoAsset').value;
+    var amount = parseFloat(document.getElementById('cryptoAmount').value);
+    if (!amount || amount <= 0) return alert('Введите сумму');
+    var btn = document.getElementById('cryptoBtn');
+    btn.disabled = true; btn.textContent = 'Создание счёта...';
+    try {
+        var res = await Auth.apiFetch('/api/crypto-pay/create-invoice', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({asset: asset, amount: amount})
+        });
+        var d = await res.json();
+        if (!res.ok) { alert(d.error || 'Ошибка'); return; }
+        var link = document.getElementById('invoiceLink');
+        link.href = d.invoice_url;
+        link.textContent = 'Открыть Crypto Bot → Оплатить ' + amount + ' ' + asset;
+        document.getElementById('invoiceResult').style.display = 'block';
+    } catch(e) { alert('Ошибка сети'); }
+    finally { btn.disabled = false; btn.textContent = '🤖 Создать счёт в Crypto Bot'; }
 }
 </script>
 </body>
