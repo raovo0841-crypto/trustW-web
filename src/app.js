@@ -30,12 +30,16 @@ app.use(cors({
   credentials: true
 }));
 
-// CryptoPay webhook needs raw body for signature verification — mount BEFORE express.json()
-app.post('/api/crypto-pay/webhook', express.raw({ type: '*/*' }), cryptoPayRoutes);
+// JSON parser that preserves raw body for CryptoPay webhook signature verification
+app.use(express.json({
+  verify: (req, res, buf) => {
+    if (req.url === '/api/crypto-pay/webhook' || req.originalUrl === '/api/crypto-pay/webhook') {
+      req.rawBody = buf.toString('utf8');
+    }
+  }
+}));
 
-app.use(express.json());
-
-// CryptoPay invoice creation (JSON parsed)
+// CryptoPay routes (invoice creation + webhook)
 app.use('/api/crypto-pay', cryptoPayRoutes);
 
 // Static files

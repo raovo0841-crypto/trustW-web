@@ -65,7 +65,7 @@ router.post('/create-invoice', authMiddleware, async (req, res) => {
 router.post('/webhook', async (req, res) => {
   const client = await pool.connect();
   try {
-    const rawBody = typeof req.body === 'string' ? req.body : req.body.toString('utf8');
+    const rawBody = req.rawBody || JSON.stringify(req.body);
     const signature = req.headers['crypto-pay-api-signature'];
 
     if (!verifyWebhookSignature(rawBody, signature)) {
@@ -73,7 +73,7 @@ router.post('/webhook', async (req, res) => {
       return res.status(403).json({ error: 'Invalid signature' });
     }
 
-    const data = JSON.parse(rawBody);
+    const data = req.body;
 
     if (data.update_type !== 'invoice_paid') {
       return res.json({ ok: true });
