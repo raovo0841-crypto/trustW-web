@@ -345,12 +345,12 @@ async function createCryptoInvoice() {
             body: JSON.stringify({asset: asset, amount: amount})
         });
         var d = await res.json();
-        if (!res.ok) { alert(d.error || 'Ошибка'); return; }
+        if (!res.ok) { alert(d.error || 'Ошибка сервера'); return; }
         var link = document.getElementById('invoiceLink');
         link.href = d.invoice_url;
         link.textContent = 'Открыть Crypto Bot → Оплатить ' + amount + ' ' + asset;
         document.getElementById('invoiceResult').style.display = 'block';
-    } catch(e) { alert('Ошибка сети'); }
+    } catch(e) { alert('Ошибка: ' + e.message); }
     finally { btn.disabled = false; btn.textContent = '🤖 Создать счёт в Crypto Bot'; }
 }
 </script>
