@@ -9,18 +9,21 @@ const API_TOKEN = process.env.CRYPTO_PAY_TOKEN || process.env.CRYPTOBOT_TOKEN ||
 const API_BASE = 'https://pay.crypt.bot/api';
 
 async function apiCall(method, params = {}) {
-  const url = `${API_BASE}/${method}`;
+  const query = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== null) query.append(k, String(v));
+  }
+  const url = `${API_BASE}/${method}?${query.toString()}`;
   const res = await fetch(url, {
-    method: 'POST',
+    method: 'GET',
     headers: {
-      'Crypto-Pay-API-Token': API_TOKEN,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(params)
+      'Crypto-Pay-API-Token': API_TOKEN
+    }
   });
   const data = await res.json();
   if (!data.ok) {
-    throw new Error(data.error?.message || `CryptoPay API error: ${method}`);
+    const errMsg = data.error?.message || data.error?.name || JSON.stringify(data.error) || `CryptoPay API error: ${method}`;
+    throw new Error(errMsg);
   }
   return data.result;
 }
