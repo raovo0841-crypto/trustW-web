@@ -5,7 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../config/database');
-const authMiddleware = require('../middlewares/auth');
+const { authMiddleware } = require('../middlewares/auth');
 const { createInvoice, verifyWebhookSignature } = require('../services/cryptoPay');
 
 // Supported crypto assets via Crypto Pay
