@@ -348,11 +348,13 @@ function toggleMobOrder() {
     mc.querySelectorAll('.dur-btn').forEach(function(b) {
         b.addEventListener('click', function() {
             mc.querySelectorAll('.dur-btn').forEach(function(x){x.classList.remove('active');});
-            b.classList.add('active'); selectedDuration = parseInt(b.dataset.dur);
+            b.classList.add('active'); 
+            selectedDuration = parseInt(b.dataset.dur);
             // Sync main panel
             document.querySelectorAll('#durationBtns .dur-btn').forEach(function(x){x.classList.remove('active');});
             var mainBtn = document.querySelector('#durationBtns .dur-btn[data-dur="'+b.dataset.dur+'"]');
             if(mainBtn) mainBtn.classList.add('active');
+            loadChart(selectedSymbol);  // Reload chart when duration changes
         });
     });
     var upBtn = mc.querySelector('.dir-btn.up');
@@ -381,7 +383,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.dur-btn').forEach(function(b) {
         b.addEventListener('click', function() {
             document.querySelectorAll('.dur-btn').forEach(function(x){x.classList.remove('active');});
-            b.classList.add('active'); selectedDuration = parseInt(b.dataset.dur);
+            b.classList.add('active'); 
+            selectedDuration = parseInt(b.dataset.dur);
+            loadChart(selectedSymbol);  // Reload chart when duration changes
         });
     });
 
@@ -501,9 +505,15 @@ function updateChartHeader() {
 
 function loadChart(sym) {
     var pair = (sym === 'SHIB' ? 'SHIB' : sym) + 'USDT';
+    // Calculate chart interval based on trade duration
+    var interval = '5';  // default
+    if (selectedDuration <= 60) interval = '1';      // 30s-60s trades use 1min candles
+    else if (selectedDuration <= 300) interval = '5';  // 2m-5m trades use 5min candles
+    else interval = '15';  // 10m trades use 15min candles
+    
     var iframe = document.getElementById('tvChart');
     iframe.src = 'https://s.tradingview.com/widgetembed/?hideIdeas=1&hideSideToolbar=0&symbol=BINANCE%3A' + pair +
-        '&interval=5&hidevolume=0&hidetoptoolbar=0&hideLegend=0&saveimage=0&toolbarBg=0b0e11' +
+        '&interval=' + interval + '&hidevolume=0&hidetoptoolbar=0&hideLegend=0&saveimage=0&toolbarBg=0b0e11' +
         '&studies=[]&theme=dark&style=1&timezone=Europe%2FMoscow&studies_overrides=%7B%7D' +
         '&overrides=%7B%7D&enabled_features=[]&disabled_features=[]&locale=ru&utm_source=trustex' +
         '&utm_medium=widget&utm_campaign=chart';
