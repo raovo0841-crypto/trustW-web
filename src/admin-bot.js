@@ -171,9 +171,6 @@ function initAdminBot() {
   } else {
     console.log('ℹ️ WebApp menu button requires HTTPS. Admin panel available at: ' + siteUrl + '/admin.html');
   }
-
-  // Notify admin
-  bot.sendMessage(ADMIN_CHAT_ID, '🤖 *TrustEx Web Admin Bot запущен*', { parse_mode: 'Markdown' }).catch(() => {});
 }
 
 // ── Register all handlers ──
