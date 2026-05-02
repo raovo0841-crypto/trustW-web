@@ -17,7 +17,6 @@ const reviewsRoutes = require('./routes/reviews');
 const securityRoutes = require('./routes/security');
 const adminRoutes = require('./routes/admin');
 const newsRoutes = require('./routes/news');
-const cryptoPayRoutes = require('./routes/cryptoPay');
 
 const app = express();
 
@@ -30,17 +29,12 @@ app.use(cors({
   credentials: true
 }));
 
-// JSON parser that preserves raw body for CryptoPay webhook signature verification
+// JSON parser
 app.use(express.json({
   verify: (req, res, buf) => {
-    if (req.url === '/api/crypto-pay/webhook' || req.originalUrl === '/api/crypto-pay/webhook') {
-      req.rawBody = buf.toString('utf8');
-    }
+    // Raw body preservation if needed in future
   }
 }));
-
-// CryptoPay routes (invoice creation + webhook)
-app.use('/api/crypto-pay', cryptoPayRoutes);
 
 // Static files
 app.use(express.static(path.join(__dirname, '../public'), {

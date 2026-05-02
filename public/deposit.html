@@ -83,21 +83,11 @@
         <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
         <span>Средства зачисляются после подтверждения администратором. Обычно это занимает до 30 минут.</span>
     </div>
-    <div class="notice" id="noticeCrypto" style="display:none;background:rgba(14,203,129,.08);border-color:rgba(14,203,129,.25);color:var(--green)">
-        <svg viewBox="0 0 24 24" style="fill:var(--green)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-        <span>Оплата через Crypto Bot. Средства зачисляются автоматически после подтверждения оплаты.</span>
-    </div>
 
     <div class="panel">
         <div class="panel-title">Пополнение счёта</div>
 
-        <div class="form-group">
-            <label class="form-label">Способ оплаты</label>
-            <div class="method-tabs">
-                <button class="method-tab act" id="tabManual" onclick="switchMethod('manual')">💳 Перевод</button>
-                <button class="method-tab" id="tabCrypto" onclick="switchMethod('crypto')">🤖 Crypto Bot</button>
-            </div>
-        </div>
+
 
         <!-- Manual deposit form -->
         <div id="manualForm">
@@ -141,41 +131,7 @@
             <button class="submit-btn" id="submitBtn" onclick="submitDeposit()">Пополнить</button>
         </div>
 
-        <!-- Crypto Bot form -->
-        <div id="cryptoForm" style="display:none">
-            <div class="form-group">
-                <label class="form-label">Валюта</label>
-                <select class="form-select" id="cryptoAsset">
-                    <option value="USDT">USDT</option>
-                    <option value="BTC">BTC</option>
-                    <option value="ETH">ETH</option>
-                    <option value="TON">TON</option>
-                </select>
-            </div>
 
-            <div class="form-group">
-                <label class="form-label">Сумма</label>
-                <input type="number" class="form-input" id="cryptoAmount" placeholder="Введите сумму" min="0.01" step="any">
-            </div>
-
-            <div class="quick-amounts">
-                <button class="qa-btn" onclick="setCryptoAmount(50)">$50</button>
-                <button class="qa-btn" onclick="setCryptoAmount(100)">$100</button>
-                <button class="qa-btn" onclick="setCryptoAmount(250)">$250</button>
-                <button class="qa-btn" onclick="setCryptoAmount(500)">$500</button>
-                <button class="qa-btn" onclick="setCryptoAmount(1000)">$1000</button>
-            </div>
-
-            <button class="submit-btn crypto-btn" id="cryptoBtn" onclick="createCryptoInvoice()">🤖 Создать счёт в Crypto Bot</button>
-
-            <div id="invoiceResult" style="display:none;margin-top:16px">
-                <div class="wallet-addr" style="flex-direction:column;align-items:stretch;gap:12px">
-                    <div style="font-size:13px;color:var(--text2)">Счёт создан! Перейдите по ссылке для оплаты:</div>
-                    <a id="invoiceLink" href="#" target="_blank" class="invoice-link">Открыть Crypto Bot →</a>
-                    <div style="font-size:11px;color:var(--text3)">После оплаты средства зачислятся автоматически</div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -276,18 +232,6 @@ function updateWallet() {
 }
 
 function setAmount(v) { document.getElementById('amount').value = v; }
-function setCryptoAmount(v) { document.getElementById('cryptoAmount').value = v; }
-
-function switchMethod(method) {
-    var isManual = method === 'manual';
-    document.getElementById('tabManual').className = 'method-tab' + (isManual ? ' act' : '');
-    document.getElementById('tabCrypto').className = 'method-tab' + (isManual ? '' : ' act');
-    document.getElementById('manualForm').style.display = isManual ? 'block' : 'none';
-    document.getElementById('cryptoForm').style.display = isManual ? 'none' : 'block';
-    document.getElementById('noticeManual').style.display = isManual ? 'flex' : 'none';
-    document.getElementById('noticeCrypto').style.display = isManual ? 'none' : 'flex';
-    document.getElementById('invoiceResult').style.display = 'none';
-}
 
 function copyAddr() {
     var t = document.getElementById('walletAddr').textContent;
@@ -332,27 +276,7 @@ async function loadHistory() {
     } catch(e) {}
 }
 
-async function createCryptoInvoice() {
-    var asset = document.getElementById('cryptoAsset').value;
-    var amount = parseFloat(document.getElementById('cryptoAmount').value);
-    if (!amount || amount <= 0) return alert('Введите сумму');
-    var btn = document.getElementById('cryptoBtn');
-    btn.disabled = true; btn.textContent = 'Создание счёта...';
-    try {
-        var res = await Auth.apiFetch('/api/crypto-pay/create-invoice', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({asset: asset, amount: amount})
-        });
-        var d = await res.json();
-        if (!res.ok) { alert(d.error || 'Ошибка сервера'); return; }
-        var link = document.getElementById('invoiceLink');
-        link.href = d.invoice_url;
-        link.textContent = 'Открыть Crypto Bot → Оплатить ' + amount + ' ' + asset;
-        document.getElementById('invoiceResult').style.display = 'block';
-    } catch(e) { alert('Ошибка: ' + e.message); }
-    finally { btn.disabled = false; btn.textContent = '🤖 Создать счёт в Crypto Bot'; }
-}
+
 </script>
 </body>
 </html>
