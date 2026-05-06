@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>P2P — TrustEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="js/auth.js?v=3" defer></script>
+<script src="js/balance.js" defer></script>
+<link rel="stylesheet" href="css/nav.css?v=6">
+<script src="js/nav.js?v=8" defer></script>
+<style>
+.content{max-width:1200px;margin:0 auto;padding:20px 20px 80px}
+.p2p-grid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:20px}
+.panel-title{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:16px}
+.hero{background:linear-gradient(140deg,rgba(0,136,204,.2),rgba(0,136,204,.06));border:1px solid rgba(0,136,204,.35);border-radius:8px;padding:20px;margin-bottom:16px}
+.hero-title{font-size:24px;font-weight:700;color:var(--text);margin-bottom:10px}
+.hero-sub{font-size:14px;color:var(--text2);line-height:1.7;max-width:760px}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,136,204,.2);border:1px solid rgba(0,136,204,.45);color:#68d2ff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px}
+.info-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:12px}
+.info-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px}
+.info-text{font-size:13px;color:var(--text2);line-height:1.7}
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.step{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px}
+.step-num{width:22px;height:22px;border-radius:50%;background:rgba(240,185,11,.14);color:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-bottom:8px}
+.step-text{font-size:12px;color:var(--text2);line-height:1.6}
+.cta{margin-top:16px}
+.cta-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;background:#0088cc;color:#fff;border:none;border-radius:4px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;text-decoration:none}
+.cta-btn:hover{opacity:.9}
+.cta-note{font-size:12px;color:var(--text3);margin-top:10px;text-align:center;line-height:1.5}
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-label{color:var(--text3)}
+.info-value{font-weight:600;color:var(--text)}
+.warn{display:flex;gap:8px;align-items:flex-start;background:rgba(240,185,11,.08);border:1px solid rgba(240,185,11,.25);border-radius:4px;padding:12px;font-size:12px;color:var(--yellow);line-height:1.6}
+.warn svg{width:16px;height:16px;fill:var(--yellow);margin-top:2px;flex-shrink:0}
+@media(max-width:960px){.p2p-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.content{padding:16px 12px 100px}.steps{grid-template-columns:1fr}.hero-title{font-size:21px}}
+</style>
+</head>
+<body>
+<header class="header"></header>
+<nav class="mobnav"></nav>
+
+<div class="content">
+  <div class="hero">
+    <div class="badge">P2P Пополнение</div>
+    <h1 class="hero-title">Пополнение через P2P с партнёром @cryptobot</h1>
+    <p class="hero-sub">P2P пополнение проходит через нашего партнёра @cryptobot в Telegram. Вы создаёте сделку, оплачиваете её удобным способом, после подтверждения средства поступают в ваш криптокошелёк, а затем вы пополняете баланс TrustEx.</p>
+  </div>
+
+  <div class="p2p-grid">
+    <div>
+      <div class="panel">
+        <div class="panel-title">Как это работает</div>
+
+        <div class="info-card">
+          <div class="info-title">Почему через @cryptobot</div>
+          <div class="info-text">CryptoBot предоставляет быстрые P2P-сделки, встроенный escrow и удобную оплату в Telegram. Это снижает риск ошибок и ускоряет процесс покупки криптовалюты.</div>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text">Перейдите в @cryptobot по кнопке ниже.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text">Выберите P2P и купите нужную сумму USDT.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text">После покупки переведите USDT на ваш адрес пополнения TrustEx.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-text">Создайте заявку на пополнение в разделе Депозит.</div>
+          </div>
+        </div>
+
+        <div class="cta">
+          <a class="cta-btn" href="https://t.me/CryptoBot" target="_blank" rel="noopener noreferrer">
+            Открыть @cryptobot в Telegram
+          </a>
+          <div class="cta-note">Если Telegram не откроется автоматически, скопируйте username: @cryptobot</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel" style="margin-bottom:12px">
+        <div class="panel-title">Памятка</div>
+        <div class="info-row"><span class="info-label">Партнёр</span><span class="info-value">@cryptobot</span></div>
+        <div class="info-row"><span class="info-label">Рекомендуемая валюта</span><span class="info-value">USDT</span></div>
+        <div class="info-row"><span class="info-label">Следующий шаг</span><span class="info-value"><a href="deposit.html" style="color:var(--yellow)">Депозит →</a></span></div>
+      </div>
+
+      <div class="warn">
+        <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        <span>Отправляйте средства только через официальный аккаунт @cryptobot. Всегда перепроверяйте username перед переводом.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (!Auth.requireAuth()) return;
+  var user = Auth.getUser();
+  if (user && user.email) {
+    var el = document.getElementById('navUserEmail');
+    if (el) el.textContent = user.email;
+  }
+});
+</script>
+</body>
+</html>

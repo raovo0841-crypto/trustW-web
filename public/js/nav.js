@@ -3,6 +3,7 @@ var pages=[
   {href:'/',label:'Обзор',paths:['/','/index.html','index.html']},
   {href:'trading.html',label:'Торговля'},
   {href:'exchange.html',label:'Обмен'},
+  {href:'p2p.html',label:'P2P'},
   {href:'wallet.html',label:'Активы'},
   {href:'deposit.html',label:'Депозит'},
   {href:'withdraw.html',label:'Вывод'},
@@ -12,6 +13,7 @@ var pages=[
 ];
 var mobPages=[
   {href:'/',label:'Обзор',icon:'<svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>',paths:['/','/index.html','index.html']},
+  {href:'p2p.html',label:'P2P',icon:'<svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4V6h-6V4h6V1zM7 23l-4-4 4-4v3h6v2H7v3zM12 7h2v3h-2V7zm-2 7h2v3h-2v-3z"/></svg>'},
   {href:'trading.html',label:'Торговля',icon:'<svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>'},
   {href:'exchange.html',label:'Обмен',icon:'<svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>'},
   {href:'wallet.html',label:'Активы',icon:'<svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>'},
@@ -49,7 +51,7 @@ function buildFooter(){
     +'<p class="footer-desc">Надёжная платформа для торговли криптовалютами. Мгновенные сделки, низкие комиссии, профессиональные инструменты.</p>'
     +'</div>'
     +'<div class="footer-col"><h4 class="footer-heading">Продукты</h4><ul class="footer-links">'
-    +'<li><a href="exchange.html">Обмен валют</a></li><li><a href="trading.html">Торговля</a></li><li><a href="wallet.html">Кошелёк</a></li><li><a href="deposit.html">Пополнение</a></li><li><a href="withdraw.html">Вывод средств</a></li>'
+    +'<li><a href="exchange.html">Обмен валют</a></li><li><a href="trading.html">Торговля</a></li><li><a href="p2p.html">P2P через @cryptobot</a></li><li><a href="wallet.html">Кошелёк</a></li><li><a href="deposit.html">Пополнение</a></li><li><a href="withdraw.html">Вывод средств</a></li>'
     +'</ul></div>'
     +'<div class="footer-col"><h4 class="footer-heading">Поддержка</h4><ul class="footer-links">'
     +'<li><a href="support.html">Центр поддержки</a></li><li><a href="faq.html">Часто задаваемые вопросы</a></li><li><a href="guide.html">Руководство по торговле</a></li><li><a href="news.html">Новости</a></li>'
