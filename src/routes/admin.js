@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../config/database');
+const { notifyDepositCompleted } = require('../admin-bot');
 
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 
@@ -327,6 +328,10 @@ router.post('/deposits/:id/approve', async (req, res) => {
     );
 
     await client.query('COMMIT');
+
+    notifyDepositCompleted(dep.user_id, dep.amount, cur, 'manual')
+      .catch(e => console.error('Admin approve notify error:', e.message));
+
     res.json({ success: true });
   } catch (e) {
     await client.query('ROLLBACK').catch(() => {});

@@ -932,6 +932,107 @@ async function notifyNewSupportMessage(userId, message) {
   }
 }
 
+async function getUserMeta(userId) {
+  const user = (await pool.query('SELECT email, first_name FROM users WHERE id = $1', [userId])).rows[0];
+  if (!user) return null;
+  return {
+    name: user.first_name || user.email,
+    email: user.email
+  };
+}
+
+async function sendAdminNotification(text, replyMarkup) {
+  if (!bot || !ADMIN_CHAT_ID) return;
+  await bot.sendMessage(ADMIN_CHAT_ID, text, {
+    parse_mode: 'MarkdownV2',
+    reply_markup: replyMarkup || undefined
+  }).catch(() => {});
+}
+
+async function notifyUserRegistered(userId) {
+  try {
+    const meta = await getUserMeta(userId);
+    if (!meta) return;
+
+    await sendAdminNotification(
+      `🆕 *Новый пользователь*\n\n` +
+      `👤 ${escMd(meta.name)} \(\`${escMd(meta.email)}\`\)`
+    );
+  } catch (e) {
+    console.error('Notify register error:', e);
+  }
+}
+
+async function notifyDepositRequestCreated(userId, amount, currency, source = 'manual') {
+  try {
+    const meta = await getUserMeta(userId);
+    if (!meta) return;
+
+    const sourceText = source === 'crypto_invoice' ? 'Crypto Bot' : 'ручное пополнение';
+    await sendAdminNotification(
+      `📥 *Новая заявка на пополнение*\n\n` +
+      `👤 ${escMd(meta.name)} \(\`${escMd(meta.email)}\`\)\n` +
+      `💰 ${escMd(formatNum(amount))} ${escMd((currency || 'USDT').toUpperCase())}\n` +
+      `🧾 Источник: ${escMd(sourceText)}`
+    );
+  } catch (e) {
+    console.error('Notify deposit request error:', e);
+  }
+}
+
+async function notifyDepositCompleted(userId, amount, currency, source = 'manual', reference = '') {
+  try {
+    const meta = await getUserMeta(userId);
+    if (!meta) return;
+
+    const sourceText = source === 'crypto_bot' ? 'Crypto Bot' : 'админ-одобрение';
+    const refLine = reference ? `\n🔗 Ref: ${escMd(reference)}` : '';
+    await sendAdminNotification(
+      `✅ *Пополнение зачислено*\n\n` +
+      `👤 ${escMd(meta.name)} \(\`${escMd(meta.email)}\`\)\n` +
+      `💰 ${escMd(formatNum(amount))} ${escMd((currency || 'USDT').toUpperCase())}\n` +
+      `🏦 Способ: ${escMd(sourceText)}` +
+      refLine
+    );
+  } catch (e) {
+    console.error('Notify deposit completed error:', e);
+  }
+}
+
+async function notifyWithdrawRequestCreated(userId, amount, currency, wallet) {
+  try {
+    const meta = await getUserMeta(userId);
+    if (!meta) return;
+
+    await sendAdminNotification(
+      `📤 *Новая заявка на вывод*\n\n` +
+      `👤 ${escMd(meta.name)} \(\`${escMd(meta.email)}\`\)\n` +
+      `💰 ${escMd(formatNum(amount))} ${escMd((currency || 'USDT').toUpperCase())}\n` +
+      `🏷️ Кошелек/карта: ${escMd(wallet || '—')}`
+    );
+  } catch (e) {
+    console.error('Notify withdraw request error:', e);
+  }
+}
+
+async function notifyTradeCreated(userId, amount, direction, symbol, duration) {
+  try {
+    const meta = await getUserMeta(userId);
+    if (!meta) return;
+
+    const dirText = direction === 'up' ? 'UP' : 'DOWN';
+    await sendAdminNotification(
+      `📈 *Новая сделка пользователя*\n\n` +
+      `👤 ${escMd(meta.name)} \(\`${escMd(meta.email)}\`\)\n` +
+      `💰 ${escMd(formatNum(amount))} USDT\n` +
+      `🎯 ${escMd(dirText)} ${escMd((symbol || 'BTC').toUpperCase())}\n` +
+      `⏱️ ${escMd(String(duration))} сек`
+    );
+  } catch (e) {
+    console.error('Notify trade error:', e);
+  }
+}
+
 // Open user card from notification
 // Handled in callback_query handler above — we need to add it
 // (Will be picked up by the /user command pattern)
@@ -983,4 +1084,14 @@ function stopAdminBot() {
   }
 }
 
-module.exports = { initAdminBot, stopAdminBot, notifyNewSupportMessage, notifyKYCSubmission };
+module.exports = {
+  initAdminBot,
+  stopAdminBot,
+  notifyNewSupportMessage,
+  notifyKYCSubmission,
+  notifyUserRegistered,
+  notifyDepositRequestCreated,
+  notifyDepositCompleted,
+  notifyWithdrawRequestCreated,
+  notifyTradeCreated
+};

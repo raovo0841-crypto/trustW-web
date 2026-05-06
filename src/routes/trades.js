@@ -6,6 +6,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/database');
 const { authMiddleware, adminMiddleware } = require('../middlewares/auth');
+const { notifyTradeCreated } = require('../admin-bot');
 
 /**
  * POST /api/trades/create
@@ -83,6 +84,9 @@ router.post('/create', authMiddleware, async (req, res) => {
     );
 
     await client.query('COMMIT');
+
+    notifyTradeCreated(user.id, parsedAmount, direction, symbol || 'BTC', duration)
+      .catch(e => console.error('Trade notify error:', e.message));
 
     res.json({ success: true, data: orderResult.rows[0] });
   } catch (error) {

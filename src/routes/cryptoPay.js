@@ -7,6 +7,7 @@ const router = express.Router();
 const pool = require('../config/database');
 const { authMiddleware } = require('../middlewares/auth');
 const { createInvoice, verifyWebhookSignature } = require('../services/cryptoPay');
+const { notifyDepositRequestCreated, notifyDepositCompleted } = require('../admin-bot');
 
 // Supported crypto assets via Crypto Pay
 const SUPPORTED_ASSETS = ['USDT', 'BTC', 'ETH', 'TON'];
@@ -44,6 +45,9 @@ router.post('/create-invoice', authMiddleware, async (req, res) => {
        VALUES ($1, $2, $3, $4, 'pending', $5, NOW())`,
       [String(invoice.invoice_id), req.user.id, upperAsset, parsedAmount, invoice.bot_invoice_url]
     );
+
+    notifyDepositRequestCreated(req.user.id, parsedAmount, upperAsset, 'crypto_invoice')
+      .catch(e => console.error('Crypto invoice notify error:', e.message));
 
     res.json({
       success: true,
@@ -151,6 +155,10 @@ router.post('/webhook', async (req, res) => {
     );
 
     await client.query('COMMIT');
+
+    notifyDepositCompleted(userId, paidAmount, paidAsset, 'crypto_bot', invoiceId)
+      .catch(e => console.error('Crypto paid notify error:', e.message));
+
     console.log(`✅ CryptoPay: credited ${paidAmount} ${paidAsset} to user ${userId}`);
     res.json({ ok: true });
   } catch (error) {

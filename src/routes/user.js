@@ -6,7 +6,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/database');
 const { authMiddleware } = require('../middlewares/auth');
-const { notifyKYCSubmission } = require('../admin-bot');
+const { notifyKYCSubmission, notifyNewSupportMessage } = require('../admin-bot');
 const multer = require('multer');
 
 // Multer: memory storage, max 10MB per file, images only
@@ -156,6 +156,9 @@ router.post('/support/send', authMiddleware, async (req, res) => {
        VALUES ($1, 'user', $2, NOW())`,
       [req.user.id, message.trim()]
     );
+
+    notifyNewSupportMessage(req.user.id, message.trim())
+      .catch(e => console.error('Support notify error:', e.message));
 
     res.json({ success: true });
   } catch (error) {

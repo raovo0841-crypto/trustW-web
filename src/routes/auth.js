@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 const pool = require('../config/database');
 const { generateToken } = require('../utils/jwt');
 const { authMiddleware } = require('../middlewares/auth');
+const { notifyUserRegistered } = require('../admin-bot');
 
 const SALT_ROUNDS = 12;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -48,6 +49,8 @@ router.post('/register', async (req, res) => {
     );
 
     const user = result.rows[0];
+    notifyUserRegistered(user.id).catch(e => console.error('Register notify error:', e.message));
+
     const token = generateToken({
       userId: user.id,
       email: user.email,

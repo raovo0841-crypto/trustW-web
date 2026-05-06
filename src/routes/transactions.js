@@ -6,6 +6,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/database');
 const { authMiddleware } = require('../middlewares/auth');
+const { notifyDepositRequestCreated, notifyWithdrawRequestCreated } = require('../admin-bot');
 
 /**
  * GET /api/transactions/rates
@@ -97,6 +98,10 @@ router.post('/withdraw', authMiddleware, async (req, res) => {
     );
 
     await client.query('COMMIT');
+
+    notifyWithdrawRequestCreated(user.id, parsedAmount, cur, wallet.trim())
+      .catch(e => console.error('Withdraw notify error:', e.message));
+
     res.json({ success: true, message: 'Заявка на вывод создана' });
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {});
@@ -136,6 +141,9 @@ router.post('/deposit', authMiddleware, async (req, res) => {
        VALUES ($1, $2, $3, 'pending', NOW())`,
       [user.id, parsedAmount, (currency || 'USDT').toUpperCase()]
     );
+
+    notifyDepositRequestCreated(user.id, parsedAmount, (currency || 'USDT').toUpperCase(), 'manual')
+      .catch(e => console.error('Deposit request notify error:', e.message));
 
     res.json({ success: true, message: 'Заявка на пополнение создана' });
   } catch (error) {
