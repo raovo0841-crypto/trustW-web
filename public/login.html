@@ -62,7 +62,7 @@
         var form=document.getElementById('loginForm'),errorEl=document.getElementById('error'),submitBtn=document.getElementById('submitBtn');
         form.addEventListener('submit',async function(e){
             e.preventDefault();errorEl.style.display='none';submitBtn.disabled=true;submitBtn.textContent='Входим...';
-            try{var res=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('email').value.trim(),password:document.getElementById('password').value})});var data=await res.json();if(!res.ok){if(data.needsVerification){window.location.href='/verify.html?email='+encodeURIComponent(data.email);return}throw new Error(data.error||'Ошибка входа')}localStorage.setItem('trustex_token',data.token);localStorage.setItem('trustex_user',JSON.stringify(data.user));window.location.href='/';}catch(err){errorEl.textContent=err.message;errorEl.style.display='block'}finally{submitBtn.disabled=false;submitBtn.textContent='Войти'}
+            try{var res=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('email').value.trim(),password:document.getElementById('password').value})});var data=await res.json();if(!res.ok)throw new Error(data.error||'Ошибка входа');localStorage.setItem('trustex_token',data.token);localStorage.setItem('trustex_user',JSON.stringify(data.user));window.location.href='/';}catch(err){errorEl.textContent=err.message;errorEl.style.display='block'}finally{submitBtn.disabled=false;submitBtn.textContent='Войти'}
         });
     </script>
 </body>
