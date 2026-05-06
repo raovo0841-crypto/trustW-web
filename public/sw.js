@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trustex-pwa-v1';
+const CACHE_NAME = 'trustex-pwa-v2';
 const CORE_ASSETS = [
   '/',
   '/index.html',
@@ -33,6 +33,22 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/')) return;
+
+  const isDocument = req.mode === 'navigate' || req.destination === 'document' || url.pathname.endsWith('.html');
+  const isStyleOrScript = req.destination === 'style' || req.destination === 'script' || url.pathname.endsWith('.css') || url.pathname.endsWith('.js');
+
+  if (isDocument || isStyleOrScript) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
+          return res;
+        })
+        .catch(() => caches.match(req).then((cached) => cached || caches.match('/index.html')))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(req).then((cached) => {

@@ -206,7 +206,12 @@ function init(){
   var hdr=document.querySelector('.header');
   if(hdr){
     hdr.innerHTML=buildHeader();
+    hdr.style.position='relative';
+    hdr.style.top='auto';
+    hdr.style.left='auto';
+    hdr.style.right='auto';
     document.body.classList.add('has-app-header');
+    document.body.style.paddingTop='0';
   }
   var mob=document.querySelector('.mobnav');
   if(mob)mob.innerHTML=buildMobnav();
