@@ -28,7 +28,7 @@ if (!document.querySelector('meta[name="apple-mobile-web-app-capable"]')) {
 if (!document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')) {
   var appleStatusMeta = document.createElement('meta');
   appleStatusMeta.name = 'apple-mobile-web-app-status-bar-style';
-  appleStatusMeta.content = 'black-translucent';
+  appleStatusMeta.content = 'default';
   document.head.appendChild(appleStatusMeta);
 }
 
