@@ -5,8 +5,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 a{color:inherit;text-decoration:none}
 button{font-family:inherit}
 
-.header{background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.header{background:var(--card);border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;z-index:1300}
 .header-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;padding:0 20px;height:56px}
+.has-app-header{padding-top:56px}
 .back-btn{background:none;border:1px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:12px;transition:all .15s;flex-shrink:0}
 .back-btn:hover{color:var(--yellow);border-color:var(--yellow);background:rgba(240,185,11,.08)}
 .logo{display:flex;align-items:center;gap:8px;margin-right:32px;text-decoration:none}
@@ -20,7 +21,7 @@ button{font-family:inherit}
 .hdr-out{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:4px;font-size:13px;cursor:pointer;font-family:inherit}
 .hdr-out:hover{color:var(--text);border-color:var(--text3)}
 
-.mobnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px);justify-content:space-around;align-items:center}
+.mobnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);z-index:1100;padding-top:6px;padding-bottom:calc(env(safe-area-inset-bottom) + 6px);justify-content:space-around;align-items:center}
 .mobnav a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--text3);text-decoration:none;padding:4px 6px;transition:color .15s}
 .mobnav a svg{width:22px;height:22px;fill:currentColor}.mobnav a.act{color:var(--yellow)}
 
@@ -93,5 +94,5 @@ button{font-family:inherit}
 .install-close:hover{color:#eaecef;border-color:#5e6673}
 
 @media(max-width:768px){
-    .install-banner{bottom:76px}
+    .install-banner{bottom:calc(env(safe-area-inset-bottom) + 74px)}
 }

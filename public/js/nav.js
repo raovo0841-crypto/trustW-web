@@ -1,7 +1,7 @@
 (function(){
 var viewportMeta = document.querySelector('meta[name="viewport"]');
 if (viewportMeta) {
-  viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+  viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
 }
 
 if (!document.querySelector('link[rel="manifest"]')) {
@@ -204,7 +204,10 @@ function buildFooter(){
 }
 function init(){
   var hdr=document.querySelector('.header');
-  if(hdr)hdr.innerHTML=buildHeader();
+  if(hdr){
+    hdr.innerHTML=buildHeader();
+    document.body.classList.add('has-app-header');
+  }
   var mob=document.querySelector('.mobnav');
   if(mob)mob.innerHTML=buildMobnav();
   if(!document.querySelector('.site-footer')){
