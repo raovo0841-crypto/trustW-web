@@ -3,6 +3,136 @@ var viewportMeta = document.querySelector('meta[name="viewport"]');
 if (viewportMeta) {
   viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
 }
+
+if (!document.querySelector('link[rel="manifest"]')) {
+  var manifestLink = document.createElement('link');
+  manifestLink.rel = 'manifest';
+  manifestLink.href = '/manifest.webmanifest';
+  document.head.appendChild(manifestLink);
+}
+
+if (!document.querySelector('meta[name="theme-color"]')) {
+  var themeMeta = document.createElement('meta');
+  themeMeta.name = 'theme-color';
+  themeMeta.content = '#0b0e11';
+  document.head.appendChild(themeMeta);
+}
+
+if (!document.querySelector('meta[name="apple-mobile-web-app-capable"]')) {
+  var appleCapableMeta = document.createElement('meta');
+  appleCapableMeta.name = 'apple-mobile-web-app-capable';
+  appleCapableMeta.content = 'yes';
+  document.head.appendChild(appleCapableMeta);
+}
+
+if (!document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')) {
+  var appleStatusMeta = document.createElement('meta');
+  appleStatusMeta.name = 'apple-mobile-web-app-status-bar-style';
+  appleStatusMeta.content = 'black-translucent';
+  document.head.appendChild(appleStatusMeta);
+}
+
+if (!document.querySelector('link[rel="apple-touch-icon"]')) {
+  var appleIcon = document.createElement('link');
+  appleIcon.rel = 'apple-touch-icon';
+  appleIcon.href = '/icons/app-icon.svg';
+  document.head.appendChild(appleIcon);
+}
+
+var INSTALL_DISMISS_KEY = 'trustex_install_dismissed';
+var deferredInstallPrompt = null;
+var installBanner = null;
+
+function isStandaloneMode() {
+  var iosStandalone = window.navigator.standalone === true;
+  var mediaStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+  return iosStandalone || mediaStandalone;
+}
+
+function isIOS() {
+  return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+}
+
+function createInstallBanner() {
+  if (installBanner) return installBanner;
+
+  installBanner = document.createElement('div');
+  installBanner.className = 'install-banner';
+  installBanner.innerHTML =
+    '<div class="install-banner-text">Установите TrustEx как приложение</div>' +
+    '<div class="install-banner-actions">' +
+      '<button type="button" class="install-btn" id="installAppBtn">Установить</button>' +
+      '<button type="button" class="install-close" id="installCloseBtn">Позже</button>' +
+    '</div>';
+
+  document.body.appendChild(installBanner);
+
+  var closeBtn = document.getElementById('installCloseBtn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      localStorage.setItem(INSTALL_DISMISS_KEY, '1');
+      hideInstallBanner();
+    });
+  }
+
+  var installBtn = document.getElementById('installAppBtn');
+  if (installBtn) {
+    installBtn.addEventListener('click', async function() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        try {
+          await deferredInstallPrompt.userChoice;
+        } catch(e) {}
+        deferredInstallPrompt = null;
+        hideInstallBanner();
+        return;
+      }
+
+      if (isIOS()) {
+        alert('Чтобы установить приложение на iPhone: нажмите Поделиться в Safari и выберите На экран Домой.');
+      } else {
+        alert('Установка доступна в браузерах с поддержкой PWA. Откройте меню браузера и выберите Установить приложение.');
+      }
+    });
+  }
+
+  return installBanner;
+}
+
+function showInstallBanner() {
+  if (isStandaloneMode()) return;
+  if (localStorage.getItem(INSTALL_DISMISS_KEY) === '1') return;
+  var b = createInstallBanner();
+  b.classList.add('show');
+}
+
+function hideInstallBanner() {
+  if (installBanner) installBanner.classList.remove('show');
+}
+
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  showInstallBanner();
+});
+
+window.addEventListener('appinstalled', function() {
+  hideInstallBanner();
+  localStorage.setItem(INSTALL_DISMISS_KEY, '1');
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function() {});
+  });
+}
+
+window.addEventListener('load', function() {
+  if (isIOS() && !isStandaloneMode() && localStorage.getItem(INSTALL_DISMISS_KEY) !== '1') {
+    showInstallBanner();
+  }
+});
+
 var pages=[
   {href:'/',label:'Обзор',paths:['/','/index.html','index.html']},
   {href:'trading.html',label:'Торговля'},

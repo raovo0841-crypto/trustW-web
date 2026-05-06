@@ -1,0 +1,24 @@
+{
+  "name": "TrustEx",
+  "short_name": "TrustEx",
+  "description": "TrustEx crypto exchange web app",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0e11",
+  "theme_color": "#0b0e11",
+  "icons": [
+    {
+      "src": "/icons/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
