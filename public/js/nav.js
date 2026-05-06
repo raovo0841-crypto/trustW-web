@@ -1,4 +1,8 @@
 (function(){
+var viewportMeta = document.querySelector('meta[name="viewport"]');
+if (viewportMeta) {
+  viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+}
 var pages=[
   {href:'/',label:'Обзор',paths:['/','/index.html','index.html']},
   {href:'trading.html',label:'Торговля'},

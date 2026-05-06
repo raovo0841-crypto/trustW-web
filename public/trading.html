@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TrustEx — Торговля</title>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -147,16 +147,9 @@
         .msg-icon{font-size:40px;margin-bottom:12px}.msg-title{font-size:16px;font-weight:700;margin-bottom:8px}.msg-text{font-size:13px;color:var(--text2);margin-bottom:16px}
         .msg-btn{width:100%;padding:11px;border-radius:4px;border:none;background:var(--yellow);color:#000;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
 
-        /* MOBILE ORDER TOGGLE */
-        .mob-order-toggle{display:none;position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:998;background:var(--yellow);color:#000;border:none;padding:10px 28px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(240,185,11,.3)}
-        .mob-order-panel{display:none;position:fixed;bottom:0;left:0;right:0;z-index:1000;background:var(--card);border-top:1px solid var(--border);border-radius:12px 12px 0 0;padding:16px;max-height:70vh;overflow-y:auto;transform:translateY(100%);transition:transform .25s}
-        .mob-order-panel.show{transform:translateY(0)}
-        .mob-order-close{display:flex;justify-content:center;margin-bottom:10px;cursor:pointer;color:var(--text3)}.mob-order-close div{width:40px;height:4px;background:var(--text3);border-radius:2px}
-
         /* RESPONSIVE */
         @media(min-width:768px){
             .t-right{display:flex}
-            .mob-order-toggle,.mob-order-panel{display:none!important}
             .chart-frame{height:calc(100vh - 56px - 48px - 62px)}
         }
         @media(min-width:1200px){
@@ -170,13 +163,12 @@
             .t-main{flex-direction:column}
             .t-left{min-height:auto}
             .chart-frame{height:360px}
+            .t-right{display:flex!important;width:100%;border-left:none;border-top:1px solid var(--border)}
+            .stats-section,.hist-section{display:none}
             .pair-bar{padding:0 12px}
             .ch-info{padding:8px 12px;gap:12px}
             .ch-pair{font-size:16px}.ch-price{font-size:18px}
             .ch-stats{display:none}
-            .mob-order-toggle{display:block}
-            .mob-order-panel{display:block}
-            .t-right{display:none!important}
         }
     </style>
 </head>
@@ -282,13 +274,6 @@
     </div>
 </div>
 
-<!-- MOBILE ORDER BUTTON + PANEL -->
-<button class="mob-order-toggle" id="mobOrderBtn" onclick="toggleMobOrder()">Открыть сделку</button>
-<div class="mob-order-panel" id="mobOrderPanel">
-    <div class="mob-order-close" onclick="toggleMobOrder()"><div></div></div>
-    <div id="mobOrderContent"></div>
-</div>
-
 <!-- Result overlay -->
 <div class="msg-overlay" id="resultOverlay">
     <div class="msg-box">
@@ -357,48 +342,6 @@ function renderPairBar() {
 
 /* ── Hidden pairs search (for keeping compatibility) ── */
 var pairsSearch = null;
-
-/* ── Mobile order panel ── */
-function toggleMobOrder() {
-    var panel = document.getElementById('mobOrderPanel');
-    var isOpen = panel.classList.contains('show');
-    if (isOpen) { panel.classList.remove('show'); return; }
-    // Clone order + active trade into mobile panel
-    var src = document.querySelector('.t-right');
-    var mc = document.getElementById('mobOrderContent');
-    mc.innerHTML = '';
-    var at = document.getElementById('activeTrade');
-    if (at.classList.contains('show')) {
-        mc.innerHTML += at.outerHTML.replace('id="activeTrade"','id="mobActiveTrade"');
-    }
-    mc.innerHTML += document.querySelector('.order-section').outerHTML;
-    // Rebind mobile events
-    mc.querySelectorAll('.quick-amt').forEach(function(b) {
-        b.addEventListener('click', function() {
-            var mainInput = document.getElementById('tradeAmount');
-            if (b.dataset.amt === 'all') {
-                mainInput.value = parseFloat(document.getElementById('tradeBalance').textContent.replace(/,/g,'')) || 0;
-            } else { mainInput.value = b.dataset.amt; }
-        });
-    });
-    mc.querySelectorAll('.dur-btn').forEach(function(b) {
-        b.addEventListener('click', function() {
-            mc.querySelectorAll('.dur-btn').forEach(function(x){x.classList.remove('active');});
-            b.classList.add('active'); 
-            selectedDuration = parseInt(b.dataset.dur);
-            // Sync main panel
-            document.querySelectorAll('#durationBtns .dur-btn').forEach(function(x){x.classList.remove('active');});
-            var mainBtn = document.querySelector('#durationBtns .dur-btn[data-dur="'+b.dataset.dur+'"]');
-            if(mainBtn) mainBtn.classList.add('active');
-            loadChart(selectedSymbol);  // Reload chart when duration changes
-        });
-    });
-    var upBtn = mc.querySelector('.dir-btn.up');
-    var downBtn = mc.querySelector('.dir-btn.down');
-    if(upBtn) upBtn.addEventListener('click', function(){ openTrade('up'); panel.classList.remove('show'); });
-    if(downBtn) downBtn.addEventListener('click', function(){ openTrade('down'); panel.classList.remove('show'); });
-    panel.classList.add('show');
-}
 
 function getPairFromQuery() {
     var q = new URLSearchParams(window.location.search);
