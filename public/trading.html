@@ -14,6 +14,25 @@
     <style>
         body{overflow-x:hidden}
 
+        /* PAIR SELECT PAGE */
+        .pair-select-page{max-width:1200px;margin:0 auto;padding:20px 20px 90px}
+        .ps-head{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+        .ps-title{font-size:28px;font-weight:700;line-height:1.15}
+        .ps-sub{font-size:13px;color:var(--text2);margin-top:6px}
+        .ps-search{width:280px;max-width:100%;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-size:14px;font-family:inherit}
+        .ps-search:focus{outline:none;border-color:var(--yellow)}
+        .ps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+        .ps-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px;cursor:pointer;transition:all .12s}
+        .ps-card:hover{border-color:var(--yellow);transform:translateY(-1px)}
+        .ps-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+        .ps-coin{display:flex;align-items:center;gap:8px;min-width:0}
+        .ps-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+        .ps-sym{font-size:14px;font-weight:700;white-space:nowrap}
+        .ps-name{font-size:11px;color:var(--text3)}
+        .ps-price{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+        .ps-open{font-size:11px;color:var(--yellow);font-weight:600}
+        .ps-empty{padding:16px;color:var(--text3);text-align:center;background:var(--card);border:1px dashed var(--border);border-radius:6px}
+
         /* LAYOUT */
         .t-wrap{display:flex;flex-direction:column;height:calc(100vh - 56px)}
 
@@ -36,6 +55,8 @@
         .ch-change.down{color:var(--red);background:rgba(246,70,93,.1)}
         .ch-stats{display:flex;gap:20px;margin-left:auto;font-size:12px;color:var(--text3)}
         .ch-stat-v{color:var(--text);font-weight:600;margin-left:4px}
+        .change-pair-btn{margin-left:auto;background:var(--bg);border:1px solid var(--border);color:var(--text2);padding:7px 10px;border-radius:4px;font-size:12px;cursor:pointer;font-family:inherit;display:none}
+        .change-pair-btn:hover{border-color:var(--yellow);color:var(--yellow)}
 
         /* CHART FRAME */
         .chart-frame{width:100%;border:none;display:block;background:var(--bg)}
@@ -142,6 +163,9 @@
             .t-right{width:360px}
         }
         @media(max-width:768px){
+            .pair-select-page{padding:16px 12px 100px}
+            .ps-title{font-size:23px}
+            .ps-grid{grid-template-columns:1fr}
             .t-wrap{height:auto;min-height:calc(100vh - 56px)}
             .t-main{flex-direction:column}
             .t-left{min-height:auto}
@@ -160,7 +184,18 @@
 
 <header class="header"></header>
 
-<div class="t-wrap">
+<div class="pair-select-page" id="pairSelectPage" style="display:none">
+    <div class="ps-head">
+        <div>
+            <div class="ps-title">Выберите торговую пару</div>
+            <div class="ps-sub">После выбора откроется график пары и форма открытия сделки.</div>
+        </div>
+        <input class="ps-search" id="pairSearchInput" placeholder="Поиск: BTC, ETH, TON...">
+    </div>
+    <div class="ps-grid" id="pairSelectGrid"></div>
+</div>
+
+<div class="t-wrap" id="tradeTerminal" style="display:none">
     <!-- PAIR BAR (horizontal strip, scrollable) -->
     <div class="pair-bar" id="pairBar"></div>
 
@@ -169,6 +204,7 @@
         <span class="ch-pair" id="chartPairName">BTC/USDT</span>
         <span class="ch-price" id="chartPrice">$0.00</span>
         <span class="ch-change up" id="chartChange">+0.00%</span>
+        <button class="change-pair-btn" id="changePairBtn" onclick="goToPairSelection()">Сменить пару</button>
         <div class="ch-stats">
             <span>24h High<span class="ch-stat-v" id="stat24hHigh">—</span></span>
             <span>24h Low<span class="ch-stat-v" id="stat24hLow">—</span></span>
@@ -364,7 +400,59 @@ function toggleMobOrder() {
     panel.classList.add('show');
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+function getPairFromQuery() {
+    var q = new URLSearchParams(window.location.search);
+    var pair = (q.get('pair') || '').toUpperCase().trim();
+    if (!pair) return null;
+    return PAIRS.some(function(p){ return p.sym === pair; }) ? pair : null;
+}
+
+function goToPairSelection() {
+    window.location.href = 'trading.html';
+}
+
+function openPairTerminal(sym) {
+    window.location.href = 'trading.html?pair=' + encodeURIComponent(sym);
+}
+
+function renderPairSelection(query) {
+    var q = (query || '').toLowerCase().trim();
+    var rows = PAIRS.filter(function(p){
+        return !q || p.sym.toLowerCase().indexOf(q) !== -1 || p.name.toLowerCase().indexOf(q) !== -1;
+    });
+    var c = document.getElementById('pairSelectGrid');
+    if (!rows.length) {
+        c.innerHTML = '<div class="ps-empty">Пары не найдены</div>';
+        return;
+    }
+    c.innerHTML = rows.map(function(p){
+        var pr = prices[p.sym] || {};
+        return '<div class="ps-card" data-sym="'+p.sym+'">' +
+            '<div class="ps-row"><div class="ps-coin"><div class="ps-icon" style="background:'+p.color+'">'+p.sym.substring(0,2)+'</div><div><div class="ps-sym">'+p.sym+'/USDT</div><div class="ps-name">'+p.name+'</div></div></div><div class="ps-price">'+(pr.price ? '$'+fmtPrice(pr.price) : '—')+'</div></div>'+
+            '<div class="ps-open">Открыть график и торговлю →</div>' +
+        '</div>';
+    }).join('');
+    c.querySelectorAll('.ps-card').forEach(function(el){
+        el.addEventListener('click', function(){ openPairTerminal(el.dataset.sym); });
+    });
+}
+
+async function initPairSelectionPage() {
+    document.getElementById('pairSelectPage').style.display = '';
+    renderPairSelection('');
+    try {
+        await fetchAllPrices();
+    } catch(e) {}
+    renderPairSelection('');
+    var inp = document.getElementById('pairSearchInput');
+    if (inp) inp.addEventListener('input', function(){ renderPairSelection(inp.value); });
+}
+
+async function initTradeTerminal() {
+    document.getElementById('tradeTerminal').style.display = '';
+    var cp = document.getElementById('changePairBtn');
+    if (cp) cp.style.display = '';
+
     if (!Auth.requireAuth()) return;
     var user = Auth.getUser();
     if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
@@ -405,6 +493,17 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btnUp').addEventListener('click', function() { openTrade('up'); });
     document.getElementById('btnDown').addEventListener('click', function() { openTrade('down'); });
     document.getElementById('btnCloseTrade').addEventListener('click', closeTrade);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!Auth.requireAuth()) return;
+    var pair = getPairFromQuery();
+    if (!pair) {
+        initPairSelectionPage();
+        return;
+    }
+    selectedSymbol = pair;
+    initTradeTerminal();
 });
 
 function selectPair(sym) {
