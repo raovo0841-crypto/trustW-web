@@ -87,6 +87,11 @@
     <div class="panel">
         <div class="panel-title">Пополнение счёта</div>
 
+        <div class="method-tabs" style="margin-bottom:14px">
+            <button class="method-tab act" id="tabManual" type="button" onclick="switchMethod('manual')">Стандартное</button>
+            <button class="method-tab" id="tabCrypto" type="button" onclick="switchMethod('crypto')">Через Crypto Bot</button>
+        </div>
+
 
 
         <!-- Manual deposit form -->
@@ -128,6 +133,33 @@
 
             <button class="submit-btn" id="submitBtn" onclick="submitDeposit()">Пополнить</button>
             <a href="p2p.html" class="invoice-link" style="margin-top:10px;background:#1f5f7a">Купить USDT через P2P (@cryptobot)</a>
+        </div>
+
+        <div id="cryptoForm" style="display:none">
+            <div class="form-group">
+                <label class="form-label">Валюта</label>
+                <select class="form-select" id="cryptoCurrency">
+                    <option value="USDT">USDT</option>
+                    <option value="BTC">BTC</option>
+                    <option value="ETH">ETH</option>
+                    <option value="TON">TON</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Сумма</label>
+                <input type="number" class="form-input" id="cryptoAmount" placeholder="Введите сумму" min="1" step="any">
+            </div>
+
+            <div class="quick-amounts">
+                <button class="qa-btn" onclick="setCryptoAmount(25)">25</button>
+                <button class="qa-btn" onclick="setCryptoAmount(50)">50</button>
+                <button class="qa-btn" onclick="setCryptoAmount(100)">100</button>
+                <button class="qa-btn" onclick="setCryptoAmount(250)">250</button>
+                <button class="qa-btn" onclick="setCryptoAmount(500)">500</button>
+            </div>
+
+            <button class="submit-btn crypto-btn" id="cryptoPayBtn" onclick="submitCryptoDeposit()">Пополнить через Crypto Bot</button>
         </div>
 
 
@@ -181,10 +213,25 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!Auth.requireAuth()) return;
     var user = Auth.getUser();
     if (user && user.email) { var el = document.getElementById('navUserEmail'); if (el) el.textContent = user.email; }
+    switchMethod('manual');
     loadInfo();
     loadHistory();
     updateNetwork();
 });
+
+function switchMethod(mode) {
+    var isCrypto = mode === 'crypto';
+    document.getElementById('manualForm').style.display = isCrypto ? 'none' : '';
+    document.getElementById('cryptoForm').style.display = isCrypto ? '' : 'none';
+    document.getElementById('tabManual').classList.toggle('act', !isCrypto);
+    document.getElementById('tabCrypto').classList.toggle('act', isCrypto);
+    var notice = document.getElementById('noticeManual');
+    if (notice) {
+        notice.querySelector('span').textContent = isCrypto
+            ? 'После нажатия «Пополнить через Crypto Bot» откроется Telegram для оплаты.'
+            : 'Средства зачисляются после подтверждений. Обычно это занимает до 30 минут.';
+    }
+}
 
 async function loadInfo() {
     try {
@@ -229,6 +276,7 @@ function updateWallet() {
 }
 
 function setAmount(v) { document.getElementById('amount').value = v; }
+function setCryptoAmount(v) { document.getElementById('cryptoAmount').value = v; }
 
 function copyAddr() {
     var t = document.getElementById('walletAddr').textContent;
@@ -254,6 +302,34 @@ async function submitDeposit() {
         loadHistory(); loadInfo();
     } catch(e) { alert('Ошибка сети'); }
     finally { btn.disabled = false; btn.textContent = 'Пополнить'; }
+}
+
+async function submitCryptoDeposit() {
+    var amount = parseFloat(document.getElementById('cryptoAmount').value);
+    var asset = document.getElementById('cryptoCurrency').value;
+    if (!amount || amount <= 0) return alert('Введите сумму');
+
+    var btn = document.getElementById('cryptoPayBtn');
+    btn.disabled = true;
+    btn.textContent = 'Переход...';
+    try {
+        var res = await Auth.apiFetch('/api/crypto-pay/create-invoice', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ amount: amount, asset: asset })
+        });
+        var d = await res.json();
+        if (!res.ok || !d.invoice_url) {
+            alert(d.error || 'Ошибка');
+            return;
+        }
+        window.location.href = d.invoice_url;
+    } catch(e) {
+        alert('Ошибка сети');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Пополнить через Crypto Bot';
+    }
 }
 
 async function loadHistory() {

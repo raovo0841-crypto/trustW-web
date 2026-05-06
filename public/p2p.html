@@ -22,15 +22,6 @@
 .info-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:12px}
 .info-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px}
 .info-text{font-size:13px;color:var(--text2);line-height:1.7}
-.pay-box{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:12px}
-.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.field{margin-bottom:10px}
-.label{display:block;font-size:12px;color:var(--text3);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.3px}
-.select,.input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:12px 14px;color:var(--text);font-size:14px;font-family:inherit}
-.select:focus,.input:focus{outline:none;border-color:var(--yellow)}
-.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.qbtn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:7px 12px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
-.qbtn:hover{border-color:var(--text3);color:var(--text)}
 .steps{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .step{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px}
 .step-num{width:22px;height:22px;border-radius:50%;background:rgba(240,185,11,.14);color:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-bottom:8px}
@@ -39,9 +30,6 @@
 .cta-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;background:#0088cc;color:#fff;border:none;border-radius:4px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;text-decoration:none}
 .cta-btn:hover{opacity:.9}
 .cta-note{font-size:12px;color:var(--text3);margin-top:10px;text-align:center;line-height:1.5}
-.msg{display:none;margin-top:10px;padding:10px 12px;border-radius:4px;font-size:12px;line-height:1.5}
-.msg.ok{display:block;background:rgba(14,203,129,.12);border:1px solid rgba(14,203,129,.35);color:#7ce4b5}
-.msg.err{display:block;background:rgba(246,70,93,.12);border:1px solid rgba(246,70,93,.35);color:#ff9cab}
 .info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
 .info-row:last-child{border-bottom:none}
 .info-label{color:var(--text3)}
@@ -49,7 +37,7 @@
 .warn{display:flex;gap:8px;align-items:flex-start;background:rgba(240,185,11,.08);border:1px solid rgba(240,185,11,.25);border-radius:4px;padding:12px;font-size:12px;color:var(--yellow);line-height:1.6}
 .warn svg{width:16px;height:16px;fill:var(--yellow);margin-top:2px;flex-shrink:0}
 @media(max-width:960px){.p2p-grid{grid-template-columns:1fr}}
-@media(max-width:768px){.content{padding:16px 12px 100px}.steps,.pay-grid{grid-template-columns:1fr}.hero-title{font-size:21px}}
+@media(max-width:768px){.content{padding:16px 12px 100px}.steps{grid-template-columns:1fr}.hero-title{font-size:21px}}
 </style>
 </head>
 <body>
@@ -66,58 +54,29 @@
   <div class="p2p-grid">
     <div>
       <div class="panel">
-        <div class="panel-title">Прямая оплата через Crypto Bot API</div>
-
-        <div class="pay-box">
-          <div class="pay-grid">
-            <div class="field">
-              <label class="label">Валюта оплаты</label>
-              <select id="asset" class="select">
-                <option value="USDT">USDT</option>
-                <option value="BTC">BTC</option>
-                <option value="ETH">ETH</option>
-                <option value="TON">TON</option>
-              </select>
-            </div>
-            <div class="field">
-              <label class="label">Сумма</label>
-              <input id="amount" class="input" type="number" min="1" step="any" placeholder="Например 50">
-            </div>
-          </div>
-          <div class="quick">
-            <button type="button" class="qbtn" onclick="setAmount(25)">25</button>
-            <button type="button" class="qbtn" onclick="setAmount(50)">50</button>
-            <button type="button" class="qbtn" onclick="setAmount(100)">100</button>
-            <button type="button" class="qbtn" onclick="setAmount(250)">250</button>
-          </div>
-          <div class="cta">
-            <button id="payBtn" class="cta-btn" type="button" onclick="createInvoice()">Создать счёт в @cryptobot</button>
-            <div class="cta-note">После создания счёта откроется Telegram с готовой оплатой.</div>
-            <div id="msg" class="msg"></div>
-          </div>
-        </div>
+        <div class="panel-title">Информация о P2P</div>
 
         <div class="info-card">
           <div class="info-title">Почему через @cryptobot</div>
-          <div class="info-text">Оплата проходит через защищённый счёт Crypto Bot. После оплаты webhook автоматически зачисляет средства на ваш баланс TrustEx.</div>
+          <div class="info-text">P2P-обмен проходит через нашего партнёра @cryptobot в Telegram. Это отдельный канал покупки криптовалюты с удобной оплатой и проверкой контрагента.</div>
         </div>
 
         <div class="steps">
           <div class="step">
             <div class="step-num">1</div>
-            <div class="step-text">Выберите валюту и сумму.</div>
+            <div class="step-text">Нажмите кнопку перехода в @cryptobot.</div>
           </div>
           <div class="step">
             <div class="step-num">2</div>
-            <div class="step-text">Нажмите «Создать счёт в @cryptobot».</div>
+            <div class="step-text">Выберите подходящую P2P-сделку.</div>
           </div>
           <div class="step">
             <div class="step-num">3</div>
-            <div class="step-text">Оплатите счёт в Telegram.</div>
+            <div class="step-text">Оплатите сделку по инструкции в Telegram.</div>
           </div>
           <div class="step">
             <div class="step-num">4</div>
-            <div class="step-text">После подтверждения баланс зачислится автоматически.</div>
+            <div class="step-text">После покупки перейдите в раздел «Депозит» для пополнения TrustEx.</div>
           </div>
         </div>
 
@@ -147,47 +106,6 @@
 </div>
 
 <script>
-function setAmount(v) {
-  document.getElementById('amount').value = v;
-}
-
-function showMsg(type, text) {
-  var el = document.getElementById('msg');
-  el.className = 'msg ' + type;
-  el.textContent = text;
-}
-
-async function createInvoice() {
-  var amount = parseFloat(document.getElementById('amount').value);
-  var asset = document.getElementById('asset').value;
-  if (!Number.isFinite(amount) || amount <= 0) {
-    showMsg('err', 'Введите корректную сумму');
-    return;
-  }
-
-  var btn = document.getElementById('payBtn');
-  btn.disabled = true;
-  btn.textContent = 'Создаём счёт...';
-  try {
-    var res = await Auth.apiFetch('/api/crypto-pay/create-invoice', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ asset: asset, amount: amount })
-    });
-    var data = await res.json();
-    if (!res.ok || !data.invoice_url) {
-      throw new Error((data && data.error) || 'Не удалось создать счёт');
-    }
-    showMsg('ok', 'Счёт создан. Открываем Telegram...');
-    window.open(data.invoice_url, '_blank', 'noopener');
-  } catch (e) {
-    showMsg('err', e.message || 'Ошибка сети');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Создать счёт в @cryptobot';
-  }
-}
-
 document.addEventListener('DOMContentLoaded', function() {
   if (!Auth.requireAuth()) return;
   var user = Auth.getUser();
