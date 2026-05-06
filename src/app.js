@@ -17,6 +17,7 @@ const reviewsRoutes = require('./routes/reviews');
 const securityRoutes = require('./routes/security');
 const adminRoutes = require('./routes/admin');
 const newsRoutes = require('./routes/news');
+const cryptoPayRoutes = require('./routes/cryptoPay');
 
 const app = express();
 
@@ -32,7 +33,9 @@ app.use(cors({
 // JSON parser
 app.use(express.json({
   verify: (req, res, buf) => {
-    // Raw body preservation if needed in future
+    if (req.originalUrl && req.originalUrl.startsWith('/api/crypto-pay/webhook')) {
+      req.rawBody = buf.toString('utf8');
+    }
   }
 }));
 
@@ -66,6 +69,7 @@ app.use('/api/reviews', reviewsRoutes);
 app.use('/api/security', securityRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/crypto-pay', cryptoPayRoutes);
 
 // SPA catch-all — serve index.html for non-API routes
 app.get('/{*splat}', (req, res) => {
